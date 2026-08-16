@@ -2,10 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-  Suspense,
-  useMemo,
-} from "react";
+import { Suspense } from "react";
 import { Logo } from "@/components/logo";
 
 type PaymentStatus =
@@ -44,10 +41,8 @@ function PaymentResultContent() {
     searchParams.get("transaction") ??
     "TC-DEMO-20260810";
 
-  const paymentDate = useMemo(
-    () => "10 August 2026",
-    [],
-  );
+  const activeDashboardHref =
+    `/dashboard/student?state=active&classes=${classes}&amount=${amount}`;
 
   const retryParams =
     new URLSearchParams({
@@ -66,6 +61,7 @@ function PaymentResultContent() {
         id="main-content"
         className="relative min-h-screen overflow-hidden bg-[#faf9ff]"
       >
+        {/* Background */}
         <div
           aria-hidden="true"
           className="absolute -left-32 top-16 h-96 w-96 rounded-full bg-blue-200/20 blur-3xl"
@@ -76,6 +72,7 @@ function PaymentResultContent() {
           className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-teal-200/25 blur-3xl"
         />
 
+        {/* Header */}
         <header className="relative z-10 border-b border-slate-200/70 bg-white/75 backdrop-blur-xl">
           <div className="container-shell flex h-[72px] items-center justify-between">
             <Logo />
@@ -86,6 +83,7 @@ function PaymentResultContent() {
           </div>
         </header>
 
+        {/* Main */}
         <div className="container-shell relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center py-10 sm:py-14">
           <section className="w-full max-w-[620px] overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(20,184,166,0.13)]">
             <div className="px-5 py-9 text-center sm:px-9 sm:py-11">
@@ -120,7 +118,8 @@ function PaymentResultContent() {
                 <strong className="text-slate-900">
                   {classes}-class package
                 </strong>{" "}
-                with Ananya Sharma is now active.
+                with Ananya Sharma is now
+                active.
               </p>
 
               {/* Tutor */}
@@ -160,11 +159,21 @@ function PaymentResultContent() {
 
                 <div className="mt-4 flex items-center justify-between gap-4">
                   <span className="text-sm text-slate-500">
+                    Package
+                  </span>
+
+                  <strong className="text-sm text-slate-950">
+                    {classes} Classes
+                  </strong>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between gap-4">
+                  <span className="text-sm text-slate-500">
                     Date
                   </span>
 
                   <strong className="text-sm text-slate-950">
-                    {paymentDate}
+                    10 August 2026
                   </strong>
                 </div>
 
@@ -189,24 +198,26 @@ function PaymentResultContent() {
                 </div>
               </div>
 
-              {/* Package activation */}
+              {/* Activation */}
               <div className="mt-5 rounded-2xl border border-teal-100 bg-teal-50 p-4 text-left">
                 <p className="font-extrabold text-teal-900">
                   ✓ Package activated
                 </p>
 
                 <p className="mt-1 text-sm leading-6 text-teal-800">
-                  Aarav&apos;s regular tuition schedule
-                  and learning dashboard are now ready.
+                  Aarav&apos;s tuition package
+                  and learning dashboard are
+                  ready.
                 </p>
               </div>
 
-              {/* Actions */}
+              {/* IMPORTANT CONNECTION */}
               <Link
-                href="/dashboard/student"
+                href={activeDashboardHref}
                 className="btn btn-primary mt-7 w-full"
               >
-                Go to Dashboard
+                Go to Active Dashboard
+
                 <span aria-hidden="true">
                   →
                 </span>
@@ -226,10 +237,11 @@ function PaymentResultContent() {
 
               {/* Prototype note */}
               <p className="mt-6 text-xs leading-5 text-slate-400">
-                Frontend preview: a real package will
-                only be activated after TutorConnect
-                verifies the payment with the payment
-                gateway on the server.
+                Frontend preview: package
+                activation is simulated. In
+                production, TutorConnect will
+                activate the package only after
+                server-side payment verification.
               </p>
             </div>
           </section>
@@ -239,7 +251,7 @@ function PaymentResultContent() {
   }
 
   /* =========================================================
-     PAYMENT FAILED
+     FAILED
   ========================================================== */
 
   return (
@@ -247,6 +259,7 @@ function PaymentResultContent() {
       id="main-content"
       className="relative min-h-screen overflow-hidden bg-[#faf9ff]"
     >
+      {/* Background */}
       <div
         aria-hidden="true"
         className="absolute -left-32 top-16 h-96 w-96 rounded-full bg-red-200/15 blur-3xl"
@@ -257,6 +270,7 @@ function PaymentResultContent() {
         className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-violet-200/20 blur-3xl"
       />
 
+      {/* Header */}
       <header className="relative z-10 border-b border-slate-200/70 bg-white/75 backdrop-blur-xl">
         <div className="container-shell flex h-[72px] items-center justify-between">
           <Logo />
@@ -270,7 +284,7 @@ function PaymentResultContent() {
       <div className="container-shell relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center py-10 sm:py-14">
         <section className="w-full max-w-[620px] overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(239,68,68,0.10)]">
           <div className="px-5 py-9 text-center sm:px-9 sm:py-11">
-            {/* Failed icon */}
+            {/* Failure icon */}
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100 text-red-600">
               <svg
                 viewBox="0 0 24 24"
@@ -297,26 +311,29 @@ function PaymentResultContent() {
             </h1>
 
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-600 sm:text-base">
-              Your payment could not be completed.
+              Your payment could not be
+              completed.
               <strong className="text-slate-900">
-                {" "}No tuition package has been activated.
+                {" "}
+                No tuition package has been
+                activated.
               </strong>
             </p>
 
-            {/* Important safety status */}
+            {/* Failure info */}
             <div className="mt-7 rounded-2xl border border-red-100 bg-red-50/70 p-5 text-left">
               <p className="font-extrabold text-red-900">
-                Your booking is not confirmed yet
+                Your booking is not confirmed
+                yet
               </p>
 
               <p className="mt-2 text-sm leading-6 text-red-800">
-                You can retry the payment or select a
-                different payment method. Your package
-                and schedule selections are preserved.
+                Retry the payment or choose a
+                different payment method.
               </p>
             </div>
 
-            {/* Order retained */}
+            {/* Package */}
             <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-left">
               <div className="flex items-center justify-between gap-4">
                 <div>
@@ -351,6 +368,7 @@ function PaymentResultContent() {
               className="btn btn-primary mt-7 w-full"
             >
               Retry Payment
+
               <span aria-hidden="true">
                 →
               </span>
@@ -363,6 +381,10 @@ function PaymentResultContent() {
               Try Another Payment Method
             </Link>
 
+            {/* IMPORTANT:
+                Failed payment returns to normal dashboard,
+                NOT active dashboard.
+            */}
             <Link
               href="/dashboard/student"
               className="mt-5 inline-flex text-sm font-bold text-slate-500 transition hover:text-blue-700"
@@ -372,17 +394,17 @@ function PaymentResultContent() {
 
             <div className="mt-7 rounded-2xl border border-blue-100 bg-blue-50/60 p-4 text-left">
               <p className="text-xs leading-5 text-slate-600">
-                If money was debited but this page shows
-                a failure, TutorConnect will verify the
-                gateway status before asking you to pay
-                again. This verification will be handled
-                by the backend.
+                If money was debited but the
+                payment appears unsuccessful,
+                TutorConnect will verify the
+                gateway status before asking
+                the user to pay again.
               </p>
             </div>
 
             <p className="mt-6 text-xs leading-5 text-slate-400">
-              Frontend preview: no real payment has
-              occurred.
+              Frontend preview: no real
+              payment has occurred.
             </p>
           </div>
         </section>
