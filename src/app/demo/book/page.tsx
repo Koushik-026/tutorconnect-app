@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import {
   Suspense,
   useMemo,
@@ -64,6 +67,7 @@ const weekDays = [
 
 function DemoBookingContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const tutorId =
     searchParams.get("tutor") ?? "ananya-sharma";
@@ -114,11 +118,17 @@ function DemoBookingContent() {
     setNotice(null);
   }
 
-  function confirmDemo() {
-    setNotice(
-      `Demo selected for ${selectedDay} August 2026 at ${selectedTime} IST. This is currently a frontend preview, so the booking has not been saved yet.`,
-    );
-  }
+ function confirmDemo() {
+  const query = new URLSearchParams({
+    tutor: tutor.id,
+    day: String(selectedDay),
+    time: selectedTime,
+  });
+
+  router.push(
+    `/demo/confirmation?${query.toString()}`,
+  );
+}
 
   return (
     <>
