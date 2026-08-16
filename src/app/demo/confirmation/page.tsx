@@ -130,7 +130,9 @@ function ConfirmationContent() {
         className="dot-grid absolute inset-0 opacity-[0.14]"
       />
 
-      {/* Header */}
+      {/* =====================================================
+          HEADER
+      ====================================================== */}
       <header className="relative z-10 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
         <div className="container-shell flex h-[72px] items-center justify-between">
           <Logo />
@@ -144,10 +146,15 @@ function ConfirmationContent() {
         </div>
       </header>
 
+      {/* =====================================================
+          PAGE
+      ====================================================== */}
       <div className="container-shell relative z-10 flex min-h-[calc(100vh-72px)] items-center justify-center py-10 sm:py-14">
         <section className="w-full max-w-[900px] overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(37,99,235,0.13)]">
-          {/* Success top area */}
-          <div className="relative bg-gradient-to-r from-blue-50 via-indigo-50 to-teal-50 px-6 pb-14 pt-10 text-center sm:px-10">
+          {/* =================================================
+              SUCCESS HEADER
+          ================================================== */}
+          <div className="relative bg-gradient-to-r from-blue-50 via-indigo-50 to-teal-50 px-6 py-9 text-center sm:px-10 sm:py-10">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-white shadow-[0_15px_35px_rgba(37,99,235,0.28)]">
               <svg
                 viewBox="0 0 24 24"
@@ -164,6 +171,7 @@ function ConfirmationContent() {
                   cy="12"
                   r="9"
                 />
+
                 <path d="m8 12 2.5 2.5L16 9" />
               </svg>
             </div>
@@ -185,16 +193,22 @@ function ConfirmationContent() {
             </p>
           </div>
 
-          <div className="px-5 pb-6 sm:px-8 sm:pb-8">
-            {/* Tutor + student */}
-            <div className="-mt-6 grid gap-4 md:grid-cols-2">
+          {/* =================================================
+              DETAILS
+          ================================================== */}
+          <div className="px-5 pb-6 pt-6 sm:px-8 sm:pb-8 sm:pt-7">
+            {/* =================================================
+                TUTOR + STUDENT
+            ================================================== */}
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Tutor */}
               <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="flex items-center gap-4">
                   {tutor.profileImage ? (
                     <div
                       role="img"
                       aria-label={`${tutor.name} profile`}
-                      className="h-14 w-14 shrink-0 rounded-full bg-cover bg-center shadow-sm"
+                      className="h-14 w-14 shrink-0 rounded-full border border-slate-100 bg-cover bg-center shadow-sm"
                       style={{
                         backgroundImage: `url('${tutor.profileImage}')`,
                       }}
@@ -221,6 +235,7 @@ function ConfirmationContent() {
                 </div>
               </article>
 
+              {/* Student */}
               <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="flex items-center gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-blue-100 text-lg font-extrabold text-blue-700">
@@ -244,8 +259,11 @@ function ConfirmationContent() {
               </article>
             </div>
 
-            {/* Date/session */}
+            {/* =================================================
+                DATE + SESSION
+            ================================================== */}
             <article className="mt-4 grid gap-5 rounded-2xl border border-blue-100 bg-blue-50/50 p-5 sm:grid-cols-2 sm:p-6">
+              {/* Date */}
               <div className="flex items-center gap-4">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
                   <svg
@@ -265,6 +283,7 @@ function ConfirmationContent() {
                       height="16"
                       rx="2"
                     />
+
                     <path d="M16 3v4" />
                     <path d="M8 3v4" />
                     <path d="M3 10h18" />
@@ -282,6 +301,7 @@ function ConfirmationContent() {
                 </div>
               </div>
 
+              {/* Online Session */}
               <div className="flex items-center gap-4 sm:justify-end">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-teal-700">
                   <svg
@@ -301,6 +321,7 @@ function ConfirmationContent() {
                       height="12"
                       rx="2"
                     />
+
                     <path d="m17 10 4-2v8l-4-2" />
                   </svg>
                 </span>
@@ -308,6 +329,7 @@ function ConfirmationContent() {
                 <div>
                   <p className="flex items-center gap-2 font-extrabold text-slate-950">
                     <span className="h-2 w-2 rounded-full bg-teal-500" />
+
                     Online Session
                   </p>
 
@@ -318,22 +340,26 @@ function ConfirmationContent() {
               </div>
             </article>
 
-            {/* Info */}
+            {/* =================================================
+                JOIN-LINK INFO
+            ================================================== */}
             <div className="mt-4 flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600 sm:p-5">
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">
                 i
               </span>
 
               <p>
-                The join link will appear in the
-                student dashboard before the session.
-                Reminder notifications will be enabled
-                when the TutorConnect notification
-                backend is connected.
+                The join link will appear in the student
+                dashboard before the session. Reminder
+                notifications will be enabled when the
+                TutorConnect notification backend is
+                connected.
               </p>
             </div>
 
-            {/* Prototype note */}
+            {/* =================================================
+                PROTOTYPE MESSAGE
+            ================================================== */}
             <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
               Frontend preview: this confirmation is not
               stored in the database yet. Real booking
@@ -341,7 +367,9 @@ function ConfirmationContent() {
               backend phase.
             </div>
 
-            {/* Actions */}
+            {/* =================================================
+                ACTIONS
+            ================================================== */}
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
@@ -369,6 +397,7 @@ function ConfirmationContent() {
                     height="16"
                     rx="2"
                   />
+
                   <path d="M16 3v4" />
                   <path d="M8 3v4" />
                   <path d="M3 10h18" />
@@ -384,6 +413,7 @@ function ConfirmationContent() {
                 className="btn btn-primary w-full"
               >
                 View Dashboard
+
                 <span aria-hidden="true">
                   →
                 </span>

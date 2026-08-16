@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  useRouter,
   useSearchParams,
 } from "next/navigation";
 import {
@@ -16,10 +17,7 @@ type PaymentMethod =
   | "card"
   | "netbanking";
 
-const packagePrices: Record<
-  number,
-  number
-> = {
+const packagePrices: Record<number, number> = {
   8: 3200,
   12: 4500,
   15: 5400,
@@ -46,7 +44,45 @@ function formatDays(value: string) {
     .join(", ");
 }
 
+function addOneHour(time: string) {
+  const match = time.match(
+    /^(\d{1,2}):(\d{2})\s(AM|PM)$/,
+  );
+
+  if (!match) {
+    return "60-minute session";
+  }
+
+  let hour = Number(match[1]);
+  const minute = Number(match[2]);
+  const period = match[3];
+
+  if (period === "PM" && hour !== 12) {
+    hour += 12;
+  }
+
+  if (period === "AM" && hour === 12) {
+    hour = 0;
+  }
+
+  hour = (hour + 1) % 24;
+
+  const outputPeriod =
+    hour >= 12 ? "PM" : "AM";
+
+  let outputHour = hour % 12;
+
+  if (outputHour === 0) {
+    outputHour = 12;
+  }
+
+  return `${outputHour}:${String(
+    minute,
+  ).padStart(2, "0")} ${outputPeriod}`;
+}
+
 function CheckoutContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const tutorId =
@@ -81,20 +117,31 @@ function CheckoutContent() {
     searchParams.get("start") ??
     "2026-08-10";
 
+  const changeMethodRequested =
+    searchParams.get("changeMethod") ===
+    "true";
+
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>("upi");
 
   const [notice, setNotice] =
-    useState<string | null>(null);
+    useState<string | null>(
+      changeMethodRequested
+        ? "Choose a different payment method and try again."
+        : null,
+    );
+
+  const [
+    paymentTestOpen,
+    setPaymentTestOpen,
+  ] = useState(false);
 
   const formattedStartDate = useMemo(() => {
     const date = new Date(
       `${startDate}T00:00:00`,
     );
 
-    if (
-      Number.isNaN(date.getTime())
-    ) {
+    if (Number.isNaN(date.getTime())) {
       return "10 August 2026";
     }
 
@@ -112,9 +159,37 @@ function CheckoutContent() {
     price / classes,
   );
 
+  const endTime = addOneHour(time);
+
+  const paymentMethodLabel =
+    paymentMethod === "upi"
+      ? "UPI"
+      : paymentMethod === "card"
+        ? "Card"
+        : "Net Banking";
+
   function proceedToGateway() {
-    setNotice(
-      "Secure payment gateway is not connected yet. No payment has been charged. In production, this button will create a server-side payment order and open the gateway's hosted checkout.",
+    setPaymentTestOpen(true);
+    setNotice(null);
+  }
+
+  function simulatePayment(
+    status: "success" | "failed",
+  ) {
+    const query = new URLSearchParams({
+      status,
+      tutor: tutorId,
+      classes: String(classes),
+      amount: String(price),
+      method: paymentMethodLabel,
+      transaction:
+        status === "success"
+          ? "TC-DEMO-SUCCESS-001"
+          : "TC-DEMO-FAILED-001",
+    });
+
+    router.push(
+      `/payment/result?${query.toString()}`,
     );
   }
 
@@ -164,10 +239,11 @@ function CheckoutContent() {
       </header>
 
       {/* =====================================================
-          CONTENT
+          PAGE CONTENT
       ====================================================== */}
       <div className="container-shell py-8 sm:py-10 lg:py-12">
         <div className="mx-auto max-w-[1180px]">
+          {/* PAGE TITLE */}
           <section>
             <span className="badge badge-blue">
               Step 3 of 3
@@ -216,6 +292,7 @@ function CheckoutContent() {
                       <span className="font-bold text-amber-600">
                         ★ 4.9
                       </span>
+
                       {" · "}
                       Mathematics & Science Tutor
                     </p>
@@ -228,7 +305,8 @@ function CheckoutContent() {
                 <div className="flex items-start justify-between gap-5">
                   <div>
                     <p className="font-extrabold text-slate-950">
-                      {classes}-Class Learning Package
+                      {classes}-Class Learning
+                      Package
                     </p>
 
                     <p className="mt-2 flex items-center gap-2 text-sm text-slate-600">
@@ -260,14 +338,13 @@ function CheckoutContent() {
                       </p>
 
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        {formatDays(days)} · {time} –{" "}
-                        {time === "5:00 PM"
-                          ? "6:00 PM"
-                          : "60-minute session"}
+                        {formatDays(days)} ·{" "}
+                        {time} – {endTime}
                       </p>
 
                       <p className="mt-1 text-xs text-slate-500">
-                        Starts {formattedStartDate}
+                        Starts{" "}
+                        {formattedStartDate}
                       </p>
                     </div>
                   </div>
@@ -322,7 +399,7 @@ function CheckoutContent() {
             </section>
 
             {/* =================================================
-                PAYMENT AREA
+                PAYMENT METHOD
             ================================================== */}
             <section>
               <article className="tc-card overflow-hidden">
@@ -332,8 +409,9 @@ function CheckoutContent() {
                   </h2>
 
                   <p className="mt-1 text-sm text-slate-500">
-                    Final payment details will be handled
-                    by the secure payment gateway.
+                    Final payment details will be
+                    handled by the secure payment
+                    gateway.
                   </p>
                 </div>
 
@@ -368,8 +446,8 @@ function CheckoutContent() {
                     </p>
 
                     <p className="mt-1 text-sm text-slate-500">
-                      Google Pay, PhonePe, Paytm and
-                      supported UPI apps
+                      Google Pay, PhonePe, Paytm
+                      and supported UPI apps
                     </p>
                   </div>
 
@@ -409,8 +487,8 @@ function CheckoutContent() {
                     </p>
 
                     <p className="mt-1 text-sm text-slate-500">
-                      Enter card details only inside the
-                      payment gateway.
+                      Enter card details only
+                      inside the payment gateway.
                     </p>
                   </div>
 
@@ -466,7 +544,7 @@ function CheckoutContent() {
                 </button>
               </article>
 
-              {/* Important secure-payment explanation */}
+              {/* Security information */}
               <div className="mt-5 rounded-2xl border border-teal-100 bg-teal-50/70 p-5">
                 <div className="flex gap-3">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-100 text-teal-700">
@@ -479,20 +557,23 @@ function CheckoutContent() {
                     </p>
 
                     <p className="mt-1 text-sm leading-6 text-slate-600">
-                      TutorConnect will never ask you to
-                      send money directly to a tutor.
-                      Payment credentials are handled by
-                      the payment provider rather than
-                      stored in this frontend.
+                      TutorConnect will never ask
+                      you to send money directly
+                      to a tutor. Payment
+                      credentials are handled by
+                      the payment provider rather
+                      than stored in this
+                      frontend.
                     </p>
                   </div>
                 </div>
               </div>
 
+              {/* Payment button */}
               <button
                 type="button"
                 onClick={proceedToGateway}
-                className="btn btn-primary mt-5 w-full min-h-14"
+                className="btn btn-primary mt-5 min-h-14 w-full"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -528,8 +609,9 @@ function CheckoutContent() {
               )}
 
               <p className="mt-4 text-center text-xs leading-5 text-slate-500">
-                No payment is being processed in this
-                frontend prototype.
+                No payment is being
+                processed in this frontend
+                prototype.
               </p>
             </section>
           </div>
@@ -540,10 +622,120 @@ function CheckoutContent() {
           <section className="mt-7 flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm font-semibold text-slate-500">
             <span>◇ Secure booking</span>
             <span>₹ Clear package pricing</span>
-            <span>✓ Server-verified payments later</span>
+            <span>
+              ✓ Server-verified payments later
+            </span>
           </section>
         </div>
       </div>
+
+      {/* =====================================================
+          DEVELOPMENT PAYMENT TEST MODAL
+      ====================================================== */}
+      {paymentTestOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="payment-test-title"
+            className="w-full max-w-md rounded-[24px] border border-slate-200 bg-white p-6 shadow-2xl sm:p-7"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <span className="badge badge-blue">
+                  Development test
+                </span>
+
+                <h2
+                  id="payment-test-title"
+                  className="mt-4 text-2xl font-extrabold text-slate-950"
+                >
+                  Simulate Payment Result
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Close payment test"
+                onClick={() =>
+                  setPaymentTestOpen(false)
+                }
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xl text-slate-500 transition hover:bg-slate-100"
+              >
+                ×
+              </button>
+            </div>
+
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              The real payment gateway is not
+              connected yet. Choose a result
+              below so we can test both
+              TutorConnect payment states.
+            </p>
+
+            {/* Summary */}
+            <div className="mt-6 rounded-2xl bg-slate-50 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-sm text-slate-500">
+                  Package
+                </span>
+
+                <strong className="text-sm text-slate-950">
+                  {classes} classes
+                </strong>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between gap-4">
+                <span className="text-sm text-slate-500">
+                  Amount
+                </span>
+
+                <strong className="text-lg text-slate-950">
+                  ₹{formatPrice(price)}
+                </strong>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between gap-4">
+                <span className="text-sm text-slate-500">
+                  Method
+                </span>
+
+                <strong className="text-sm text-slate-950">
+                  {paymentMethodLabel}
+                </strong>
+              </div>
+            </div>
+
+            {/* Success */}
+            <button
+              type="button"
+              onClick={() =>
+                simulatePayment("success")
+              }
+              className="btn mt-6 w-full bg-teal-600 text-white hover:bg-teal-700"
+            >
+              ✓ Simulate Successful Payment
+            </button>
+
+            {/* Failed */}
+            <button
+              type="button"
+              onClick={() =>
+                simulatePayment("failed")
+              }
+              className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl border border-red-200 bg-red-50 px-5 text-sm font-extrabold text-red-700 transition hover:bg-red-100"
+            >
+              × Simulate Failed Payment
+            </button>
+
+            <p className="mt-5 text-center text-xs leading-5 text-slate-400">
+              This test screen will disappear
+              when the real payment gateway is
+              connected.
+            </p>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
