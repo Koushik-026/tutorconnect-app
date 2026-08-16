@@ -273,13 +273,8 @@ export default function StudentDashboardPage() {
 
                 {/* ACTIONS */}
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      showComingSoon(
-                        "The secure demo meeting room will become available shortly before the scheduled session when the live booking backend is connected.",
-                      )
-                    }
+                  <Link
+                    href="/demo/waiting-room"
                     className="btn btn-primary w-full sm:w-auto"
                   >
                     <svg
@@ -303,7 +298,7 @@ export default function StudentDashboardPage() {
                     </svg>
 
                     Join Demo
-                  </button>
+                  </Link>
 
                   <Link
                     href="/demo/book?tutor=ananya-sharma"
@@ -483,6 +478,7 @@ export default function StudentDashboardPage() {
             className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl bg-blue-50 text-blue-700"
           >
             <span className="text-lg">▦</span>
+
             <span className="text-[11px] font-extrabold">
               Home
             </span>
@@ -498,6 +494,7 @@ export default function StudentDashboardPage() {
             className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-slate-500 transition hover:bg-slate-50 hover:text-blue-700"
           >
             <span className="text-lg">□</span>
+
             <span className="text-[11px] font-bold">
               Sessions
             </span>
@@ -508,6 +505,7 @@ export default function StudentDashboardPage() {
             className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-slate-500 transition hover:bg-slate-50 hover:text-blue-700"
           >
             <span className="text-lg">⌕</span>
+
             <span className="text-[11px] font-bold">
               Tutors
             </span>
@@ -523,6 +521,7 @@ export default function StudentDashboardPage() {
             className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-slate-500 transition hover:bg-slate-50 hover:text-blue-700"
           >
             <span className="text-lg">✉</span>
+
             <span className="text-[11px] font-bold">
               Messages
             </span>
