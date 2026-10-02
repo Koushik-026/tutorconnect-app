@@ -1,5 +1,9 @@
 /**
- * TutorConnect Phase 2: Database Schema Contract & Types
+ * TutorConnect Phase 2.1: Database Schema Contract & Types
+ * NOTE: These types are currently manually authored to match
+ * supabase/migrations/20261002000000_phase2_backend_foundation.sql.
+ * Once a live Supabase runtime project is linked, replace with
+ * official generated types via: `supabase gen types typescript --project-id ...`
  */
 
 export type AccountRole = "parent" | "student" | "tutor" | "admin";
@@ -8,6 +12,7 @@ export type TutorApprovalStatus = "pending" | "approved" | "rejected" | "suspend
 export interface Profile {
   id: string;
   display_name: string | null;
+  avatar_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -41,7 +46,7 @@ export interface TutorProfile {
   offers_online: boolean;
   offers_home: boolean;
   locality: string | null;
-  travel_radius_km: number;
+  travel_radius_km: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -52,6 +57,7 @@ export interface TutorApplicationState {
   status: TutorApprovalStatus;
   reviewed_at: string | null;
   reviewed_by: string | null;
+  admin_notes: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -110,6 +116,27 @@ export interface Database {
         Row: TutorSubject;
         Insert: Omit<TutorSubject, "id" | "created_at"> & { id?: string };
         Update: Partial<TutorSubject>;
+      };
+    };
+    Functions: {
+      is_admin: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
+      is_tutor_approved: {
+        Args: { profile_id: string };
+        Returns: boolean;
+      };
+      complete_onboarding: {
+        Args: {
+          chosen_role: AccountRole;
+          p_display_name?: string | null;
+        };
+        Returns: {
+          success: boolean;
+          user_id: string;
+          role: AccountRole;
+        };
       };
     };
   };
