@@ -7,10 +7,8 @@ import { Logo } from "@/components/logo";
 import {
   IconCalendar,
   IconClock,
-  IconVideo,
   IconShieldCheck,
   IconArrowRight,
-  IconCheck,
   IconChecklist,
   IconBookOpen,
   IconMessageSquare,
@@ -18,9 +16,6 @@ import {
   IconSearch,
   IconSettings,
   IconHelpCircle,
-  IconUser,
-  IconSparkles,
-  IconHomeTuition,
 } from "@/components/ui/icons";
 
 const navigationItems = [

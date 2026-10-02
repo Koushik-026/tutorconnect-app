@@ -2,17 +2,13 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { Logo } from "@/components/logo";
 import { tutors } from "@/lib/data";
 import {
   IconCheck,
   IconArrowRight,
-  IconShieldCheck,
-  IconArrowLeft,
   IconSparkles,
-  IconClock,
-  IconCalendar,
 } from "@/components/ui/icons";
 
 interface LearningPackage {
@@ -102,10 +98,7 @@ function PackagesContent() {
   const tutorId = searchParams.get("tutor") || "ananya-sharma";
   const tutor = tutors.find((t) => t.id === tutorId) || tutors[0];
 
-  const [selectedPackageId, setSelectedPackageId] = useState<string>("package-12");
-
   const handleSelectPackage = (pkg: LearningPackage) => {
-    setSelectedPackageId(pkg.id);
     const query = new URLSearchParams({
       tutor: tutor.id,
       package: pkg.id,

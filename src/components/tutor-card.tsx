@@ -3,7 +3,6 @@ import type { Tutor } from "@/lib/types";
 import {
   IconStar,
   IconShieldCheck,
-  IconMapPin,
   IconVideo,
   IconHomeTuition,
   IconArrowRight,

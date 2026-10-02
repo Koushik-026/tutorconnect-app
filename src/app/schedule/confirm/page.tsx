@@ -10,8 +10,6 @@ import {
   IconVideo,
   IconHomeTuition,
   IconArrowRight,
-  IconArrowLeft,
-  IconShieldCheck,
   IconCalendar,
   IconCheck,
 } from "@/components/ui/icons";

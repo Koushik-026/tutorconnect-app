@@ -5,10 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
 import { Logo } from "@/components/logo";
 import {
-  IconGraduationCap,
-  IconHomeTuition,
   IconArrowRight,
-  IconCheck,
   IconShieldCheck,
   IconVideo,
 } from "@/components/ui/icons";

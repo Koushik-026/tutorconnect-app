@@ -12,7 +12,6 @@ import {
   IconArrowRight,
   IconCheck,
   IconArrowLeft,
-  IconClock,
 } from "@/components/ui/icons";
 
 interface TutorProfilePageProps {
@@ -138,7 +137,7 @@ export default async function TutorProfilePage({
                 </div>
               </div>
 
-              {/* Editorial Section: About & Pedagogy */}
+              {/* Editorial Section: About & Teaching Approach */}
               <div className="space-y-6">
                 <div>
                   <h2 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[#20221F]">

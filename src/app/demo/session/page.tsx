@@ -12,8 +12,6 @@ import {
   IconMessageSquare,
   IconX,
   IconSend,
-  IconShieldCheck,
-  IconPhone,
 } from "@/components/ui/icons";
 
 type ChatMessage = {

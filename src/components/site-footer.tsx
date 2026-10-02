@@ -11,7 +11,7 @@ export function SiteFooter() {
           <div className="lg:col-span-2">
             <Logo />
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#6D706A]">
-              Thoughtfully curated 1-on-1 online and in-home tuition for school students in Hyderabad. Connect with vetted educators, attend a free 30-minute demo, and establish a steady learning rhythm.
+              Thoughtfully curated 1-on-1 online and in-home tuition for school students in Hyderabad. Explore verified tutor profiles, attend a free 30-minute demo, and establish a steady learning rhythm.
             </p>
             <div className="mt-6 flex flex-wrap gap-2.5">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[#7257A5]/20 bg-[#EEE7FF] px-3.5 py-1 text-xs font-bold text-[#594282]">

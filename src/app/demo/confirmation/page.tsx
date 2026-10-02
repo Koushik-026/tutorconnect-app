@@ -7,11 +7,8 @@ import { Logo } from "@/components/logo";
 import { tutors } from "@/lib/data";
 import {
   IconCheck,
-  IconCalendar,
-  IconVideo,
   IconShieldCheck,
   IconArrowRight,
-  IconClock,
 } from "@/components/ui/icons";
 
 function getEndTime(time: string) {

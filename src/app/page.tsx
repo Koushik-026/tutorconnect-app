@@ -114,7 +114,7 @@ export default function HomePage() {
               </h1>
 
               <p className="mt-5 mx-auto max-w-2xl text-base sm:text-lg leading-relaxed text-[#6D706A]">
-                Thoughtfully curated 1-on-1 online and in-home tuition for school students in Hyderabad. Connect with vetted educators, attend a free 30-minute demo, and establish a steady learning rhythm.
+                Thoughtfully curated 1-on-1 online and in-home tuition for school students in Hyderabad. Explore verified tutor profiles, attend a free 30-minute demo, and establish a steady learning rhythm.
               </p>
             </div>
 
@@ -184,7 +184,7 @@ export default function HomePage() {
                 </div>
 
                 <p className="text-base text-[#6D706A] leading-relaxed">
-                  We look beyond simple subject tags. We identify your child&apos;s curriculum requirements, conceptual hesitation points, and preferred learning tempo before introducing the right tutor.
+                  Share the student&apos;s class, board, subject needs, and learning preferences to explore suitable tutor options.
                 </p>
 
                 <div className="space-y-4 pt-2">
@@ -205,9 +205,9 @@ export default function HomePage() {
                       2
                     </span>
                     <div>
-                      <h4 className="text-sm font-bold text-[#20221F]">Pedagogy &amp; Pacing Alignment</h4>
+                      <h4 className="text-sm font-bold text-[#20221F]">Teaching Profile Alignment</h4>
                       <p className="mt-0.5 text-xs text-[#6D706A]">
-                        Match with educators who excel at step-by-step intuition, problem practice, or foundational revision.
+                        Explore educators whose teaching profiles align with step-by-step intuition, problem practice, or foundational revision.
                       </p>
                     </div>
                   </div>
@@ -219,7 +219,7 @@ export default function HomePage() {
                     <div>
                       <h4 className="text-sm font-bold text-[#20221F]">Free 30-Minute Trial</h4>
                       <p className="mt-0.5 text-xs text-[#6D706A]">
-                        Attend an online demo to confirm student-tutor compatibility before committing to any package.
+                        Attend an online demo to confirm teaching rapport before committing to any package.
                       </p>
                     </div>
                   </div>
@@ -258,11 +258,11 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Compatibility Signals Connector */}
+                  {/* Requirement Alignment Connector */}
                   <div className="flex items-center justify-center gap-3 py-1">
                     <div className="h-px flex-1 bg-[rgba(54,48,60,0.10)]" />
                     <span className="rounded-full bg-[#E5F0EA] px-3 py-1 text-[11px] font-bold text-[#3D5A4D]">
-                      High Pedagogical Match
+                      Suggested Tutor Profile
                     </span>
                     <div className="h-px flex-1 bg-[rgba(54,48,60,0.10)]" />
                   </div>
@@ -432,7 +432,7 @@ export default function HomePage() {
                 Two flexible modes. One uncompromising standard.
               </h2>
               <p className="mt-4 text-base text-[#6D706A] leading-relaxed">
-                Whether your student prefers interactive online mentorship or in-person guidance at home in Hyderabad, we support both with vetted educators and flexible weekly rhythms.
+                Whether your student prefers interactive online mentorship or in-person guidance at home in Hyderabad, we support both with verified educators and flexible weekly rhythms.
               </p>
             </div>
 
@@ -499,7 +499,7 @@ export default function HomePage() {
                     Eligible Home Tuition
                   </h3>
                   <p className="mt-2 text-sm text-[#6D706A] leading-relaxed">
-                    Qualified educators visit your home in person for disciplined, distraction-free study within designated Hyderabad localities.
+                    Verified educators visit your home in person for disciplined, distraction-free study within designated Hyderabad localities.
                   </p>
                 </div>
 
@@ -594,7 +594,7 @@ export default function HomePage() {
                     Educators in Hyderabad
                   </span>
                   <h3 className="mt-1 font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#20221F]">
-                    Meet vetted mentors ready to guide.
+                    Meet verified mentors ready to guide.
                   </h3>
                 </div>
                 <Link
@@ -717,7 +717,7 @@ export default function HomePage() {
                 </span>
                 <h4 className="mt-3 text-sm font-bold text-[#20221F]">Free 30-Min Demo</h4>
                 <p className="mt-1 text-xs text-[#6D706A] leading-relaxed">
-                  Experience the tutor&apos;s pedagogy in a live 1-on-1 trial before any payment is discussed.
+                  Experience the tutor&apos;s teaching approach in a live 1-on-1 trial before any payment is discussed.
                 </p>
               </div>
 

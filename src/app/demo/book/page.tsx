@@ -8,10 +8,7 @@ import { tutors } from "@/lib/data";
 import {
   IconClock,
   IconVideo,
-  IconShieldCheck,
   IconArrowRight,
-  IconArrowLeft,
-  IconCalendar,
   IconCheck,
 } from "@/components/ui/icons";
 

@@ -7,11 +7,8 @@ import { Logo } from "@/components/logo";
 import { tutors } from "@/lib/data";
 import {
   IconLock,
-  IconShieldCheck,
-  IconCreditCard,
   IconArrowRight,
   IconArrowLeft,
-  IconCheck,
 } from "@/components/ui/icons";
 
 type PaymentMethod = "upi" | "card" | "netbanking";

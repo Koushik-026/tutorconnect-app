@@ -9,7 +9,6 @@ import {
   IconCheck,
   IconX,
   IconArrowRight,
-  IconShieldCheck,
 } from "@/components/ui/icons";
 
 type PaymentStatus = "success" | "failed";

@@ -5,7 +5,6 @@ import { TutorCard } from "@/components/tutor-card";
 import { subjects, tutors } from "@/lib/data";
 import {
   IconSearch,
-  IconFilter,
   IconX,
   IconShieldCheck,
   IconVideo,

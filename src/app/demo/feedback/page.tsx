@@ -8,7 +8,6 @@ import {
   IconStar,
   IconCheck,
   IconArrowRight,
-  IconSparkles,
 } from "@/components/ui/icons";
 
 const feedbackTags = [
