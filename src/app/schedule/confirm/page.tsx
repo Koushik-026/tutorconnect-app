@@ -1,43 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
-import {
-  Suspense,
-  useMemo,
-  useState,
-} from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { Logo } from "@/components/logo";
+import { tutors } from "@/lib/data";
+import {
+  IconClock,
+  IconVideo,
+  IconHomeTuition,
+  IconArrowRight,
+  IconArrowLeft,
+  IconAlertCircle,
+} from "@/components/ui/icons";
 
-type TuitionMode = "home" | "online";
-
-const packageDetails: Record<
-  number,
-  {
-    price: number;
-    mathematics: number;
-    science: number;
-  }
-> = {
-  8: {
-    price: 3200,
-    mathematics: 4,
-    science: 4,
-  },
-  12: {
-    price: 4500,
-    mathematics: 6,
-    science: 6,
-  },
-  15: {
-    price: 5400,
-    mathematics: 8,
-    science: 7,
-  },
-};
+type TuitionMode = "online" | "home";
 
 const availableDays = [
   "Monday",
@@ -48,669 +25,270 @@ const availableDays = [
   "Saturday",
 ];
 
-const availableTimes = [
-  "4:00 PM",
-  "5:00 PM",
-  "6:00 PM",
-  "6:30 PM",
-];
+const availableTimes = ["4:00 PM", "5:00 PM", "6:00 PM", "6:30 PM"];
 
-function formatPrice(value: number) {
-  return value.toLocaleString("en-IN");
-}
-
-function shortDay(day: string) {
-  const names: Record<string, string> = {
-    Monday: "Mon",
-    Tuesday: "Tue",
-    Wednesday: "Wed",
-    Thursday: "Thu",
-    Friday: "Fri",
-    Saturday: "Sat",
-  };
-
-  return names[day] ?? day;
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(amount);
 }
 
 function ScheduleContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const tutorId =
-    searchParams.get("tutor") ??
-    "ananya-sharma";
+  const tutorId = searchParams.get("tutor") ?? "ananya-sharma";
+  const tutor = tutors.find((t) => t.id === tutorId) ?? tutors[0];
 
-  const requestedClasses =
-    Number(searchParams.get("classes")) || 15;
+  const classes = Number(searchParams.get("classes")) || 15;
+  const price = Number(searchParams.get("price")) || 5400;
 
-  const classes =
-    packageDetails[requestedClasses]
-      ? requestedClasses
-      : 15;
-
-  const selectedPackage =
-    packageDetails[classes];
-
-  const [mode, setMode] =
-    useState<TuitionMode>("home");
-
-  const [days, setDays] = useState<string[]>([
+  const [mode, setMode] = useState<TuitionMode>("online");
+  const [selectedDays, setSelectedDays] = useState<string[]>([
     "Monday",
     "Wednesday",
     "Friday",
   ]);
-
-  const [time, setTime] =
-    useState("5:00 PM");
-
-  const [startDate, setStartDate] =
-    useState("2026-08-10");
-
-  const [notice, setNotice] =
-    useState<string | null>(null);
-
-  const formattedDays = useMemo(
-    () =>
-      days.map((day) => shortDay(day)).join(" / "),
-    [days],
-  );
+  const [selectedTime, setSelectedTime] = useState("4:00 PM");
 
   function toggleDay(day: string) {
-    setNotice(null);
-
-    setDays((current) => {
-      if (current.includes(day)) {
-        if (current.length === 1) {
-          return current;
-        }
-
-        return current.filter(
-          (item) => item !== day,
-        );
+    if (selectedDays.includes(day)) {
+      if (selectedDays.length > 1) {
+        setSelectedDays(selectedDays.filter((d) => d !== day));
       }
-
-      return [...current, day];
-    });
+    } else {
+      setSelectedDays([...selectedDays, day]);
+    }
   }
 
-  function continueToPayment() {
-    if (days.length === 0) {
-      setNotice(
-        "Please select at least one regular tuition day.",
-      );
-      return;
-    }
-
+  function handleContinue() {
     const query = new URLSearchParams({
-      tutor: tutorId,
-      package: `${classes}-classes`,
+      tutor: tutor.id,
       classes: String(classes),
-      price: String(selectedPackage.price),
+      price: String(price),
       mode,
-      days: days.join(","),
-      time,
-      start: startDate,
+      days: selectedDays.join(","),
+      time: selectedTime,
     });
-
-    router.push(
-      `/payment/checkout?${query.toString()}`,
-    );
+    router.push(`/payment/checkout?${query.toString()}`);
   }
 
   return (
-    <main
-      id="main-content"
-      className="min-h-screen bg-[#faf9ff] pb-28"
-    >
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
-      <header className="border-b border-slate-200 bg-white">
-        <div className="container-shell flex h-[72px] items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Link
-              href={`/packages/select?tutor=${tutorId}`}
-              aria-label="Back to packages"
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-xl text-slate-700 transition hover:bg-slate-100"
-            >
-              ←
-            </Link>
-
-            <Logo />
-          </div>
-
-          <span className="hidden text-sm font-semibold text-slate-500 sm:block">
-            Step 2 of 3
-          </span>
+    <div className="flex min-h-screen flex-col bg-[#fbfbfc]">
+      {/* Header */}
+      <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
+        <div className="container-shell flex h-16 items-center justify-between">
+          <Logo />
+          <Link
+            href={`/packages/select?tutor=${tutor.id}`}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 transition"
+          >
+            <IconArrowLeft size={14} />
+            <span>Change Package</span>
+          </Link>
         </div>
       </header>
 
-      <div className="container-shell py-8 sm:py-10 lg:py-12">
-        <div className="mx-auto max-w-[950px]">
-          {/* =================================================
-              HEADING
-          ================================================== */}
-          <section>
-            <span className="badge badge-blue">
-              Step 2 of 3
+      {/* Main Content */}
+      <main id="main-content" className="flex-1 py-8 sm:py-12 pb-32">
+        <div className="container-shell max-w-4xl">
+          {/* Step indicator */}
+          <div className="mb-6 flex items-center gap-2 text-xs font-bold text-blue-700">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white text-[10px]">
+              2
             </span>
+            <span>Confirm Routine &amp; Mode</span>
+            <span className="text-slate-300">&bull;</span>
+            <span className="text-slate-400">Step 2 of 3</span>
+          </div>
 
-            <h1 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-4xl">
-              Confirm Schedule Details
-            </h1>
-
-            <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
-              Choose the tuition mode and confirm
-              Aarav&apos;s regular class schedule before
-              payment.
-            </p>
-          </section>
-
-          {/* =================================================
-              TUTOR ↔ STUDENT
-          ================================================== */}
-          <section className="tc-card mt-8 p-5 sm:p-7">
-            <div className="grid items-center gap-6 sm:grid-cols-[1fr_auto_1fr]">
-              {/* Tutor */}
-              <div className="flex items-center gap-4">
-                <div
-                  role="img"
-                  aria-label="Ananya Sharma"
-                  className="h-14 w-14 shrink-0 rounded-full border-2 border-blue-600 bg-cover bg-center shadow-sm"
-                  style={{
-                    backgroundImage:
-                      "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPQzlQm4NKP8RwwlMcU-iNR7MlCStPHTuPVcPnXON--lVzkkXxm1ybxWUlzS16db2LPkVNwpc8Yq6VEtVSFZio6QcV_HCmwmjn9I_3lrlxyxIGNSB2kbD9ddVK0tOvHW0lUKSzEGCdoY59_wDawLUr0UfLNPQt0j47gLzNAWb2qPr_uUIYdo2Zf2jyUfWwgm4IMCRYuUmOnKtOz8sxp9gE-_dTxCuiVPhfC4yikDR2ozPcCLCcIguDSA')",
-                  }}
-                />
-
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-400">
-                    Tutor
-                  </p>
-
-                  <p className="mt-1 font-extrabold text-slate-950">
-                    Ananya Sharma
-                  </p>
-                </div>
-              </div>
-
-              {/* Connection */}
-              <div className="hidden text-3xl font-light text-slate-300 sm:block">
-                ⇄
-              </div>
-
-              {/* Student */}
-              <div className="flex items-center gap-4 sm:flex-row-reverse sm:text-right">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-lg font-extrabold text-blue-700">
-                  AR
-                </div>
-
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-400">
-                    Student
-                  </p>
-
-                  <p className="mt-1 font-extrabold text-slate-950">
-                    Aarav Reddy
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* =================================================
-              MODE + PACKAGE
-          ================================================== */}
-          <section className="mt-6 grid gap-5 md:grid-cols-2">
-            {/* MODE */}
-            <article className="tc-card p-6">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-                  ◇
-                </span>
-
-                <div>
-                  <h2 className="font-extrabold text-slate-950">
-                    Tuition Mode
-                  </h2>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    Choose how regular classes happen.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("home");
-                    setNotice(null);
-                  }}
-                  className={`rounded-2xl border p-4 text-left transition ${
-                    mode === "home"
-                      ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600"
-                      : "border-slate-200 bg-white hover:border-blue-200"
-                  }`}
-                >
-                  <span className="text-xl">⌂</span>
-
-                  <p className="mt-3 font-extrabold text-slate-950">
-                    Home Tuition
-                  </p>
-
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
-                    Tutor visits the student.
-                  </p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("online");
-                    setNotice(null);
-                  }}
-                  className={`rounded-2xl border p-4 text-left transition ${
-                    mode === "online"
-                      ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600"
-                      : "border-slate-200 bg-white hover:border-blue-200"
-                  }`}
-                >
-                  <span className="text-xl">▣</span>
-
-                  <p className="mt-3 font-extrabold text-slate-950">
-                    Online
-                  </p>
-
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
-                    Attend classes online.
-                  </p>
-                </button>
-              </div>
-            </article>
-
-            {/* PACKAGE */}
-            <article className="tc-card p-6">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
-                  ▣
-                </span>
-
-                <div>
-                  <h2 className="font-extrabold text-slate-950">
-                    Package Details
-                  </h2>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    Selected after the demo.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 space-y-4 text-sm">
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-slate-500">
-                    Classes
-                  </span>
-
-                  <strong className="text-slate-950">
-                    {classes}
-                  </strong>
-                </div>
-
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-slate-500">
-                    Duration
-                  </span>
-
-                  <strong className="text-slate-950">
-                    60 mins per session
-                  </strong>
-                </div>
-
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-slate-500">
-                    Validity
-                  </span>
-
-                  <strong className="text-slate-950">
-                    45 days
-                  </strong>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 border-t border-slate-200 pt-4">
-                  <span className="text-slate-500">
-                    Package total
-                  </span>
-
-                  <strong className="text-lg text-blue-700">
-                    ₹
-                    {formatPrice(
-                      selectedPackage.price,
-                    )}
-                  </strong>
-                </div>
-              </div>
-            </article>
-          </section>
-
-          {/* =================================================
-              SUBJECT ALLOCATION
-          ================================================== */}
-          <section className="tc-card mt-5 p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="font-extrabold text-slate-950">
-                  Subject Allocation
+          <div className="grid gap-8 lg:grid-cols-12">
+            {/* Left: Schedule Form (7 cols) */}
+            <div className="space-y-6 lg:col-span-7">
+              {/* Teaching Mode Selector */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs">
+                <h2 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-slate-900 mb-1">
+                  1. Choose Teaching Mode
                 </h2>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  Classes included in this package.
+                <p className="text-xs text-slate-500 mb-4">
+                  Select how you want {tutor.name} to conduct your regular classes.
                 </p>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setMode("online")}
+                    className={`flex flex-col items-start rounded-xl border p-4 text-left transition ${
+                      mode === "online"
+                        ? "border-blue-600 bg-blue-50/70 ring-1 ring-blue-600 text-slate-900"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700 mb-2">
+                      <IconVideo size={16} />
+                    </div>
+                    <span className="text-xs font-bold text-slate-900">1-on-1 Online Class</span>
+                    <span className="text-[11px] text-slate-500 mt-0.5">Interactive digital classroom</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setMode("home")}
+                    className={`flex flex-col items-start rounded-xl border p-4 text-left transition ${
+                      mode === "home"
+                        ? "border-teal-600 bg-teal-50/70 ring-1 ring-teal-600 text-slate-900"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 text-teal-700 mb-2">
+                      <IconHomeTuition size={16} />
+                    </div>
+                    <span className="text-xs font-bold text-slate-900">In-Person Home Tuition</span>
+                    <span className="text-[11px] text-slate-500 mt-0.5">Tutor visits student residence</span>
+                  </button>
+                </div>
+
+                {/* Home Tuition Eligibility Notice */}
+                {mode === "home" && (
+                  <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
+                    <IconAlertCircle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold">Locality Check:</span>
+                      <p className="mt-0.5 text-amber-800">
+                        {tutor.name} offers home tuition within a {tutor.travelRadiusKm} km travel radius from {tutor.locality}, Hyderabad. Please verify your address meets this range before proceeding.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <span className="badge badge-blue">
-                {classes} classes total
-              </span>
-            </div>
-
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
-                <p className="text-sm font-semibold text-slate-600">
-                  Mathematics
+              {/* Weekly Days Selector */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs">
+                <h2 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-slate-900 mb-1">
+                  2. Select Weekly Days
+                </h2>
+                <p className="text-xs text-slate-500 mb-4">
+                  Choose the days of the week that fit the student&apos;s routine.
                 </p>
 
-                <p className="mt-2 text-3xl font-extrabold text-blue-700">
-                  {
-                    selectedPackage.mathematics
-                  }
-                </p>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  classes
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-teal-100 bg-teal-50/60 p-5">
-                <p className="text-sm font-semibold text-slate-600">
-                  Science
-                </p>
-
-                <p className="mt-2 text-3xl font-extrabold text-teal-700">
-                  {selectedPackage.science}
-                </p>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  classes
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* =================================================
-              SCHEDULE
-          ================================================== */}
-          <section className="tc-card mt-5 p-6 sm:p-7">
-            <div>
-              <h2 className="text-xl font-extrabold text-slate-950">
-                Regular Schedule
-              </h2>
-
-              <p className="mt-2 text-sm text-slate-500">
-                Choose the preferred recurring days,
-                start date and time.
-              </p>
-            </div>
-
-            {/* DAYS */}
-            <div className="mt-6">
-              <p className="form-label">
-                Preferred days
-              </p>
-
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-                {availableDays.map((day) => {
-                  const selected =
-                    days.includes(day);
-
-                  return (
-                    <button
-                      key={day}
-                      type="button"
-                      onClick={() =>
-                        toggleDay(day)
-                      }
-                      aria-pressed={selected}
-                      className={`min-h-12 rounded-xl border px-3 text-sm font-extrabold transition ${
-                        selected
-                          ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:text-blue-700"
-                      }`}
-                    >
-                      {shortDay(day)}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-5 sm:grid-cols-2">
-              {/* START */}
-              <div>
-                <label
-                  htmlFor="start-date"
-                  className="form-label"
-                >
-                  Start date
-                </label>
-
-                <input
-                  id="start-date"
-                  type="date"
-                  value={startDate}
-                  min="2026-08-10"
-                  onChange={(event) => {
-                    setStartDate(
-                      event.target.value,
-                    );
-                    setNotice(null);
-                  }}
-                  className="form-input"
-                />
-              </div>
-
-              {/* TIME */}
-              <div>
-                <label
-                  htmlFor="schedule-time"
-                  className="form-label"
-                >
-                  Preferred time
-                </label>
-
-                <select
-                  id="schedule-time"
-                  value={time}
-                  onChange={(event) => {
-                    setTime(
-                      event.target.value,
-                    );
-                    setNotice(null);
-                  }}
-                  className="form-input"
-                >
-                  {availableTimes.map(
-                    (slot) => (
-                      <option
-                        key={slot}
-                        value={slot}
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                  {availableDays.map((day) => {
+                    const isSelected = selectedDays.includes(day);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => toggleDay(day)}
+                        className={`flex min-h-[44px] flex-col items-center justify-center rounded-xl border text-xs font-bold transition ${
+                          isSelected
+                            ? "border-blue-600 bg-blue-50 text-blue-700 shadow-xs"
+                            : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                        }`}
                       >
-                        {slot}
-                      </option>
-                    ),
-                  )}
-                </select>
-              </div>
-            </div>
-          </section>
-
-          {/* =================================================
-              LOCATION
-          ================================================== */}
-          {mode === "home" && (
-            <section className="tc-card mt-5 p-6 sm:p-7">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-xl text-blue-700">
-                  ⌖
-                </span>
-
-                <div>
-                  <h2 className="font-extrabold text-slate-950">
-                    Home Tuition Location
-                  </h2>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    Final address verification happens
-                    before home tuition begins.
-                  </p>
+                        <span>{day.slice(0, 3)}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-                <p className="font-extrabold text-slate-950">
-                  B.N. Reddy Nagar
+              {/* Preferred Time Slot */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs">
+                <h2 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-slate-900 mb-1">
+                  3. Preferred Class Time
+                </h2>
+                <p className="text-xs text-slate-500 mb-4">
+                  Each session is 60 minutes long.
                 </p>
 
-                <p className="mt-1 text-sm text-slate-600">
-                  Hyderabad, Telangana
-                </p>
-
-                <p className="mt-3 text-xs leading-5 text-slate-500">
-                  Ananya offers home tuition within her
-                  configured 5 km travel radius. Real
-                  distance validation will use location
-                  coordinates during backend integration.
-                </p>
-              </div>
-            </section>
-          )}
-
-          {/* =================================================
-              SUMMARY
-          ================================================== */}
-          <section className="mt-5 rounded-2xl border border-teal-100 bg-teal-50/60 p-5 sm:p-6">
-            <p className="text-xs font-bold uppercase tracking-[0.08em] text-teal-700">
-              Schedule Summary
-            </p>
-
-            <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <p className="text-slate-500">
-                  Mode
-                </p>
-
-                <p className="mt-1 font-extrabold text-slate-950">
-                  {mode === "home"
-                    ? "Home Tuition"
-                    : "Online Tuition"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-slate-500">
-                  Days
-                </p>
-
-                <p className="mt-1 font-extrabold text-slate-950">
-                  {formattedDays}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-slate-500">
-                  Time
-                </p>
-
-                <p className="mt-1 font-extrabold text-slate-950">
-                  {time}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-slate-500">
-                  Start
-                </p>
-
-                <p className="mt-1 font-extrabold text-slate-950">
-                  10 August 2026
-                </p>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {availableTimes.map((t) => {
+                    const isSelected = selectedTime === t;
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setSelectedTime(t)}
+                        className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border text-xs font-bold transition ${
+                          isSelected
+                            ? "border-blue-600 bg-blue-50 text-blue-700 shadow-xs"
+                            : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                        }`}
+                      >
+                        <IconClock size={13} className={isSelected ? "text-blue-600" : "text-slate-400"} />
+                        <span>{t}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </section>
 
-          {notice && (
-            <div
-              role="status"
-              className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
-            >
-              {notice}
+            {/* Right: Summary Card (5 cols) */}
+            <div className="space-y-6 lg:col-span-5">
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs">
+                <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-slate-900 mb-4">
+                  Schedule Overview
+                </h3>
+
+                <div className="space-y-3 text-xs text-slate-600">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <span className="text-slate-400">Educator</span>
+                    <span className="font-bold text-slate-900">{tutor.name}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <span className="text-slate-400">Package</span>
+                    <span className="font-bold text-slate-900">{classes} Classes Bundle</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <span className="text-slate-400">Tuition Mode</span>
+                    <span className="font-bold text-blue-700">
+                      {mode === "online" ? "Online Class" : "Home Tuition"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <span className="text-slate-400">Weekly Days</span>
+                    <span className="font-bold text-slate-900">{selectedDays.join(", ")}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <span className="text-slate-400">Class Timing</span>
+                    <span className="font-bold text-slate-900">{selectedTime} IST (60m)</span>
+                  </div>
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-slate-400">Package Total</span>
+                    <span className="font-[family-name:var(--font-manrope)] text-xl font-extrabold text-slate-900">
+                      {formatCurrency(price)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6 border-t border-slate-100 pt-5">
+                  <button
+                    type="button"
+                    onClick={handleContinue}
+                    className="btn btn-primary w-full min-h-[48px] text-sm font-extrabold shadow-sm gap-2"
+                  >
+                    <span>Proceed to Checkout</span>
+                    <IconArrowRight size={15} />
+                  </button>
+                  <p className="mt-2 text-center text-[11px] text-slate-400">
+                    You can reschedule individual sessions anytime from your dashboard.
+                  </p>
+                </div>
+              </div>
             </div>
-          )}
-
-          {/* FRONTEND STATUS */}
-          <section className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
-            Frontend preview: schedule availability is
-            currently mock data. Before real payment,
-            TutorConnect will re-check tutor availability,
-            home-tuition radius and package validity on
-            the server.
-          </section>
+          </div>
         </div>
-      </div>
-
-      {/* =====================================================
-          STICKY FOOTER
-      ====================================================== */}
-      <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 shadow-[0_-12px_35px_rgba(15,23,42,0.06)] backdrop-blur-xl">
-        <div className="container-shell flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <Link
-            href={`/packages/select?tutor=${tutorId}`}
-            className="btn btn-secondary w-full sm:w-auto"
-          >
-            Edit Package
-          </Link>
-
-          <button
-            type="button"
-            onClick={continueToPayment}
-            className="btn btn-primary w-full sm:min-w-[250px] sm:w-auto"
-          >
-            Continue to Payment
-            <span aria-hidden="true">
-              →
-            </span>
-          </button>
-        </div>
-      </footer>
-    </main>
+      </main>
+    </div>
   );
 }
 
-export default function ConfirmSchedulePage() {
+export default function ScheduleConfirmationPage() {
   return (
-    <Suspense
-      fallback={
-        <main className="flex min-h-screen items-center justify-center bg-[#faf9ff]">
-          <div className="text-center">
-            <Logo />
-
-            <p className="mt-5 text-sm font-semibold text-slate-500">
-              Loading schedule…
-            </p>
-          </div>
-        </main>
-      }
-    >
+    <Suspense fallback={<div className="min-h-screen bg-[#fbfbfc] flex items-center justify-center text-sm font-semibold text-slate-500">Loading schedule...</div>}>
       <ScheduleContent />
     </Suspense>
   );
