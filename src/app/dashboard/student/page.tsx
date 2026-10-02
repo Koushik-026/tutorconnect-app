@@ -2,107 +2,105 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-  Suspense,
-  useState,
-} from "react";
+import { Suspense, useState } from "react";
 import { Logo } from "@/components/logo";
+import {
+  IconCalendar,
+  IconClock,
+  IconVideo,
+  IconShieldCheck,
+  IconArrowRight,
+  IconCheck,
+  IconChecklist,
+  IconBookOpen,
+  IconMessageSquare,
+  IconCreditCard,
+  IconSearch,
+  IconSettings,
+  IconHelpCircle,
+  IconUser,
+  IconSparkles,
+} from "@/components/ui/icons";
 
-type ShowNotice = (message: string) => void;
-
-type PackageInfo = {
-  classes: number;
-  price: number;
-  mathematics: number;
-  science: number;
-};
-
-const packageOptions: Record<number, PackageInfo> = {
-  8: {
-    classes: 8,
-    price: 3200,
-    mathematics: 4,
-    science: 4,
-  },
-
-  12: {
-    classes: 12,
-    price: 4500,
-    mathematics: 6,
-    science: 6,
-  },
-
-  15: {
-    classes: 15,
-    price: 5400,
-    mathematics: 8,
-    science: 7,
-  },
-};
 
 const navigationItems = [
-  {
-    label: "Dashboard",
-    icon: "▦",
-  },
-  {
-    label: "My Sessions",
-    icon: "□",
-  },
-  {
-    label: "Find Tutors",
-    icon: "⌕",
-  },
-  {
-    label: "Messages",
-    icon: "✉",
-  },
-  {
-    label: "Payments",
-    icon: "▣",
-  },
+  { label: "Home", icon: "home", href: "/dashboard/student", active: true },
+  { label: "Sessions", icon: "calendar", href: "#", active: false },
+  { label: "Find Tutors", icon: "search", href: "/tutors", active: false },
+  { label: "Messages", icon: "messages", href: "#", active: false },
+  { label: "Payments", icon: "payments", href: "#", active: false },
 ];
 
-function formatPrice(value: number) {
-  return value.toLocaleString("en-IN");
+function NavIcon({ type, size = 18 }: { type: string; size?: number }) {
+  switch (type) {
+    case "calendar":
+      return <IconCalendar size={size} />;
+    case "search":
+      return <IconSearch size={size} />;
+    case "messages":
+      return <IconMessageSquare size={size} />;
+    case "payments":
+      return <IconCreditCard size={size} />;
+    case "settings":
+      return <IconSettings size={size} />;
+    case "help":
+      return <IconHelpCircle size={size} />;
+    case "user":
+      return <IconUser size={size} />;
+    default:
+      return <IconBookOpen size={size} />;
+  }
 }
 
-/* =========================================================
-   DESKTOP SIDEBAR
-========================================================= */
+function StudentDashboardContent() {
+  const searchParams = useSearchParams();
 
-function DesktopSidebar({
-  showNotice,
-}: {
-  showNotice: ShowNotice;
-}) {
+  const state = searchParams.get("state") === "active" ? "active" : "pre-demo";
+  const activeClasses = Number(searchParams.get("classes")) || 15;
+  const completedClasses = state === "active" ? 3 : 0;
+  const remainingClasses = activeClasses - completedClasses;
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  function showNotice(msg: string) {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  }
+
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[280px] border-r border-slate-200 bg-[#f3f4ff] lg:flex lg:flex-col">
-      <div className="px-6 py-7">
-        <Logo />
-      </div>
+    <div className="flex min-h-screen bg-[#f8fafc] text-slate-900">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-5 right-5 z-50 rounded-2xl border border-blue-200 bg-white p-4 shadow-xl text-xs font-semibold text-slate-800 flex items-center gap-2 max-w-sm animate-fade-in">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-700 shrink-0">
+            i
+          </span>
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
-      <nav
-        aria-label="Student dashboard navigation"
-        className="mt-5 px-4"
-      >
-        <div className="space-y-2">
+      {/* Desktop Persistent Sidebar (w-64) */}
+      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-slate-200/80 bg-white z-30">
+        <div className="flex h-16 items-center px-6 border-b border-slate-100">
+          <Logo />
+        </div>
+
+        {/* Sidebar Nav */}
+        <nav aria-label="Student Navigation" className="flex-1 p-4 space-y-1.5">
           {navigationItems.map((item) => {
-            const active =
-              item.label === "Dashboard";
-
-            if (item.label === "Find Tutors") {
+            if (item.href.startsWith("/")) {
               return (
                 <Link
                   key={item.label}
-                  href="/tutors"
-                  className="flex min-h-12 items-center gap-4 rounded-xl px-4 text-sm font-extrabold text-slate-700 transition hover:bg-white hover:text-blue-700"
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-bold transition ${
+                    item.active
+                      ? "bg-blue-50 text-blue-700 shadow-xs"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
                 >
-                  <span className="flex h-7 w-7 items-center justify-center text-lg text-slate-500">
-                    {item.icon}
-                  </span>
-
-                  {item.label}
+                  <NavIcon type={item.icon} size={18} />
+                  <span>{item.label}</span>
                 </Link>
               );
             }
@@ -111,1068 +109,516 @@ function DesktopSidebar({
               <button
                 key={item.label}
                 type="button"
-                onClick={() => {
-                  if (!active) {
-                    showNotice(
-                      `${item.label} will be connected as we build the learning workspace.`,
-                    );
-                  }
-                }}
-                className={`flex min-h-12 w-full items-center gap-4 rounded-xl px-4 text-left text-sm font-extrabold transition ${
-                  active
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
-                    : "text-slate-700 hover:bg-white hover:text-blue-700"
+                onClick={() =>
+                  showNotice(
+                    `${item.label} workspace will be connected in upcoming platform modules.`
+                  )
+                }
+                className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition text-left"
+              >
+                <NavIcon type={item.icon} size={18} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Sidebar Bottom User & Settings */}
+        <div className="p-4 border-t border-slate-100 space-y-1">
+          <button
+            type="button"
+            onClick={() => showNotice("Settings and account preferences will be enabled.")}
+            className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-left"
+          >
+            <IconSettings size={16} />
+            <span>Settings</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => showNotice("TutorConnect Support & Help Desk is active.")}
+            className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-left"
+          >
+            <IconHelpCircle size={16} />
+            <span>Help Center</span>
+          </button>
+
+          <div className="mt-3 flex items-center gap-3 rounded-xl bg-slate-50 p-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-extrabold text-white text-xs">
+              AR
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-bold text-slate-900">Aarav Reddy</p>
+              <p className="truncate text-[10px] text-slate-500">Class 9 &bull; CBSE</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Workspace (Offset by 64 on desktop) */}
+      <div className="flex-1 lg:pl-64 flex flex-col min-w-0 pb-24 lg:pb-12">
+        {/* Top Header for Mobile/Tablet */}
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur-md lg:hidden">
+          <Logo />
+          <div className="flex items-center gap-2">
+            <Link
+              href="/tutors"
+              className="rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs"
+            >
+              Find Tutors
+            </Link>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 font-bold text-blue-700 text-xs">
+              AR
+            </div>
+          </div>
+        </header>
+
+        {/* Dashboard Content Canvas */}
+        <main id="main-content" className="p-4 sm:p-6 lg:p-10 max-w-6xl w-full mx-auto">
+          {/* Top Greeting */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                Student Learning Workspace
+              </span>
+              <h1 className="mt-1 font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-slate-950 sm:text-3xl">
+                Welcome back, Aarav!
+              </h1>
+              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                Parent Account: Suresh Reddy &bull; Hyderabad (B.N. Reddy Nagar)
+              </p>
+            </div>
+
+            {/* Quick state switcher for testing prototype */}
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-slate-400 font-semibold">View Mode:</span>
+              <Link
+                href="/dashboard/student"
+                className={`rounded-lg px-2.5 py-1 font-bold text-xs transition ${
+                  state === "pre-demo"
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "bg-white text-slate-600 border border-slate-200"
                 }`}
               >
-                <span
-                  className={`flex h-7 w-7 items-center justify-center text-lg ${
-                    active
-                      ? "text-white"
-                      : "text-slate-500"
+                Pre-Demo
+              </Link>
+              <Link
+                href="/dashboard/student?state=active&classes=15&amount=5400"
+                className={`rounded-lg px-2.5 py-1 font-bold text-xs transition ${
+                  state === "active"
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "bg-white text-slate-600 border border-slate-200"
+                }`}
+              >
+                Active Tuition
+              </Link>
+            </div>
+          </div>
+
+          {/* ===================================================
+              PRE-DEMO STATE
+          ==================================================== */}
+          {state === "pre-demo" && (
+            <div className="space-y-8">
+              {/* Task-First Hero: What should I do next? */}
+              <div className="rounded-2xl border border-blue-200/90 bg-gradient-to-br from-blue-50/80 via-white to-teal-50/50 p-6 sm:p-8 shadow-xs">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="space-y-3">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-100/80 px-3 py-1 text-xs font-bold text-blue-800">
+                      <IconVideo size={13} />
+                      <span>Next Action &bull; Upcoming 30-min Demo</span>
+                    </div>
+
+                    <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-slate-950 sm:text-3xl">
+                      Mathematics &amp; Science Trial Class
+                    </h2>
+
+                    <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600">
+                      <div className="flex items-center gap-1.5 text-slate-900">
+                        <IconCalendar size={15} className="text-blue-600" />
+                        <span>Today &bull; 4 August 2026</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-900">
+                        <IconClock size={15} className="text-blue-600" />
+                        <span>4:00 PM â€“ 4:30 PM IST</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      <div
+                        role="img"
+                        aria-label="Ananya Sharma"
+                        className="h-10 w-10 shrink-0 rounded-xl bg-cover bg-center border border-slate-200"
+                        style={{
+                          backgroundImage:
+                            "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPQzlQm4NKP8RwwlMcU-iNR7MlCStPHTuPVcPnXON--lVzkkXxm1ybxWUlzS16db2LPkVNwpc8Yq6VEtVSFZio6QcV_HCmwmjn9I_3lrlxyxIGNSB2kbD9ddVK0tOvHW0lUKSzEGCdoY59_wDawLUr0UfLNPQt0j47gLzNAWb2qPr_uUIYdo2Zf2jyUfWwgm4IMCRYuUmOnKtOz8sxp9gE-_dTxCuiVPhfC4yikDR2ozPcCLCcIguDSA')",
+                        }}
+                      />
+                      <div>
+                        <div className="flex items-center gap-1 text-xs font-bold text-slate-900">
+                          <span>Ananya Sharma</span>
+                          <IconShieldCheck size={14} className="text-emerald-600" />
+                        </div>
+                        <p className="text-[11px] text-slate-500">8y experience &bull; CBSE &bull; 4.9 â˜…</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Primary Join Action */}
+                  <div className="flex flex-col gap-2 shrink-0">
+                    <Link
+                      href="/demo/waiting-room"
+                      className="btn btn-primary min-h-[50px] px-6 text-sm font-extrabold shadow-sm gap-2"
+                    >
+                      <IconVideo size={16} />
+                      <span>Enter Waiting Room</span>
+                      <IconArrowRight size={15} />
+                    </Link>
+                    <span className="text-[11px] text-center text-slate-400">
+                      Join link ready &bull; Camera &amp; Mic test
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bento Grid: Preparation & Package Readiness */}
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Pre-session Preparation */}
+                <div className="rounded-2xl border border-slate-200/85 bg-white p-6 shadow-xs">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                      <IconChecklist size={16} />
+                    </div>
+                    <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-slate-900">
+                      Session Preparation
+                    </h3>
+                  </div>
+
+                  <ul className="space-y-3 text-xs text-slate-600">
+                    <li className="flex items-start gap-2.5">
+                      <IconCheck size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Connect 5 minutes before scheduled start time for audio check.</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <IconCheck size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Keep Class 9 Mathematics textbook or homework questions handy.</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <IconCheck size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Discuss customized study plan and weekly rhythm after the demo.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Post-Demo Package Selection */}
+                <div className="rounded-2xl border border-slate-200/85 bg-white p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+                        <IconSparkles size={16} />
+                      </div>
+                      <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-slate-900">
+                        Class Packages Ready
+                      </h3>
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      Following your trial lesson, you can choose an 8, 12, or 15 class package tailored for online or in-person home tuition.
+                    </p>
+                  </div>
+
+                  <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700">Starts at â‚¹3,200 / month</span>
+                    <Link
+                      href="/packages/select?tutor=ananya-sharma"
+                      className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                    >
+                      <span>Preview Packages</span>
+                      <IconArrowRight size={13} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ===================================================
+              ACTIVE TUITION STATE
+          ==================================================== */}
+          {state === "active" && (
+            <div className="space-y-8">
+              {/* Task-First: Next Scheduled Class */}
+              <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/70 via-white to-blue-50/40 p-6 sm:p-8 shadow-xs">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="space-y-3">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/90 px-3 py-1 text-xs font-bold text-emerald-800">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>Active Package &bull; Next Class Ready</span>
+                    </div>
+
+                    <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-slate-950 sm:text-3xl">
+                      Mathematics: Quadratic Equations &bull; Lesson 4
+                    </h2>
+
+                    <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600">
+                      <div className="flex items-center gap-1.5 text-slate-900">
+                        <IconCalendar size={15} className="text-emerald-700" />
+                        <span>Monday &bull; 10 August 2026</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-900">
+                        <IconClock size={15} className="text-emerald-700" />
+                        <span>4:00 PM â€“ 5:00 PM IST (60m)</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      <div
+                        role="img"
+                        aria-label="Ananya Sharma"
+                        className="h-10 w-10 shrink-0 rounded-xl bg-cover bg-center border border-slate-200"
+                        style={{
+                          backgroundImage:
+                            "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPQzlQm4NKP8RwwlMcU-iNR7MlCStPHTuPVcPnXON--lVzkkXxm1ybxWUlzS16db2LPkVNwpc8Yq6VEtVSFZio6QcV_HCmwmjn9I_3lrlxyxIGNSB2kbD9ddVK0tOvHW0lUKSzEGCdoY59_wDawLUr0UfLNPQt0j47gLzNAWb2qPr_uUIYdo2Zf2jyUfWwgm4IMCRYuUmOnKtOz8sxp9gE-_dTxCuiVPhfC4yikDR2ozPcCLCcIguDSA')",
+                        }}
+                      />
+                      <div>
+                        <div className="flex items-center gap-1 text-xs font-bold text-slate-900">
+                          <span>Ananya Sharma</span>
+                          <IconShieldCheck size={14} className="text-emerald-600" />
+                        </div>
+                        <p className="text-[11px] text-slate-500">Online Classroom &bull; Notes Attached</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 shrink-0">
+                    <Link
+                      href="/demo/session"
+                      className="btn btn-primary min-h-[50px] px-6 text-sm font-extrabold shadow-sm gap-2"
+                    >
+                      <IconVideo size={16} />
+                      <span>Join Classroom</span>
+                      <IconArrowRight size={15} />
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => showNotice("Reschedule request submitted to Ananya Sharma.")}
+                      className="text-xs text-center font-bold text-slate-500 hover:text-slate-800"
+                    >
+                      Request Reschedule
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Package Progress & Routine Overview */}
+              <div className="grid gap-6 md:grid-cols-3">
+                {/* Card 1: Package Progress */}
+                <div className="rounded-2xl border border-slate-200/85 bg-white p-6 shadow-xs">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Tuition Progress
+                  </span>
+                  <div className="mt-3 flex items-baseline justify-between">
+                    <span className="font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-slate-900">
+                      {completedClasses} / {activeClasses}
+                    </span>
+                    <span className="text-xs font-bold text-blue-700">
+                      {remainingClasses} Remaining
+                    </span>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="mt-3 h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                      style={{ width: `${(completedClasses / activeClasses) * 100}%` }}
+                    />
+                  </div>
+
+                  <p className="mt-3 text-xs text-slate-500">
+                    Package valid through 24 September 2026
+                  </p>
+                </div>
+
+                {/* Card 2: Weekly Routine */}
+                <div className="rounded-2xl border border-slate-200/85 bg-white p-6 shadow-xs">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Weekly Routine
+                  </span>
+                  <h3 className="mt-2 text-sm font-bold text-slate-900">
+                    Mon, Wed, Fri &bull; 4:00 PM IST
+                  </h3>
+                  <div className="mt-3 flex gap-1.5">
+                    {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => {
+                      const isClassDay = ["Mon", "Wed", "Fri"].includes(day);
+                      return (
+                        <span
+                          key={day}
+                          className={`flex-1 text-center py-1 rounded-md text-[10px] font-bold ${
+                            isClassDay ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400"
+                          }`}
+                        >
+                          {day}
+                        </span>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-3 text-xs text-slate-500">
+                    60 minutes per session &bull; 1-on-1 Online
+                  </p>
+                </div>
+
+                {/* Card 3: Recent Assessments */}
+                <div className="rounded-2xl border border-slate-200/85 bg-white p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      Recent Assessments
+                    </span>
+                    <h3 className="mt-2 text-sm font-bold text-slate-900">
+                      Algebra Fundamentals Quiz
+                    </h3>
+                    <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                      <span>Score: 18 / 20 (90%)</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => showNotice("Quiz review notes downloaded.")}
+                    className="mt-4 text-xs font-bold text-blue-600 hover:text-blue-700 text-left"
+                  >
+                    View Tutor Feedback &rarr;
+                  </button>
+                </div>
+              </div>
+
+              {/* Homework & Resources Placeholders */}
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200/85 bg-white p-6 shadow-xs">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-slate-900">
+                      Recent Class Notes
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => showNotice("All lecture PDF notes exported.")}
+                      className="text-xs font-bold text-blue-600"
+                    >
+                      View All
+                    </button>
+                  </div>
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between rounded-xl bg-slate-50 p-3 text-xs">
+                      <div>
+                        <span className="font-bold text-slate-900">Lesson 3: Factoring Polynomials</span>
+                        <p className="text-slate-400 text-[10px]">PDF &bull; 1.4 MB &bull; Uploaded Aug 7</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => showNotice("Downloading PDF...")}
+                        className="text-xs font-bold text-blue-600"
+                      >
+                        Download
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between rounded-xl bg-slate-50 p-3 text-xs">
+                      <div>
+                        <span className="font-bold text-slate-900">Lesson 2: Algebraic Identities Practice</span>
+                        <p className="text-slate-400 text-[10px]">PDF &bull; 2.1 MB &bull; Uploaded Aug 5</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => showNotice("Downloading PDF...")}
+                        className="text-xs font-bold text-blue-600"
+                      >
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200/85 bg-white p-6 shadow-xs">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-slate-900">
+                      Pending Homework
+                    </h3>
+                    <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                      1 Pending
+                    </span>
+                  </div>
+                  <div className="rounded-xl border border-amber-200/80 bg-amber-50/50 p-4">
+                    <span className="text-xs font-bold text-slate-900">
+                      Exercise 4.2: Quadratic Formula (Problems 1â€“10)
+                    </span>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Due before Monday 4:00 PM session
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => showNotice("Homework upload workflow will be connected.")}
+                      className="mt-3 btn btn-secondary min-h-[36px] py-1 text-xs font-bold"
+                    >
+                      Submit Homework
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* Mobile Fixed Bottom Navigation (>= 48px touch targets) */}
+      <nav
+        aria-label="Student Mobile Navigation"
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md px-2 py-2 lg:hidden shadow-lg"
+      >
+        <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
+          {navigationItems.map((item) => {
+            const isActive = item.active;
+            const content = (
+              <>
+                <NavIcon type={item.icon} size={20} />
+                <span className="text-[10px] font-bold mt-1">{item.label}</span>
+              </>
+            );
+
+            if (item.href.startsWith("/")) {
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`flex min-h-[48px] flex-col items-center justify-center rounded-xl transition ${
+                    isActive ? "text-blue-600 bg-blue-50/80" : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
-                  {item.icon}
-                </span>
+                  {content}
+                </Link>
+              );
+            }
 
-                {item.label}
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() =>
+                  showNotice(`${item.label} workspace will be connected in upcoming modules.`)
+                }
+                className={`flex min-h-[48px] flex-col items-center justify-center rounded-xl transition ${
+                  isActive ? "text-blue-600 bg-blue-50/80" : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                {content}
               </button>
             );
           })}
         </div>
       </nav>
-
-      <div className="mt-auto">
-        <div className="px-4">
-          <Link
-            href="/tutors"
-            className="btn btn-primary w-full"
-          >
-            <span className="text-lg">
-              ＋
-            </span>
-
-            Find a Tutor
-          </Link>
-        </div>
-
-        <div className="mt-5 border-t border-slate-200 px-4 py-5">
-          <button
-            type="button"
-            onClick={() =>
-              showNotice(
-                "Student settings will be connected during the account-management phase.",
-              )
-            }
-            className="flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left text-sm font-bold text-slate-700 transition hover:bg-white"
-          >
-            <span className="text-lg">
-              ⚙
-            </span>
-
-            Settings
-          </button>
-
-          <button
-            type="button"
-            onClick={() =>
-              showNotice(
-                "TutorConnect support tools will be connected later.",
-              )
-            }
-            className="flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left text-sm font-bold text-slate-700 transition hover:bg-white"
-          >
-            <span className="text-lg">
-              ?
-            </span>
-
-            Help Center
-          </button>
-
-          <div className="mt-4 flex items-center gap-3 rounded-2xl bg-white/70 p-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-teal-500 text-sm font-extrabold text-white">
-              SR
-            </div>
-
-            <div className="min-w-0">
-              <p className="truncate text-sm font-extrabold text-slate-950">
-                Suresh Reddy
-              </p>
-
-              <p className="text-xs text-slate-500">
-                Parent Account
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-/* =========================================================
-   MOBILE / TABLET HEADER
-========================================================= */
-
-function MobileHeader({
-  showNotice,
-}: {
-  showNotice: ShowNotice;
-}) {
-  return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-xl lg:hidden">
-      <div className="container-shell flex h-[68px] items-center justify-between">
-        <Logo />
-
-        <div className="flex items-center gap-2">
-          <Link
-            href="/tutors"
-            className="hidden rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-extrabold text-white sm:inline-flex"
-          >
-            Find Tutors
-          </Link>
-
-          <button
-            type="button"
-            aria-label="Account settings"
-            onClick={() =>
-              showNotice(
-                "Account settings will be connected later.",
-              )
-            }
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-sm font-extrabold text-blue-700"
-          >
-            SR
-          </button>
-        </div>
-      </div>
-    </header>
-  );
-}
-
-/* =========================================================
-   MOBILE BOTTOM NAVIGATION
-========================================================= */
-
-function BottomNavigation({
-  showNotice,
-  dashboardHref,
-}: {
-  showNotice: ShowNotice;
-  dashboardHref: string;
-}) {
-  return (
-    <nav
-      aria-label="Student mobile navigation"
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-10px_30px_rgba(15,23,42,0.06)] backdrop-blur-xl sm:px-4 lg:hidden"
-    >
-      <div className="mx-auto grid max-w-xl grid-cols-4 gap-1">
-        <Link
-          href={dashboardHref}
-          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl bg-blue-50 text-blue-700"
-        >
-          <span className="text-lg">
-            ▦
-          </span>
-
-          <span className="text-[11px] font-extrabold">
-            Home
-          </span>
-        </Link>
-
-        <button
-          type="button"
-          onClick={() =>
-            showNotice(
-              "The full My Sessions workspace is coming next.",
-            )
-          }
-          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-slate-500 transition hover:bg-slate-50 hover:text-blue-700"
-        >
-          <span className="text-lg">
-            □
-          </span>
-
-          <span className="text-[11px] font-bold">
-            Sessions
-          </span>
-        </button>
-
-        <Link
-          href="/tutors"
-          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-slate-500 transition hover:bg-slate-50 hover:text-blue-700"
-        >
-          <span className="text-lg">
-            ⌕
-          </span>
-
-          <span className="text-[11px] font-bold">
-            Tutors
-          </span>
-        </Link>
-
-        <button
-          type="button"
-          onClick={() =>
-            showNotice(
-              "TutorConnect messaging will be connected during the communication phase.",
-            )
-          }
-          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-slate-500 transition hover:bg-slate-50 hover:text-blue-700"
-        >
-          <span className="text-lg">
-            ✉
-          </span>
-
-          <span className="text-[11px] font-bold">
-            Messages
-          </span>
-        </button>
-      </div>
-    </nav>
-  );
-}
-
-/* =========================================================
-   PRE-DEMO DASHBOARD
-========================================================= */
-
-function PreDemoDashboard({
-  showNotice,
-}: {
-  showNotice: ShowNotice;
-}) {
-  return (
-    <>
-      <section>
-        <span className="badge badge-blue lg:hidden">
-          Student dashboard
-        </span>
-
-        <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-4xl lg:mt-0 lg:text-[2.6rem]">
-          Welcome back, Aarav!
-        </h1>
-
-        <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
-          Here&apos;s a quick overview of
-          your learning journey.
-        </p>
-      </section>
-
-      <section className="mt-7 grid gap-5 xl:grid-cols-[minmax(0,1.65fr)_320px]">
-        <article className="tc-card overflow-hidden">
-          <div className="border-b border-slate-100 p-5 sm:p-6 lg:p-7">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <span className="badge badge-blue">
-                  Upcoming Free Online Demo
-                </span>
-
-                <h2 className="mt-4 text-2xl font-extrabold text-slate-950 sm:text-3xl">
-                  Mathematics & Science
-                </h2>
-              </div>
-
-              <div className="sm:text-right">
-                <p className="text-sm font-extrabold text-blue-700">
-                  4 August 2026
-                </p>
-
-                <p className="mt-1 text-sm font-semibold text-slate-600">
-                  4:00 PM – 4:30 PM IST
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-center gap-4 rounded-2xl border-l-4 border-teal-600 bg-indigo-50/70 p-4">
-              <div
-                role="img"
-                aria-label="Ananya Sharma"
-                className="h-12 w-12 shrink-0 rounded-full bg-cover bg-center shadow-sm"
-                style={{
-                  backgroundImage:
-                    "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPQzlQm4NKP8RwwlMcU-iNR7MlCStPHTuPVcPnXON--lVzkkXxm1ybxWUlzS16db2LPkVNwpc8Yq6VEtVSFZio6QcV_HCmwmjn9I_3lrlxyxIGNSB2kbD9ddVK0tOvHW0lUKSzEGCdoY59_wDawLUr0UfLNPQt0j47gLzNAWb2qPr_uUIYdo2Zf2jyUfWwgm4IMCRYuUmOnKtOz8sxp9gE-_dTxCuiVPhfC4yikDR2ozPcCLCcIguDSA')",
-                }}
-              />
-
-              <div>
-                <p className="font-extrabold text-slate-950">
-                  Ananya Sharma
-                </p>
-
-                <p className="mt-1 text-sm text-slate-600">
-                  <span className="font-bold text-amber-600">
-                    ★ 4.9
-                  </span>
-
-                  {" · "}
-
-                  Mathematics & Science Tutor
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/demo/waiting-room"
-                className="btn btn-primary w-full sm:w-auto"
-              >
-                Join Demo
-              </Link>
-
-              <Link
-                href="/demo/book?tutor=ananya-sharma"
-                className="btn btn-secondary w-full sm:w-auto"
-              >
-                Reschedule
-              </Link>
-
-              <button
-                type="button"
-                onClick={() =>
-                  showNotice(
-                    "Demo cancellation will be connected to the booking backend.",
-                  )
-                }
-                className="min-h-12 rounded-xl px-5 text-sm font-extrabold text-red-600 transition hover:bg-red-50 sm:ml-auto"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-
-          <div className="grid gap-px bg-slate-200 sm:grid-cols-3">
-            <div className="bg-white px-5 py-4">
-              <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-400">
-                Session
-              </p>
-
-              <p className="mt-1 text-sm font-extrabold text-slate-800">
-                Free Online Demo
-              </p>
-            </div>
-
-            <div className="bg-white px-5 py-4">
-              <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-400">
-                Duration
-              </p>
-
-              <p className="mt-1 text-sm font-extrabold text-slate-800">
-                30 minutes
-              </p>
-            </div>
-
-            <div className="bg-white px-5 py-4">
-              <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-400">
-                Cost
-              </p>
-
-              <p className="mt-1 text-sm font-extrabold text-teal-700">
-                Free
-              </p>
-            </div>
-          </div>
-        </article>
-
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
-          <article className="tc-card flex min-h-[190px] flex-col items-center justify-center p-6 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-2xl text-slate-500">
-              ▣
-            </div>
-
-            <h2 className="mt-4 font-extrabold text-slate-950">
-              No active monthly package
-            </h2>
-
-            <p className="mt-2 max-w-xs text-sm leading-6 text-slate-600">
-              Attend the demo first, then
-              choose a tuition package.
-            </p>
-          </article>
-
-          <article className="tc-card flex min-h-[190px] flex-col items-center justify-center p-6 text-center">
-            <p className="text-4xl font-extrabold text-slate-950">
-              0
-            </p>
-
-            <p className="mt-2 text-sm font-semibold text-slate-600">
-              Classes completed
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section className="mt-5 grid gap-5 md:grid-cols-2">
-        <article className="flex min-h-[245px] items-center justify-center rounded-[22px] border border-dashed border-slate-300 bg-white/70 p-7 text-center">
-          <div>
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-xl">
-              ▤
-            </div>
-
-            <h2 className="mt-4 text-lg font-extrabold text-slate-800">
-              No Notes Yet
-            </h2>
-
-            <p className="mt-2 text-sm text-slate-500">
-              Tutor notes will appear here
-              after regular tuition begins.
-            </p>
-          </div>
-        </article>
-
-        <article className="flex min-h-[245px] items-center justify-center rounded-[22px] border border-dashed border-slate-300 bg-white/70 p-7 text-center">
-          <div>
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-xl">
-              ?
-            </div>
-
-            <h2 className="mt-4 text-lg font-extrabold text-slate-800">
-              No Active Quizzes
-            </h2>
-
-            <p className="mt-2 text-sm text-slate-500">
-              Tutor assessments will appear
-              here once classes begin.
-            </p>
-          </div>
-        </article>
-      </section>
-    </>
-  );
-}
-
-/* =========================================================
-   ACTIVE TUITION DASHBOARD
-========================================================= */
-
-function ActiveDashboard({
-  showNotice,
-  packageInfo,
-}: {
-  showNotice: ShowNotice;
-  packageInfo: PackageInfo;
-}) {
-  /*
-   * For this UI prototype we are showing an
-   * example learning-in-progress state.
-   *
-   * Later these values come from the database.
-   */
-  const completedClasses =
-    Math.min(3, packageInfo.classes);
-
-  const remainingClasses =
-    packageInfo.classes - completedClasses;
-
-  const progressPercent =
-    Math.round(
-      (completedClasses /
-        packageInfo.classes) *
-        100,
-    );
-
-  return (
-    <>
-      {/* =====================================================
-          HEADING
-      ====================================================== */}
-      <section className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-        <div>
-          <span className="badge badge-blue lg:hidden">
-            Student dashboard
-          </span>
-
-          <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-4xl lg:mt-0 lg:text-[2.6rem]">
-            Welcome back, Aarav!
-          </h1>
-
-          <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
-            Here&apos;s a quick overview of
-            your progress today.
-          </p>
-        </div>
-
-        <div className="inline-flex w-fit items-center gap-3 rounded-2xl border border-blue-200 bg-blue-50 px-5 py-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-sm font-extrabold text-teal-700">
-            ✓
-          </span>
-
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-500">
-              Status
-            </p>
-
-            <p className="text-sm font-extrabold text-slate-950">
-              Active{" "}
-              {packageInfo.classes}-class
-              package{" "}
-              <span className="text-blue-700">
-                (₹
-                {formatPrice(
-                  packageInfo.price,
-                )}
-                )
-              </span>
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================
-          PROGRESS + SCORES
-      ====================================================== */}
-      <section className="mt-7 grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_320px]">
-        <article className="tc-card overflow-hidden">
-          <div className="p-5 sm:p-6 lg:p-7">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-extrabold text-slate-950">
-                  Course Progress
-                </h2>
-
-                <p className="mt-2 text-sm text-slate-600">
-                  {completedClasses} of{" "}
-                  {packageInfo.classes}{" "}
-                  classes completed
-                </p>
-              </div>
-
-              <span className="badge badge-blue">
-                Mathematics & Science
-              </span>
-            </div>
-
-            {/* Progress bar */}
-            <div className="mt-5">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-slate-500">
-                  Overall package progress
-                </span>
-
-                <span className="font-extrabold text-blue-700">
-                  {progressPercent}%
-                </span>
-              </div>
-
-              <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-blue-100">
-                <div
-                  className="h-full rounded-full bg-blue-600 transition-all"
-                  style={{
-                    width: `${progressPercent}%`,
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Subject allocation */}
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl bg-blue-50 p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.08em] text-blue-600">
-                  Mathematics
-                </p>
-
-                <p className="mt-2 text-xl font-extrabold text-slate-950">
-                  {
-                    packageInfo.mathematics
-                  }{" "}
-                  classes
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-teal-50 p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.08em] text-teal-700">
-                  Science
-                </p>
-
-                <p className="mt-2 text-xl font-extrabold text-slate-950">
-                  {packageInfo.science}{" "}
-                  classes
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-violet-50 p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.08em] text-violet-700">
-                  Remaining
-                </p>
-
-                <p className="mt-2 text-xl font-extrabold text-slate-950">
-                  {remainingClasses}{" "}
-                  classes
-                </p>
-              </div>
-            </div>
-
-            {/* Next class */}
-            <div className="mt-6 rounded-2xl border border-violet-200 bg-violet-50/60 p-5">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex gap-4">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-xl text-white">
-                    ▣
-                  </span>
-
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-500">
-                      Next Class
-                    </p>
-
-                    <p className="mt-1 font-extrabold text-slate-950">
-                      Mathematics with
-                      Ananya Sharma
-                    </p>
-
-                    <p className="mt-1 text-sm text-slate-600">
-                      Monday, 17 August ·
-                      5:00 PM – 6:00 PM
-                    </p>
-
-                    <p className="mt-1 text-xs font-semibold text-violet-700">
-                      Home Tuition · B.N.
-                      Reddy Nagar
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    showNotice(
-                      "Class details and attendance controls will be connected in My Sessions.",
-                    )
-                  }
-                  className="btn btn-secondary w-full sm:w-auto"
-                >
-                  View Class
-                </button>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        {/* Scores */}
-        <article className="tc-card p-5 sm:p-6">
-          <div className="flex items-center gap-3">
-            <span className="text-xl text-violet-600">
-              ♕
-            </span>
-
-            <h2 className="text-xl font-extrabold text-slate-950">
-              Recent Scores
-            </h2>
-          </div>
-
-          <div className="mt-5 space-y-4">
-            <div className="rounded-2xl border border-slate-200 p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-extrabold text-slate-900">
-                    Algebra Basics
-                  </p>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    Mathematics
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-2xl font-extrabold text-teal-700">
-                    88%
-                  </p>
-
-                  <p className="text-xs font-semibold text-teal-700">
-                    Good
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-extrabold text-slate-900">
-                    Motion Check
-                  </p>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    Science
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-2xl font-extrabold text-blue-700">
-                    92%
-                  </p>
-
-                  <p className="text-xs font-semibold text-blue-700">
-                    Excellent
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() =>
-              showNotice(
-                "The full quiz history will be connected when we build Quizzes.",
-              )
-            }
-            className="mt-5 w-full text-center text-sm font-extrabold text-blue-700"
-          >
-            View all scores →
-          </button>
-        </article>
-      </section>
-
-      {/* =====================================================
-          NOTES + HOMEWORK
-      ====================================================== */}
-      <section className="mt-5 grid gap-5 xl:grid-cols-2">
-        {/* Notes */}
-        <article className="tc-card p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-xl text-blue-600">
-                ▤
-              </span>
-
-              <h2 className="text-xl font-extrabold text-slate-950">
-                Latest Notes
-              </h2>
-            </div>
-
-            <button
-              type="button"
-              onClick={() =>
-                showNotice(
-                  "The complete Notes workspace is coming shortly.",
-                )
-              }
-              className="text-sm font-extrabold text-blue-700"
-            >
-              View All
-            </button>
-          </div>
-
-          <div className="mt-5 divide-y divide-slate-100">
-            <div className="flex items-center gap-4 py-4">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-                ▤
-              </span>
-
-              <div className="min-w-0 flex-1">
-                <p className="font-extrabold text-slate-900">
-                  Linear Equations –
-                  Quick Notes
-                </p>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  Added 14 August 2026
-                </p>
-              </div>
-
-              <button
-                type="button"
-                aria-label="Download notes"
-                onClick={() =>
-                  showNotice(
-                    "Secure note downloads will work after file storage is connected.",
-                  )
-                }
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-blue-700"
-              >
-                ↓
-              </button>
-            </div>
-
-            <div className="flex items-center gap-4 py-4">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
-                ▤
-              </span>
-
-              <div className="min-w-0 flex-1">
-                <p className="font-extrabold text-slate-900">
-                  Motion & Force Summary
-                </p>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  Added 12 August 2026
-                </p>
-              </div>
-
-              <button
-                type="button"
-                aria-label="Download notes"
-                onClick={() =>
-                  showNotice(
-                    "Secure note downloads will work after file storage is connected.",
-                  )
-                }
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-blue-700"
-              >
-                ↓
-              </button>
-            </div>
-          </div>
-        </article>
-
-        <div className="space-y-5">
-          {/* Homework */}
-          <article className="tc-card p-5 sm:p-6">
-            <div className="flex items-center gap-3">
-              <span className="text-xl text-red-600">
-                ▣
-              </span>
-
-              <h2 className="text-xl font-extrabold text-slate-950">
-                Homework Due
-              </h2>
-            </div>
-
-            <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-5">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="font-extrabold text-red-900">
-                    Linear Equations
-                    Practice Set
-                  </p>
-
-                  <p className="mt-1 text-sm text-red-700">
-                    Due 17 August by
-                    11:59 PM
-                  </p>
-
-                  <p className="mt-2 text-xs text-red-700/80">
-                    Mathematics · Ananya
-                    Sharma
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    showNotice(
-                      "Homework upload will connect to secure student file storage.",
-                    )
-                  }
-                  className="rounded-xl bg-red-700 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-red-800"
-                >
-                  Upload
-                </button>
-              </div>
-            </div>
-          </article>
-
-          {/* Feedback */}
-          <article className="rounded-[22px] border-l-4 border-blue-600 bg-blue-50/70 p-5 sm:p-6">
-            <div className="flex gap-4">
-              <span className="text-4xl font-serif text-blue-600">
-                ”
-              </span>
-
-              <div>
-                <p className="text-sm italic leading-7 text-slate-700">
-                  “Aarav is engaging well
-                  with the core concepts.
-                  Regular practice before
-                  each class will help him
-                  build even stronger
-                  confidence.”
-                </p>
-
-                <p className="mt-3 text-sm font-extrabold text-slate-900">
-                  — Ananya Sharma
-                </p>
-
-                <p className="mt-0.5 text-xs text-slate-500">
-                  Tutor feedback
-                </p>
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      {/* =====================================================
-          PACKAGE SUMMARY
-      ====================================================== */}
-      <section className="mt-5 tc-card p-5 sm:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <span className="badge badge-teal">
-              Active Tuition
-            </span>
-
-            <h2 className="mt-3 text-xl font-extrabold text-slate-950">
-              {packageInfo.classes}-Class
-              Mathematics & Science Package
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Home tuition · Mon / Wed /
-              Fri · 5:00 PM · 60-minute
-              sessions
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-xl bg-slate-50 px-4 py-3">
-              <p className="text-xs text-slate-500">
-                Price
-              </p>
-
-              <p className="mt-1 text-sm font-extrabold text-slate-900">
-                ₹
-                {formatPrice(
-                  packageInfo.price,
-                )}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 px-4 py-3">
-              <p className="text-xs text-slate-500">
-                Started
-              </p>
-
-              <p className="mt-1 text-sm font-extrabold text-slate-900">
-                10 Aug
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 px-4 py-3">
-              <p className="text-xs text-slate-500">
-                Validity
-              </p>
-
-              <p className="mt-1 text-sm font-extrabold text-slate-900">
-                45 days
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 px-4 py-3">
-              <p className="text-xs text-slate-500">
-                Remaining
-              </p>
-
-              <p className="mt-1 text-sm font-extrabold text-blue-700">
-                {remainingClasses} classes
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Prototype note */}
-      <section className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
-        Frontend preview: package status,
-        progress, scores, notes, homework
-        and tutor feedback are mock data.
-        During backend integration,
-        TutorConnect will load the verified
-        purchase and learning records from
-        the authenticated database instead
-        of trusting URL parameters.
-      </section>
-    </>
-  );
-}
-
-/* =========================================================
-   DASHBOARD CONTENT
-========================================================= */
-
-function StudentDashboardContent() {
-  const searchParams = useSearchParams();
-
-  const activePackage =
-    searchParams.get("state") === "active";
-
-  const requestedClasses =
-    Number(searchParams.get("classes")) ||
-    15;
-
-  const packageInfo =
-    packageOptions[requestedClasses] ??
-    packageOptions[15];
-
-  const [notice, setNotice] =
-    useState<string | null>(null);
-
-  function showNotice(message: string) {
-    setNotice(message);
-
-    window.setTimeout(() => {
-      setNotice(null);
-    }, 4500);
-  }
-
-  const dashboardHref = activePackage
-    ? `/dashboard/student?state=active&classes=${packageInfo.classes}&amount=${packageInfo.price}`
-    : "/dashboard/student";
-
-  return (
-    <div className="min-h-screen bg-[#faf9ff]">
-      <DesktopSidebar
-        showNotice={showNotice}
-      />
-
-      <MobileHeader
-        showNotice={showNotice}
-      />
-
-      <main
-        id="main-content"
-        className="pb-24 lg:ml-[280px] lg:pb-10"
-      >
-        <div className="mx-auto w-full max-w-[1280px] px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10 xl:px-10">
-          {notice && (
-            <div
-              role="status"
-              className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900"
-            >
-              {notice}
-            </div>
-          )}
-
-          {activePackage ? (
-            <ActiveDashboard
-              showNotice={showNotice}
-              packageInfo={packageInfo}
-            />
-          ) : (
-            <PreDemoDashboard
-              showNotice={showNotice}
-            />
-          )}
-        </div>
-      </main>
-
-      <BottomNavigation
-        showNotice={showNotice}
-        dashboardHref={dashboardHref}
-      />
     </div>
   );
 }
 
-/* =========================================================
-   PAGE
-========================================================= */
-
 export default function StudentDashboardPage() {
   return (
-    <Suspense
-      fallback={
-        <main className="flex min-h-screen items-center justify-center bg-[#faf9ff]">
-          <div className="text-center">
-            <Logo />
-
-            <p className="mt-5 text-sm font-semibold text-slate-500">
-              Loading your dashboard…
-            </p>
-          </div>
-        </main>
-      }
-    >
+    <Suspense fallback={<div className="min-h-screen bg-[#f8fafc] flex items-center justify-center text-sm font-semibold text-slate-500">Loading student dashboard...</div>}>
       <StudentDashboardContent />
     </Suspense>
   );
