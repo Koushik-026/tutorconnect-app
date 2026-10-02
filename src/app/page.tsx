@@ -560,7 +560,7 @@ export default function HomePage() {
 
                 <p className="section-description mt-4">
                   Browse tutors by subject and choose someone who
-                  understands the student's class, board and learning
+                  understands the student&apos;s class, board and learning
                   goals.
                 </p>
               </div>
@@ -878,7 +878,7 @@ export default function HomePage() {
               </span>
 
               <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-extrabold tracking-[-0.04em] text-white sm:text-4xl">
-                Find a tutor who matches the student's needs
+                Find a tutor who matches the student&apos;s needs
               </h2>
 
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-blue-50 sm:text-base">

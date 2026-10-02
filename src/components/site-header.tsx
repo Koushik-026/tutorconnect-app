@@ -32,9 +32,11 @@ export function SiteHeader() {
     setIsMenuOpen(false);
   }
 
-  useEffect(() => {
-    closeMenu();
-  }, [pathname]);
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setIsMenuOpen(false);
+  }
 
   useEffect(() => {
     if (!isMenuOpen) {
