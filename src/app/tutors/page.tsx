@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { TutorCard } from "@/components/tutor-card";
 import { subjects, tutors } from "@/lib/data";
+import {
+  IconSearch,
+  IconFilter,
+  IconX,
+  IconShieldCheck,
+} from "@/components/ui/icons";
 
 interface TutorDiscoveryPageProps {
   searchParams: Promise<{
@@ -51,12 +58,6 @@ export default async function TutorDiscoveryPage({
       !selectedMode ||
       tutor.modes.includes(selectedMode as "online" | "home");
 
-    /*
-      This is temporary mock location filtering.
-
-      Later, Supabase PostGIS will calculate the actual distance between
-      student and tutor locations.
-    */
     const locationMatches =
       !selectedLocation ||
       normalise(tutor.locality).includes(normalise(selectedLocation)) ||
@@ -73,253 +74,234 @@ export default async function TutorDiscoveryPage({
     );
   });
 
+  const availableClasses = Array.from(
+    new Set(tutors.flatMap((tutor) => tutor.classes)),
+  ).sort();
+
   const availableLanguages = Array.from(
     new Set(tutors.flatMap((tutor) => tutor.languages)),
   ).sort();
 
-  const filtersAreActive =
+  const filtersAreActive = Boolean(
     selectedSubject ||
-    selectedClass ||
-    selectedLocation ||
-    selectedMode ||
-    selectedLanguage;
+      selectedClass ||
+      selectedLocation ||
+      selectedMode ||
+      selectedLanguage,
+  );
 
   return (
-    <main className="min-h-screen">
+    <div className="flex min-h-screen flex-col bg-[#fbfbfc]">
       <SiteHeader />
 
-      {/* Page heading */}
-      <section className="border-b border-slate-200 bg-white/60 py-10 sm:py-14">
-        <div className="container-shell">
-          <span className="badge badge-blue mb-4">Tutor discovery</span>
-
-          <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-            <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
-                Find a tutor who matches your needs
-              </h1>
-
-              <p className="mt-4 max-w-3xl leading-7 text-slate-600">
-                Filter tutors by subject, class, teaching mode, language and
-                locality. Every free demo is conducted online.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-              <span className="font-bold">Location:</span>{" "}
-              {selectedLocation || "Hyderabad"}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section-spacing">
-        <div className="container-shell">
-          <div className="grid gap-7 lg:grid-cols-[290px_1fr]">
-            {/* =================================================
-                Filters
-            ================================================== */}
-            <aside>
-              <form
-                action="/tutors"
-                className="tc-card sticky top-24 space-y-5 p-5 sm:p-6"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-lg font-extrabold text-slate-900">
-                      Filters
-                    </h2>
-
-                    {filtersAreActive && (
-                      <Link
-                        href="/tutors"
-                        className="text-sm font-bold text-blue-600 hover:text-blue-700"
-                      >
-                        Clear
-                      </Link>
-                    )}
-                  </div>
-
-                  <p className="mt-1 text-sm text-slate-500">
-                    Refine the tutor results.
-                  </p>
+      <main id="main-content" className="flex-1">
+        {/* Page Hero Header */}
+        <section className="border-b border-slate-200/80 bg-white py-8 sm:py-12">
+          <div className="container-shell">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+              <div>
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+                  <IconShieldCheck size={14} />
+                  <span>Verified Tutors &bull; Free 30-min Demo</span>
                 </div>
-
-                <div>
-                  <label htmlFor="subject" className="form-label">
-                    Subject
-                  </label>
-
-                  <select
-                    id="subject"
-                    name="subject"
-                    defaultValue={selectedSubject}
-                    className="form-input"
-                  >
-                    <option value="">All subjects</option>
-
-                    {subjects.map((subject) => (
-                      <option key={subject.id} value={subject.name}>
-                        {subject.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="class" className="form-label">
-                    Student class
-                  </label>
-
-                  <select
-                    id="class"
-                    name="class"
-                    defaultValue={selectedClass}
-                    className="form-input"
-                  >
-                    <option value="">All classes</option>
-
-                    {Array.from({ length: 7 }, (_, index) => index + 6).map(
-                      (classNumber) => (
-                        <option
-                          key={classNumber}
-                          value={`Class ${classNumber}`}
-                        >
-                          Class {classNumber}
-                        </option>
-                      ),
-                    )}
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="mode" className="form-label">
-                    Tuition mode
-                  </label>
-
-                  <select
-                    id="mode"
-                    name="mode"
-                    defaultValue={selectedMode}
-                    className="form-input"
-                  >
-                    <option value="">Online or home</option>
-                    <option value="online">Online tuition</option>
-                    <option value="home">Home tuition</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="language" className="form-label">
-                    Teaching language
-                  </label>
-
-                  <select
-                    id="language"
-                    name="language"
-                    defaultValue={selectedLanguage}
-                    className="form-input"
-                  >
-                    <option value="">All languages</option>
-
-                    {availableLanguages.map((language) => (
-                      <option key={language} value={language}>
-                        {language}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="location" className="form-label">
-                    Locality
-                  </label>
-
-                  <input
-                    id="location"
-                    name="location"
-                    type="text"
-                    defaultValue={selectedLocation}
-                    placeholder="For example: B.N. Reddy Nagar"
-                    className="form-input"
-                  />
-
-                  <p className="mt-2 text-xs leading-5 text-slate-500">
-                    Exact distance matching will be connected when we add the
-                    location database.
-                  </p>
-                </div>
-
-                <button type="submit" className="btn btn-primary w-full">
-                  Apply Filters
-                </button>
-              </form>
-            </aside>
-
-            {/* =================================================
-                Results
-            ================================================== */}
-            <div>
-              <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <div>
-                  <h2 className="text-2xl font-extrabold text-slate-900">
-                    Available tutors
-                  </h2>
-
-                  <p className="mt-1 text-sm text-slate-500">
-                    {filteredTutors.length}{" "}
-                    {filteredTutors.length === 1 ? "tutor" : "tutors"} found
-                  </p>
-                </div>
-
-                <select
-                  aria-label="Sort tutor results"
-                  defaultValue="recommended"
-                  className="form-input max-w-55"
-                >
-                  <option value="recommended">Recommended first</option>
-                  <option value="rating">Highest rated</option>
-                  <option value="experience">Most experienced</option>
-                  <option value="price-low">Lowest price</option>
-                </select>
+                <h1 className="mt-3 font-[family-name:var(--font-manrope)] text-2xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+                  Find the right tutor for your child
+                </h1>
+                <p className="mt-2 text-sm text-slate-500 sm:text-base">
+                  Compare educator credentials, teaching modes, subjects, and experience across Hyderabad and online.
+                </p>
               </div>
 
-              {filteredTutors.length > 0 ? (
-                <div className="grid gap-6 xl:grid-cols-2">
-                  {filteredTutors.map((tutor) => (
-                    <TutorCard key={tutor.id} tutor={tutor} />
-                  ))}
+              <div className="text-xs font-semibold text-slate-500">
+                Showing <strong className="text-slate-900">{filteredTutors.length}</strong> available educators
+              </div>
+            </div>
+
+            {/* Filter Bar */}
+            <form
+              method="GET"
+              action="/tutors"
+              className="mt-6 rounded-2xl border border-slate-200 bg-[#f8fafc] p-3 shadow-xs"
+            >
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                {/* Subject */}
+                <div>
+                  <label htmlFor="filter-subject" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                    Subject
+                  </label>
+                  <select
+                    id="filter-subject"
+                    name="subject"
+                    defaultValue={selectedSubject}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-blue-500"
+                  >
+                    <option value="">All Subjects</option>
+                    {subjects.map((sub) => (
+                      <option key={sub.id} value={sub.name}>
+                        {sub.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              ) : (
-                <div className="tc-card px-6 py-16 text-center sm:px-10">
-                  <div className="mx-auto flex h-18 w-18 items-center justify-center rounded-3xl bg-blue-100 text-3xl">
-                    🔎
-                  </div>
 
-                  <h2 className="mt-6 text-2xl font-extrabold text-slate-900">
-                    No matching tutors found
-                  </h2>
+                {/* Grade / Class */}
+                <div>
+                  <label htmlFor="filter-class" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                    Class
+                  </label>
+                  <select
+                    id="filter-class"
+                    name="class"
+                    defaultValue={selectedClass}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-blue-500"
+                  >
+                    <option value="">All Classes</option>
+                    {availableClasses.map((cls) => (
+                      <option key={cls} value={cls}>
+                        {cls}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                  <p className="mx-auto mt-3 max-w-lg leading-7 text-slate-600">
-                    Try changing the subject, tuition mode, language or
-                    locality to see more tutor profiles.
-                  </p>
+                {/* Teaching Mode */}
+                <div>
+                  <label htmlFor="filter-mode" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                    Mode
+                  </label>
+                  <select
+                    id="filter-mode"
+                    name="mode"
+                    defaultValue={selectedMode}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-blue-500"
+                  >
+                    <option value="">Any Mode</option>
+                    <option value="online">Online Tuition</option>
+                    <option value="home">Home Tuition</option>
+                  </select>
+                </div>
 
-                  <Link href="/tutors" className="btn btn-primary mt-7">
-                    Clear All Filters
+                {/* Language */}
+                <div>
+                  <label htmlFor="filter-language" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                    Language
+                  </label>
+                  <select
+                    id="filter-language"
+                    name="language"
+                    defaultValue={selectedLanguage}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-blue-500"
+                  >
+                    <option value="">Any Language</option>
+                    {availableLanguages.map((lang) => (
+                      <option key={lang} value={lang}>
+                        {lang}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Location / Locality */}
+                <div>
+                  <label htmlFor="filter-location" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                    Locality
+                  </label>
+                  <input
+                    id="filter-location"
+                    type="text"
+                    name="location"
+                    defaultValue={selectedLocation}
+                    placeholder="e.g. B.N. Reddy, Madhapur"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between border-t border-slate-200/70 pt-3">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {filtersAreActive && (
+                    <>
+                      <span className="text-[11px] font-bold text-slate-400">Filters:</span>
+                      {selectedSubject && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                          {selectedSubject}
+                        </span>
+                      )}
+                      {selectedClass && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                          {selectedClass}
+                        </span>
+                      )}
+                      {selectedMode && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                          {selectedMode === "online" ? "Online" : "Home"}
+                        </span>
+                      )}
+                      {selectedLocation && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                          {selectedLocation}
+                        </span>
+                      )}
+                      {selectedLanguage && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                          {selectedLanguage}
+                        </span>
+                      )}
+                      <Link
+                        href="/tutors"
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 ml-1"
+                      >
+                        <IconX size={12} />
+                        Clear All
+                      </Link>
+                    </>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary min-h-[38px] px-4 text-xs font-bold shrink-0 ml-auto"
+                >
+                  <IconFilter size={13} />
+                  <span>Apply Filters</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        {/* Tutor Results Grid */}
+        <section className="py-10 sm:py-14">
+          <div className="container-shell">
+            {filteredTutors.length > 0 ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredTutors.map((tutor) => (
+                  <TutorCard key={tutor.id} tutor={tutor} />
+                ))}
+              </div>
+            ) : (
+              <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xs">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                  <IconSearch size={22} />
+                </div>
+                <h3 className="mt-4 font-[family-name:var(--font-manrope)] text-lg font-bold text-slate-900">
+                  No tutors matched your filter
+                </h3>
+                <p className="mt-2 text-sm text-slate-500 leading-relaxed">
+                  Try adjusting your subject, location, or class criteria to see more available educators.
+                </p>
+                <div className="mt-6">
+                  <Link href="/tutors" className="btn btn-secondary">
+                    <span>Reset All Filters</span>
                   </Link>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="container-shell py-7 text-sm text-slate-500">
-          © 2026 TutorConnect. All rights reserved.
-        </div>
-      </footer>
-    </main>
+      <SiteFooter />
+    </div>
   );
 }
