@@ -4,116 +4,123 @@ import { IconShieldCheck, IconVideo, IconHomeTuition } from "./ui/icons";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-slate-200/80 bg-white text-slate-600">
+    <footer className="border-t border-[#E4DED4] bg-[#FFFEFB] text-[#676B64]">
       <div className="container-shell py-12 lg:py-16">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand info */}
           <div className="lg:col-span-2">
             <Logo />
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-500">
-              Personalised online and home tuition for school and secondary students. Connect with verified educators, attend a free 30-minute demo, and track learning progress effortlessly.
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-[#676B64]">
+              Thoughtfully curated 1-on-1 online and in-home tuition for school students in Hyderabad. Connect with vetted educators, attend a free 30-minute demo, and establish a steady learning rhythm.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50/70 px-3 py-1 text-xs font-bold text-blue-700">
-                <IconShieldCheck size={14} />
-                Verified Profiles
+            <div className="mt-6 flex flex-wrap gap-2.5">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#66518A]/20 bg-[#EFEAF8] px-3 py-1 text-xs font-bold text-[#4E3C70]">
+                <IconShieldCheck size={13} className="text-[#66518A]" />
+                <span>Verified Profiles</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-100 bg-teal-50/70 px-3 py-1 text-xs font-bold text-teal-700">
-                <IconVideo size={14} />
-                Free Online Demos
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#4F7867]/20 bg-[#E6F0EA] px-3 py-1 text-xs font-bold text-[#3E6153]">
+                <IconVideo size={13} className="text-[#4F7867]" />
+                <span>Free 30-min Online Demos</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-100 bg-purple-50/70 px-3 py-1 text-xs font-bold text-purple-700">
-                <IconHomeTuition size={14} />
-                Online & Home Mode
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E99873]/25 bg-[#FBE9DF] px-3 py-1 text-xs font-bold text-[#A64E28]">
+                <IconHomeTuition size={13} className="text-[#E99873]" />
+                <span>Home Tuition Radius</span>
               </span>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-[family-name:var(--font-manrope)] text-sm font-bold uppercase tracking-wider text-slate-900">
-              Explore
-            </h4>
-            <ul className="mt-4 space-y-2.5 text-sm">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#232520]">
+              Discover
+            </span>
+            <ul className="mt-4 space-y-2.5 text-xs font-medium">
               <li>
-                <Link href="/tutors" className="transition hover:text-blue-600">
-                  Find Tutors
+                <Link href="/tutors" className="transition hover:text-[#66518A]">
+                  All Tutors
                 </Link>
               </li>
               <li>
-                <Link href="/#how-it-works" className="transition hover:text-blue-600">
-                  How It Works
+                <Link href="/tutors?mode=online" className="transition hover:text-[#66518A]">
+                  Online Tutors
                 </Link>
               </li>
               <li>
-                <Link href="/#subjects" className="transition hover:text-blue-600">
-                  Popular Subjects
+                <Link href="/tutors?mode=home" className="transition hover:text-[#66518A]">
+                  Home Tutors (Hyderabad)
                 </Link>
               </li>
               <li>
-                <Link href="/packages/select" className="transition hover:text-blue-600">
-                  Tuition Packages
+                <Link href="/tutors?subject=Mathematics" className="transition hover:text-[#66518A]">
+                  Mathematics Tuition
+                </Link>
+              </li>
+              <li>
+                <Link href="/tutors?subject=Science" className="transition hover:text-[#66518A]">
+                  Science Tuition
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* For Users */}
+          {/* Learning Programs */}
           <div>
-            <h4 className="font-[family-name:var(--font-manrope)] text-sm font-bold uppercase tracking-wider text-slate-900">
-              Get Started
-            </h4>
-            <ul className="mt-4 space-y-2.5 text-sm">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#232520]">
+              Learning Journey
+            </span>
+            <ul className="mt-4 space-y-2.5 text-xs font-medium">
               <li>
-                <Link href="/auth?role=student" className="transition hover:text-blue-600">
-                  Student / Parent Login
-                </Link>
-              </li>
-              <li>
-                <Link href="/auth?role=tutor" className="transition hover:text-blue-600">
-                  Apply as a Tutor
-                </Link>
-              </li>
-              <li>
-                <Link href="/demo/book" className="transition hover:text-blue-600">
+                <Link href="/demo/book" className="transition hover:text-[#66518A]">
                   Book a Free Demo
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard/student" className="transition hover:text-blue-600">
-                  Student Dashboard
+                <Link href="/packages/select" className="transition hover:text-[#66518A]">
+                  Class Packages
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard/student" className="transition hover:text-[#66518A]">
+                  Student Workspace
+                </Link>
+              </li>
+              <li>
+                <Link href="/#how-it-works" className="transition hover:text-[#66518A]">
+                  How Matching Works
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Location & Support */}
+          {/* Educational Governance & Safety */}
           <div>
-            <h4 className="font-[family-name:var(--font-manrope)] text-sm font-bold uppercase tracking-wider text-slate-900">
-              Coverage
-            </h4>
-            <p className="mt-4 text-sm leading-relaxed text-slate-500">
-              Hyderabad: B.N. Reddy Nagar, Dilsukhnagar, Vanasthalipuram, Madhapur, Gachibowli, Kukatpally, and online across India.
-            </p>
-            <p className="mt-4 text-xs font-semibold text-slate-400">
-              CBSE &bull; ICSE &bull; State Board
-            </p>
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#232520]">
+              Trust &amp; Safety
+            </span>
+            <ul className="mt-4 space-y-2.5 text-xs font-medium">
+              <li>
+                <Link href="/auth?role=tutor" className="transition hover:text-[#66518A]">
+                  Become a Tutor
+                </Link>
+              </li>
+              <li>
+                <span className="text-[#989C94] cursor-default">Identity Verification</span>
+              </li>
+              <li>
+                <span className="text-[#989C94] cursor-default">Qualification Audits</span>
+              </li>
+              <li>
+                <span className="text-[#989C94] cursor-default">Tuition Support Assistance</span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-8 text-xs text-slate-400 sm:flex-row">
-          <p>&copy; {new Date().getFullYear()} TutorConnect. Built for focused, calm learning.</p>
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[#E4DED4] pt-8 text-xs text-[#989C94] sm:flex-row">
+          <p>© 2026 TutorConnect. Crafted for student momentum. All rights reserved.</p>
           <div className="flex gap-6">
-            <Link href="/" className="transition hover:text-slate-600">
-              Privacy Policy
-            </Link>
-            <Link href="/" className="transition hover:text-slate-600">
-              Terms of Service
-            </Link>
-            <Link href="/" className="transition hover:text-slate-600">
-              Trust &amp; Safety
-            </Link>
+            <span>CBSE &bull; ICSE &bull; State Board</span>
+            <span>Hyderabad, Telangana</span>
           </div>
         </div>
       </div>

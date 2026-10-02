@@ -13,9 +13,9 @@ export function Logo({
     <Link
       href="/"
       aria-label="TutorConnect Home"
-      className={`inline-flex items-center gap-2.5 transition-opacity hover:opacity-95 ${className}`}
+      className={`inline-flex items-center gap-2.5 transition-opacity hover:opacity-90 ${className}`}
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 via-blue-600 to-teal-500 shadow-sm shadow-blue-500/25">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#66518A] via-[#554173] to-[#4F7867] shadow-sm shadow-[#66518A]/20">
         <svg
           viewBox="0 0 32 32"
           aria-hidden="true"
@@ -47,8 +47,8 @@ export function Logo({
       </span>
 
       {!compact && (
-        <span className="font-[family-name:var(--font-manrope)] text-[1.28rem] font-extrabold tracking-tight text-slate-900">
-          Tutor<span className="text-blue-600">Connect</span>
+        <span className="font-[family-name:var(--font-manrope)] text-[1.28rem] font-extrabold tracking-tight text-[#232520]">
+          Tutor<span className="text-[#66518A]">Connect</span>
         </span>
       )}
     </Link>
