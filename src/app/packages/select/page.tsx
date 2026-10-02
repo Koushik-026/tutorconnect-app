@@ -235,7 +235,7 @@ function PackagesContent() {
             })}
           </div>
 
-          {/* Bottom Trust Guarantee Note */}
+          {/* Bottom Trust Note */}
           <div className="mt-12 rounded-2xl border border-[rgba(54,48,60,0.08)] bg-[#FFFDF9] p-5 text-center text-xs text-[#6D706A] space-y-1">
             <p className="font-bold text-[#20221F]">
               Direct 1-on-1 Tuition &bull; No Auto-Renewal &bull; 45-Day Validity

@@ -199,7 +199,7 @@ function DemoBookInner() {
 
                 <div>
                   <label className="text-xs font-bold text-[#6D706A] block mb-1">
-                    Parent Contact (WhatsApp / Call)
+                    Parent Contact Number
                   </label>
                   <input
                     type="tel"
@@ -224,7 +224,7 @@ function DemoBookInner() {
               </div>
             </div>
 
-            {/* Trial Guarantee Note & Submit CTA */}
+            {/* Trial Note & Submit CTA */}
             <div className="border-t border-[rgba(54,48,60,0.08)] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2 text-xs text-[#5D806F] font-semibold">
                 <IconCheck size={16} />
