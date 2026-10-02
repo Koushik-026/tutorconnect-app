@@ -7,11 +7,8 @@ import type {
 } from "./types";
 
 /*
-  This file temporarily stores mock data.
-
-  Later, Supabase will provide this information.
-  For now, every page imports data from this file so tutor names,
-  prices, subjects and dates remain consistent.
+  Canonical Mock Data for TutorConnect
+  Provides consistent tutor names, pricing, subjects, and mock states.
 */
 
 export const student: Student = {
@@ -29,9 +26,9 @@ export const tutors: Tutor[] = [
   {
     id: "ananya-sharma",
     name: "Ananya Sharma",
-    profileImage: "/images/tutors/ananya-sharma.jpg",
-    headline: "Mathematics and Science Tutor",
-    bio: "Patient and result-focused tutor who helps students understand concepts clearly instead of memorising answers. Experienced in teaching CBSE and ICSE students from Classes 6 to 12.",
+    profileImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuDPQzlQm4NKP8RwwlMcU-iNR7MlCStPHTuPVcPnXON--lVzkkXxm1ybxWUlzS16db2LPkVNwpc8Yq6VEtVSFZio6QcV_HCmwmjn9I_3lrlxyxIGNSB2kbD9ddVK0tOvHW0lUKSzEGCdoY59_wDawLUr0UfLNPQt0j47gLzNAWb2qPr_uUIYdo2Zf2jyUfWwgm4IMCRYuUmOnKtOz8sxp9gE-_dTxCuiVPhfC4yikDR2ozPcCLCcIguDSA",
+    headline: "Mathematics & Science Specialist",
+    bio: "Patient, concept-first educator who builds intuitive understanding rather than rote memorisation. 8+ years guiding CBSE & ICSE students to academic excellence across Classes 6 to 12.",
 
     subjects: ["Mathematics", "Science"],
     classes: [
@@ -71,9 +68,9 @@ export const tutors: Tutor[] = [
   {
     id: "rahul-verma",
     name: "Rahul Verma",
-    profileImage: "/images/tutors/rahul-verma.jpg",
-    headline: "English and Social Studies Tutor",
-    bio: "Friendly tutor specialising in English communication, grammar and Social Studies for middle-school and secondary-school students.",
+    profileImage: "",
+    headline: "English & Social Studies Mentor",
+    bio: "Engaging educator specialising in English fluency, grammar, literature analysis, and Social Studies for middle and secondary school learners.",
 
     subjects: ["English", "Social Studies"],
     classes: [
@@ -107,9 +104,9 @@ export const tutors: Tutor[] = [
   {
     id: "meera-reddy",
     name: "Meera Reddy",
-    profileImage: "/images/tutors/meera-reddy.jpg",
-    headline: "Physics and Chemistry Tutor",
-    bio: "Concept-oriented tutor helping students build strong foundations in Physics and Chemistry through examples, problem solving and regular assessments.",
+    profileImage: "",
+    headline: "Physics & Chemistry Instructor",
+    bio: "Structured, concept-oriented mentor helping students master numerical problem-solving, equation balancing, and competitive board preparation.",
 
     subjects: ["Physics", "Chemistry"],
     classes: ["Class 9", "Class 10", "Class 11", "Class 12"],
@@ -141,13 +138,13 @@ export const tutors: Tutor[] = [
   {
     id: "arjun-nair",
     name: "Arjun Nair",
-    profileImage: "/images/tutors/arjun-nair.jpg",
-    headline: "Computer Science Tutor",
-    bio: "Practical Computer Science tutor teaching programming fundamentals, Python, web development and logical problem solving.",
+    profileImage: "",
+    headline: "Computer Science & Coding Coach",
+    bio: "Practical technology educator teaching computational thinking, Python fundamentals, algorithms, and web development through live coding.",
 
     subjects: ["Computer Science", "Python"],
     classes: ["Class 8", "Class 9", "Class 10", "Class 11", "Class 12"],
-    boards: ["CBSE", "ICSE"], 
+    boards: ["CBSE", "ICSE"],
     languages: ["English", "Hindi"],
 
     experienceYears: 4,
@@ -175,44 +172,44 @@ export const subjects: Subject[] = [
   {
     id: "mathematics",
     name: "Mathematics",
-    icon: "∑",
+    icon: "math",
     tutorCount: 42,
-    description: "Build strong foundations and improve problem-solving skills.",
+    description: "Build strong fundamentals, clear formulas, and master numerical problem solving.",
   },
   {
     id: "science",
     name: "Science",
-    icon: "⚗",
+    icon: "science",
     tutorCount: 36,
-    description: "Understand scientific concepts through clear explanations.",
+    description: "Explore core scientific phenomena with structured conceptual explanations.",
   },
   {
     id: "english",
     name: "English",
-    icon: "A",
+    icon: "english",
     tutorCount: 31,
-    description: "Improve grammar, vocabulary, writing and communication.",
+    description: "Enhance language fluency, essay writing, comprehension, and grammar skills.",
   },
   {
     id: "physics",
     name: "Physics",
-    icon: "⚛",
+    icon: "physics",
     tutorCount: 24,
-    description: "Learn concepts, formulas and numerical problem solving.",
+    description: "Understand physical principles, mechanics, optics, and numerical reasoning.",
   },
   {
     id: "chemistry",
     name: "Chemistry",
-    icon: "◉",
+    icon: "chemistry",
     tutorCount: 22,
-    description: "Master reactions, equations and important concepts.",
+    description: "Master organic & inorganic chemistry, balancing equations, and reaction mechanisms.",
   },
   {
     id: "computer-science",
     name: "Computer Science",
-    icon: "</>",
+    icon: "code",
     tutorCount: 18,
-    description: "Learn programming, logic and modern computing skills.",
+    description: "Learn logic building, Python programming, algorithms, and practical development.",
   },
 ];
 
@@ -224,7 +221,7 @@ export const tuitionPackages: TuitionPackage[] = [
     price: 3200,
     validityDays: 30,
     classDurationMinutes: 60,
-    description: "Suitable for students who need weekly academic support.",
+    description: "2 classes per week. Ideal for focused homework support and concept reinforcement.",
   },
   {
     id: "package-12",
@@ -233,7 +230,7 @@ export const tuitionPackages: TuitionPackage[] = [
     price: 4500,
     validityDays: 40,
     classDurationMinutes: 60,
-    description: "Regular learning support with three classes per week.",
+    description: "3 classes per week. Recommended for steady learning, revision, and regular testing.",
   },
   {
     id: "package-15",
@@ -242,7 +239,7 @@ export const tuitionPackages: TuitionPackage[] = [
     price: 5400,
     validityDays: 45,
     classDurationMinutes: 60,
-    description: "Intensive monthly learning for stronger improvement.",
+    description: "3 to 4 classes per week. Comprehensive coverage for exam readiness and dual subjects.",
   },
 ];
 
@@ -274,21 +271,21 @@ export const platformBenefits = [
   {
     title: "Verified tutor profiles",
     description:
-      "Review tutor identity, qualifications, subjects and experience before booking.",
+      "Review tutor identity, qualifications, subjects, and verified credentials before booking.",
   },
   {
-    title: "Free online demo",
+    title: "Free 30-min online demo",
     description:
-      "Understand the tutor's teaching style through a 30-minute online demo.",
+      "Experience the tutor's teaching methodology firsthand before selecting any tuition plan.",
   },
   {
     title: "Online and home tuition",
     description:
-      "Choose online classes or nearby home tuition depending on availability.",
+      "Choose interactive digital classrooms or nearby in-person home tutoring based on your preference.",
   },
   {
     title: "Progress in one place",
     description:
-      "Track classes, homework, notes, quizzes and tutor feedback.",
+      "Track attendance, homework submissions, tutor feedback, and assessment reports on one clean dashboard.",
   },
 ];

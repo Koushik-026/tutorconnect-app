@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "./logo";
+import { IconArrowRight, IconX } from "./ui/icons";
 
 const navigationLinks = [
   {
@@ -66,15 +67,15 @@ export function SiteHeader() {
         Skip to main content
       </a>
 
-      <header className="sticky top-0 z-50 border-b border-slate-200/75 bg-white/88 backdrop-blur-2xl">
+      <header className="sticky top-0 z-50 border-b border-slate-200/75 bg-white/85 backdrop-blur-md">
         <div className="container-shell">
-          <div className="flex h-[72px] items-center justify-between gap-4">
+          <div className="flex h-[70px] items-center justify-between gap-4">
             <Logo />
 
             {/* Desktop navigation */}
             <nav
               aria-label="Main navigation"
-              className="hidden items-center gap-1 lg:flex"
+              className="hidden items-center gap-1 md:flex"
             >
               {navigationLinks.map((link) => {
                 const isActive =
@@ -84,10 +85,10 @@ export function SiteHeader() {
                   <Link
                     key={link.label}
                     href={link.href}
-                    className={`rounded-xl px-4 py-2.5 text-sm font-bold transition ${
+                    className={`rounded-xl px-3.5 py-2 text-sm font-bold transition ${
                       isActive
                         ? "bg-blue-50 text-blue-700"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-blue-700"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
                     {link.label}
@@ -97,77 +98,53 @@ export function SiteHeader() {
             </nav>
 
             {/* Desktop actions */}
-            <div className="hidden items-center gap-2 lg:flex">
-              <Link href="/auth" className="btn btn-ghost">
+            <div className="hidden items-center gap-2.5 md:flex">
+              <Link
+                href="/auth"
+                className="btn btn-ghost text-slate-700 hover:text-slate-900"
+              >
                 Sign In
               </Link>
 
               <Link href="/tutors" className="btn btn-primary">
                 Find a Tutor
-
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  className="h-4.5 w-4.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12h14" />
-                  <path d="m13 6 6 6-6 6" />
-                </svg>
+                <IconArrowRight size={16} />
               </Link>
             </div>
 
-            {/* Mobile and tablet actions */}
-            <div className="flex items-center gap-2 lg:hidden">
+            {/* Mobile actions & hamburger */}
+            <div className="flex items-center gap-2 md:hidden">
               <Link
                 href="/tutors"
-                className="hidden min-h-10 items-center justify-center rounded-xl bg-blue-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 sm:inline-flex"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-xl bg-blue-600 px-3.5 text-xs font-bold text-white shadow-xs"
               >
-                Find a Tutor
+                Find Tutor
               </Link>
 
               <button
                 type="button"
-                aria-label={
-                  isMenuOpen
-                    ? "Close navigation menu"
-                    : "Open navigation menu"
-                }
+                aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-navigation"
                 onClick={() => setIsMenuOpen((current) => !current)}
-                className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-xs hover:bg-slate-50 active:bg-slate-100"
               >
                 {isMenuOpen ? (
-                  <svg
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  >
-                    <path d="M6 6l12 12" />
-                    <path d="M18 6 6 18" />
-                  </svg>
+                  <IconX size={22} />
                 ) : (
                   <svg
+                    width="22"
+                    height="22"
                     viewBox="0 0 24 24"
-                    aria-hidden="true"
-                    className="h-6 w-6"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="2.2"
                     strokeLinecap="round"
+                    aria-hidden="true"
                   >
-                    <path d="M4 7h16" />
-                    <path d="M4 12h16" />
-                    <path d="M4 17h16" />
+                    <line x1="4" y1="7" x2="20" y2="7" />
+                    <line x1="4" y1="12" x2="20" y2="12" />
+                    <line x1="4" y1="17" x2="20" y2="17" />
                   </svg>
                 )}
               </button>
@@ -175,71 +152,56 @@ export function SiteHeader() {
           </div>
         </div>
 
-        {/* Mobile and tablet navigation */}
+        {/* Mobile slide-down navigation */}
         {isMenuOpen && (
           <>
             <button
               type="button"
-              aria-label="Close navigation menu"
+              aria-label="Close navigation menu overlay"
               onClick={closeMenu}
-              className="fixed inset-0 top-[73px] bg-slate-950/25 backdrop-blur-[2px] lg:hidden"
+              className="fixed inset-0 top-[71px] bg-slate-900/30 backdrop-blur-xs md:hidden"
             />
 
             <nav
               id="mobile-navigation"
               aria-label="Mobile navigation"
-              className="absolute left-0 right-0 top-full border-b border-slate-200 bg-white shadow-2xl shadow-slate-950/10 lg:hidden"
+              className="absolute left-0 right-0 top-full border-b border-slate-200 bg-white p-5 shadow-xl md:hidden"
             >
-              <div className="container-shell py-5">
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {navigationLinks.map((link) => (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      onClick={closeMenu}
-                      className="group flex items-center justify-between rounded-2xl border border-transparent px-4 py-4 font-bold text-slate-700 transition hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
-                    >
-                      {link.label}
-
-                      <svg
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                        className="h-4.5 w-4.5 transition-transform group-hover:translate-x-1"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M5 12h14" />
-                        <path d="m13 6 6 6-6 6" />
-                      </svg>
-                    </Link>
-                  ))}
-                </div>
-
-                <div className="mt-4 grid gap-3 border-t border-slate-200 pt-5 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                {navigationLinks.map((link) => (
                   <Link
-                    href="/auth"
+                    key={link.label}
+                    href={link.href}
                     onClick={closeMenu}
-                    className="btn btn-secondary w-full"
+                    className="flex min-h-[48px] items-center justify-between rounded-xl px-4 py-3 text-base font-bold text-slate-800 transition hover:bg-blue-50/70 hover:text-blue-700"
                   >
-                    Sign In
+                    <span>{link.label}</span>
+                    <IconArrowRight size={16} className="text-slate-400" />
                   </Link>
-
-                  <Link
-                    href="/tutors"
-                    onClick={closeMenu}
-                    className="btn btn-primary w-full"
-                  >
-                    Find a Tutor
-                  </Link>
-                </div>
-
-                <p className="mt-4 text-center text-xs leading-5 text-slate-500">
-                  Verified tutor profiles · Free online demos · Secure platform
-                </p>
+                ))}
               </div>
+
+              <div className="mt-5 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4">
+                <Link
+                  href="/auth"
+                  onClick={closeMenu}
+                  className="btn btn-secondary w-full"
+                >
+                  Sign In
+                </Link>
+
+                <Link
+                  href="/tutors"
+                  onClick={closeMenu}
+                  className="btn btn-primary w-full"
+                >
+                  Find a Tutor
+                </Link>
+              </div>
+
+              <p className="mt-4 text-center text-xs font-semibold text-slate-400">
+                Verified Profiles &bull; Free Online Demos &bull; Safe Learning
+              </p>
             </nav>
           </>
         )}
