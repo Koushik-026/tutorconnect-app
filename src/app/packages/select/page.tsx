@@ -109,15 +109,15 @@ function PackagesContent() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FCFBF8] text-[#20221F]">
-      <header className="border-b border-[rgba(54,48,60,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
+      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Link href="/">
             <Logo />
           </Link>
           <Link
             href={`/tutors/${tutor.id}`}
-            className="text-xs font-bold text-[#6D706A] hover:text-[#20221F] transition"
+            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
           >
             &larr; Back to {tutor.name}&apos;s Profile
           </Link>
@@ -128,14 +128,14 @@ function PackagesContent() {
         <div className="container-shell max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EEE7FF] px-3.5 py-1 text-xs font-bold text-[#594282] mb-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E4EEE9] px-3.5 py-1 text-xs font-bold text-[#244A40] mb-3">
               <IconSparkles size={13} />
               <span>Learning Rhythms with {tutor.name}</span>
             </span>
-            <h1 className="font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#20221F]">
+            <h1 className="font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#25231F]">
               Choose Your Class Package
             </h1>
-            <p className="mt-2 text-sm text-[#6D706A]">
+            <p className="mt-2 text-sm text-[#6F6A62]">
               Simple, transparent class packages. Every package includes 60-minute classes and 45-day validity. No recurring subscriptions.
             </p>
           </div>
@@ -148,12 +148,12 @@ function PackagesContent() {
                   key={pkg.id}
                   className={`relative rounded-3xl border transition-all duration-200 p-6 sm:p-8 ${
                     pkg.highlight
-                      ? "border-[#7257A5] bg-white shadow-[0_12px_40px_rgba(114,87,165,0.08)] ring-2 ring-[#7257A5]/10"
-                      : "border-[rgba(54,48,60,0.10)] bg-white hover:border-[#7257A5]/30 shadow-[0_4px_24px_rgba(0,0,0,0.02)]"
+                      ? "border-[#315F52] bg-white shadow-[0_12px_40px_rgba(49,95,82,0.08)] ring-2 ring-[#315F52]/10"
+                      : "border-[rgba(55,48,40,0.10)] bg-white hover:border-[#315F52]/30 shadow-[0_4px_24px_rgba(0,0,0,0.02)]"
                   }`}
                 >
                   {pkg.highlight && (
-                    <span className="absolute -top-3 left-8 rounded-full bg-[#7257A5] px-3.5 py-0.5 text-[11px] font-extrabold text-white shadow-xs">
+                    <span className="absolute -top-3 left-8 rounded-full bg-[#315F52] px-3.5 py-0.5 text-[11px] font-extrabold text-white shadow-xs">
                       Most Popular Rhythm
                     </span>
                   )}
@@ -162,49 +162,49 @@ function PackagesContent() {
                     {/* Left: Package Info */}
                     <div className="lg:col-span-5 space-y-2">
                       <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-[#EEE7FF] px-2.5 py-0.5 text-xs font-bold text-[#594282]">
+                        <span className="rounded-full bg-[#E4EEE9] px-2.5 py-0.5 text-xs font-bold text-[#244A40]">
                           {pkg.intensity}
                         </span>
-                        <span className="text-xs font-semibold text-[#6D706A]">
+                        <span className="text-xs font-semibold text-[#6F6A62]">
                           {pkg.paceDescription}
                         </span>
                       </div>
 
-                      <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#20221F]">
+                      <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#25231F]">
                         {pkg.rhythmName}
                       </h2>
-                      <p className="text-xs text-[#6D706A] leading-relaxed">
+                      <p className="text-xs text-[#6F6A62] leading-relaxed">
                         {pkg.bestFor}
                       </p>
                     </div>
 
                     {/* Middle: Features List */}
-                    <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-[rgba(54,48,60,0.08)] pt-4 lg:pt-0 lg:pl-6 space-y-2 text-xs text-[#20221F]">
+                    <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-[rgba(55,48,40,0.08)] pt-4 lg:pt-0 lg:pl-6 space-y-2 text-xs text-[#25231F]">
                       <div className="flex items-center gap-2">
-                        <IconCheck size={14} className="text-[#5D806F] shrink-0" />
+                        <IconCheck size={14} className="text-[#315F52] shrink-0" />
                         <span className="font-semibold">{pkg.classes} Classes (60m each)</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <IconCheck size={14} className="text-[#5D806F] shrink-0" />
+                        <IconCheck size={14} className="text-[#315F52] shrink-0" />
                         <span>45-day package validity</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <IconCheck size={14} className="text-[#5D806F] shrink-0" />
+                        <IconCheck size={14} className="text-[#315F52] shrink-0" />
                         <span>Digital lesson notes when shared by tutor</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <IconCheck size={14} className="text-[#5D806F] shrink-0" />
+                        <IconCheck size={14} className="text-[#315F52] shrink-0" />
                         <span>Flexible weekly learning rhythm</span>
                       </div>
                     </div>
 
                     {/* Right: Pricing & CTA */}
-                    <div className="lg:col-span-3 flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 border-t lg:border-t-0 lg:border-l border-[rgba(54,48,60,0.08)] pt-4 lg:pt-0 lg:pl-6">
+                    <div className="lg:col-span-3 flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 border-t lg:border-t-0 lg:border-l border-[rgba(55,48,40,0.08)] pt-4 lg:pt-0 lg:pl-6">
                       <div className="text-left lg:text-right">
-                        <span className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#20221F]">
+                        <span className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#25231F]">
                           {formatCurrency(pkg.price)}
                         </span>
-                        <p className="text-xs text-[#6D706A] font-medium">
+                        <p className="text-xs text-[#6F6A62] font-medium">
                           {formatCurrency(pkg.perClassPrice)} / class
                         </p>
                       </div>
@@ -214,7 +214,7 @@ function PackagesContent() {
                         onClick={() => handleSelectPackage(pkg)}
                         className={`btn w-full sm:w-auto min-h-[46px] px-6 rounded-full text-xs font-bold justify-center gap-2 ${
                           pkg.highlight
-                            ? "btn-primary shadow-[0_4px_16px_rgba(114,87,165,0.22)]"
+                            ? "btn-primary shadow-[0_4px_16px_rgba(49,95,82,0.22)]"
                             : "btn-outline"
                         }`}
                       >
@@ -229,8 +229,8 @@ function PackagesContent() {
           </div>
 
           {/* Bottom Trust Note */}
-          <div className="mt-12 rounded-2xl border border-[rgba(54,48,60,0.08)] bg-[#FFFDF9] p-5 text-center text-xs text-[#6D706A] space-y-1">
-            <p className="font-bold text-[#20221F]">
+          <div className="mt-12 rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFF7ED] p-5 text-center text-xs text-[#6F6A62] space-y-1">
+            <p className="font-bold text-[#25231F]">
               Direct 1-on-1 Tuition &bull; No Auto-Renewal &bull; 45-Day Validity
             </p>
             <p>
@@ -245,7 +245,7 @@ function PackagesContent() {
 
 export default function PackagesSelectPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FCFBF8]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FFFBF5]" />}>
       <PackagesContent />
     </Suspense>
   );

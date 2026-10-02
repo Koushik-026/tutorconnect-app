@@ -78,21 +78,21 @@ export default function DemoSessionPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-[#FCFBF8] text-[#20221F] overflow-hidden">
+    <div className="flex h-screen flex-col bg-[#FFFBF5] text-[#25231F] overflow-hidden">
       {/* Light Clean Header */}
-      <header className="h-16 shrink-0 border-b border-[rgba(54,48,60,0.08)] bg-white px-5 flex items-center justify-between z-20">
+      <header className="h-16 shrink-0 border-b border-[rgba(55,48,40,0.08)] bg-white px-5 flex items-center justify-between z-20">
         <div className="flex items-center gap-3">
           <Logo />
-          <span className="hidden sm:inline-block h-4 w-px bg-[rgba(54,48,60,0.12)]" />
-          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#EEE7FF] px-3 py-0.5 text-xs font-bold text-[#594282]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7257A5]" />
+          <span className="hidden sm:inline-block h-4 w-px bg-[rgba(55,48,40,0.12)]" />
+          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#E4EEE9] px-3 py-0.5 text-xs font-bold text-[#244A40]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#315F52]" />
             <span>Demo: Quadratic Equations</span>
           </span>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 rounded-full bg-[#FFFDF9] border border-[rgba(54,48,60,0.10)] px-3.5 py-1 text-xs font-extrabold text-[#20221F]">
-            <span className="h-2 w-2 rounded-full bg-[#5D806F] animate-pulse" />
+          <div className="flex items-center gap-1.5 rounded-full bg-[#FFF7ED] border border-[rgba(55,48,40,0.10)] px-3.5 py-1 text-xs font-extrabold text-[#25231F]">
+            <span className="h-2 w-2 rounded-full bg-[#315F52] animate-pulse" />
             <span>{formatTimer(secondsRemaining)}</span>
           </div>
 
@@ -110,11 +110,11 @@ export default function DemoSessionPage() {
       <div className="flex-1 flex overflow-hidden relative">
         {/* Large Classroom Viewport (Video Viewport is appropriately dark for video clarity) */}
         <div className="flex-1 flex flex-col p-4 sm:p-6 overflow-hidden">
-          <div className="relative flex-1 rounded-3xl overflow-hidden bg-[#1E201D] text-white flex flex-col justify-between p-5 border border-[rgba(54,48,60,0.12)] shadow-[0_12px_40px_rgba(0,0,0,0.04)]">
+          <div className="relative flex-1 rounded-3xl overflow-hidden bg-[#1E201D] text-white flex flex-col justify-between p-5 border border-[rgba(55,48,40,0.12)] shadow-[0_12px_40px_rgba(0,0,0,0.04)]">
             {/* Top Bar inside Viewport */}
             <div className="flex items-center justify-between text-xs text-white/80 z-10">
               <div className="flex items-center gap-2 rounded-full bg-black/40 backdrop-blur-md px-3 py-1">
-                <span className="h-2 w-2 rounded-full bg-[#5D806F]" />
+                <span className="h-2 w-2 rounded-full bg-[#315F52]" />
                 <span className="font-semibold">Tutor: Ananya Sharma</span>
               </div>
               <span className="rounded-full bg-white/20 backdrop-blur-md px-2.5 py-0.5 font-bold text-[11px]">
@@ -125,7 +125,7 @@ export default function DemoSessionPage() {
             {/* Whiteboard Workspace Simulation */}
             <div className="my-auto max-w-lg mx-auto text-center space-y-4">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-                <p className="text-xs uppercase tracking-wider text-[#EEE7FF] font-bold">Concept Exercise</p>
+                <p className="text-xs uppercase tracking-wider text-[#E4EEE9] font-bold">Concept Exercise</p>
                 <p className="text-lg font-bold mt-2 font-mono text-white">ax² + bx + c = 0</p>
                 <p className="text-xs text-white/70 mt-2">
                   &ldquo;Notice how splitting the middle term works when the product a &bull; c is negative.&rdquo;
@@ -139,7 +139,7 @@ export default function DemoSessionPage() {
                 You (Aarav)
               </span>
               <div className="text-center my-auto">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#EEE7FF] text-xs font-bold text-[#594282]">
+                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#E4EEE9] text-xs font-bold text-[#244A40]">
                   AM
                 </div>
               </div>
@@ -149,12 +149,12 @@ export default function DemoSessionPage() {
 
           {/* Floating Tactile Classroom Controls (Light theme surface) */}
           <div className="mt-4 flex items-center justify-center gap-3">
-            <div className="flex items-center gap-2 rounded-full border border-[rgba(54,48,60,0.12)] bg-white px-4 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
+            <div className="flex items-center gap-2 rounded-full border border-[rgba(55,48,40,0.12)] bg-white px-4 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
               <button
                 type="button"
                 onClick={() => setMicrophoneOn((p) => !p)}
                 className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
-                  microphoneOn ? "bg-[#FCFBF8] text-[#20221F] hover:bg-[#EEE7FF]" : "bg-[#C84B31] text-white"
+                  microphoneOn ? "bg-[#FFFBF5] text-[#25231F] hover:bg-[#E4EEE9]" : "bg-[#C84B31] text-white"
                 }`}
                 title={microphoneOn ? "Mute Microphone" : "Unmute Microphone"}
               >
@@ -165,7 +165,7 @@ export default function DemoSessionPage() {
                 type="button"
                 onClick={() => setCameraOn((p) => !p)}
                 className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
-                  cameraOn ? "bg-[#FCFBF8] text-[#20221F] hover:bg-[#EEE7FF]" : "bg-[#C84B31] text-white"
+                  cameraOn ? "bg-[#FFFBF5] text-[#25231F] hover:bg-[#E4EEE9]" : "bg-[#C84B31] text-white"
                 }`}
                 title={cameraOn ? "Disable Camera" : "Enable Camera"}
               >
@@ -176,7 +176,7 @@ export default function DemoSessionPage() {
                 type="button"
                 onClick={() => setScreenSharing((p) => !p)}
                 className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
-                  screenSharing ? "bg-[#7257A5] text-white" : "bg-[#FCFBF8] text-[#20221F] hover:bg-[#EEE7FF]"
+                  screenSharing ? "bg-[#315F52] text-white" : "bg-[#FFFBF5] text-[#25231F] hover:bg-[#E4EEE9]"
                 }`}
                 title="Share Screen"
               >
@@ -187,12 +187,12 @@ export default function DemoSessionPage() {
                 type="button"
                 onClick={() => setChatOpen((p) => !p)}
                 className={`flex h-10 w-10 items-center justify-center rounded-full transition relative ${
-                  chatOpen ? "bg-[#7257A5] text-white" : "bg-[#FCFBF8] text-[#20221F] hover:bg-[#EEE7FF]"
+                  chatOpen ? "bg-[#315F52] text-white" : "bg-[#FFFBF5] text-[#25231F] hover:bg-[#E4EEE9]"
                 }`}
                 title="Class Notes & Chat"
               >
                 <IconMessageSquare size={16} />
-                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#5D806F]" />
+                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#315F52]" />
               </button>
             </div>
           </div>
@@ -200,16 +200,16 @@ export default function DemoSessionPage() {
 
         {/* Light Chat / Notes Drawer */}
         {chatOpen && (
-          <aside className="w-80 sm:w-96 border-l border-[rgba(54,48,60,0.10)] bg-white flex flex-col z-20 shadow-lg">
-            <div className="flex h-16 items-center justify-between border-b border-[rgba(54,48,60,0.08)] px-5">
+          <aside className="w-80 sm:w-96 border-l border-[rgba(55,48,40,0.10)] bg-white flex flex-col z-20 shadow-lg">
+            <div className="flex h-16 items-center justify-between border-b border-[rgba(55,48,40,0.08)] px-5">
               <div>
-                <h3 className="text-sm font-bold text-[#20221F]">Class Chat &amp; Notes</h3>
-                <p className="text-[11px] text-[#6D706A]">Shared with tutor</p>
+                <h3 className="text-sm font-bold text-[#25231F]">Class Chat &amp; Notes</h3>
+                <p className="text-[11px] text-[#6F6A62]">Shared with tutor</p>
               </div>
               <button
                 type="button"
                 onClick={() => setChatOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[#6D706A] hover:bg-[#FCFBF8]"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[#6F6A62] hover:bg-[#FFFBF5]"
               >
                 <IconX size={16} />
               </button>
@@ -221,14 +221,14 @@ export default function DemoSessionPage() {
                   key={msg.id}
                   className={`flex flex-col ${msg.sender === "Aarav" ? "items-end" : "items-start"}`}
                 >
-                  <span className="text-[10px] font-bold text-[#969991] mb-1">
+                  <span className="text-[10px] font-bold text-[#9B958C] mb-1">
                     {msg.sender} &bull; {msg.time}
                   </span>
                   <div
                     className={`rounded-2xl p-3 text-xs leading-relaxed max-w-[85%] ${
                       msg.sender === "Aarav"
-                        ? "bg-[#7257A5] text-white"
-                        : "bg-[#EEE7FF]/60 text-[#20221F] border border-[rgba(54,48,60,0.06)]"
+                        ? "bg-[#315F52] text-white"
+                        : "bg-[#E4EEE9]/60 text-[#25231F] border border-[rgba(55,48,40,0.06)]"
                     }`}
                   >
                     {msg.text}
@@ -237,17 +237,17 @@ export default function DemoSessionPage() {
               ))}
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-3 border-t border-[rgba(54,48,60,0.08)] flex gap-2">
+            <form onSubmit={handleSendMessage} className="p-3 border-t border-[rgba(55,48,40,0.08)] flex gap-2">
               <input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type a doubt or note..."
-                className="flex-1 rounded-full border border-[rgba(54,48,60,0.12)] bg-[#FCFBF8] px-4 py-2 text-xs text-[#20221F] focus:border-[#7257A5] focus:outline-hidden"
+                className="flex-1 rounded-full border border-[rgba(55,48,40,0.12)] bg-[#FFFBF5] px-4 py-2 text-xs text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
               />
               <button
                 type="submit"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#7257A5] text-white shadow-xs"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#315F52] text-white shadow-xs"
               >
                 <IconSend size={14} />
               </button>
@@ -259,11 +259,11 @@ export default function DemoSessionPage() {
       {/* Leave Confirmation Dialog */}
       {leaveDialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md rounded-3xl border border-[rgba(54,48,60,0.12)] bg-white p-6 sm:p-8 shadow-xl text-center space-y-4">
-            <h3 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[#20221F]">
+          <div className="w-full max-w-md rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-6 sm:p-8 shadow-xl text-center space-y-4">
+            <h3 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[#25231F]">
               Finish Demo Session?
             </h3>
-            <p className="text-xs text-[#6D706A] leading-relaxed">
+            <p className="text-xs text-[#6F6A62] leading-relaxed">
               You will be taken to a brief feedback screen to share how your trial went and view class package options.
             </p>
             <div className="flex gap-3 pt-2">

@@ -60,16 +60,16 @@ function AuthInner() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FCFBF8]">
+    <div className="flex min-h-screen flex-col bg-[#FFFBF5]">
       {/* Minimal Top Header */}
-      <header className="border-b border-[rgba(54,48,60,0.08)] bg-white/80 py-4 backdrop-blur-md">
+      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Link href="/">
             <Logo />
           </Link>
           <Link
             href="/tutors"
-            className="text-xs font-bold text-[#6D706A] hover:text-[#20221F] transition"
+            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
           >
             &larr; Back to Tutors
           </Link>
@@ -82,49 +82,49 @@ function AuthInner() {
             {/* Left Column: Quiet Educational Visual Context (Desktop Only) */}
             <div className="hidden lg:block lg:col-span-5 space-y-6">
               <div>
-                <span className="text-xs font-extrabold uppercase tracking-widest text-[#7257A5]">
+                <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
                   TutorConnect Access
                 </span>
-                <h1 className="mt-2 font-[family-name:var(--font-manrope)] text-3xl font-extrabold tracking-tight text-[#20221F] leading-tight">
+                <h1 className="mt-2 font-[family-name:var(--font-manrope)] text-3xl font-extrabold tracking-tight text-[#25231F] leading-tight">
                   A personalized workspace for student progress.
                 </h1>
-                <p className="mt-3 text-sm text-[#6D706A] leading-relaxed">
+                <p className="mt-3 text-sm text-[#6F6A62] leading-relaxed">
                   Log in to track your upcoming classes, review digital lesson notes shared by your educator, and monitor weekly subject rhythm.
                 </p>
               </div>
 
               {/* Original Miniature Workspace Mockup Preview */}
-              <div className="rounded-3xl border border-[rgba(54,48,60,0.10)] bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)] space-y-4">
-                <div className="flex items-center justify-between border-b border-[rgba(54,48,60,0.06)] pb-3">
-                  <span className="text-xs font-bold text-[#20221F]">Next Session</span>
-                  <span className="rounded-full bg-[#E5F0EA] px-2.5 py-0.5 text-[11px] font-bold text-[#3D5A4D]">
+              <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)] space-y-4">
+                <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-3">
+                  <span className="text-xs font-bold text-[#25231F]">Next Session</span>
+                  <span className="rounded-full bg-[#E3EADD] px-2.5 py-0.5 text-[11px] font-bold text-[#244A40]">
                     Confirmed
                   </span>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EEE7FF] text-xs font-extrabold text-[#594282]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E4EEE9] text-xs font-extrabold text-[#244A40]">
                     AS
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[#20221F]">Ananya Sharma</p>
-                    <p className="text-[11px] text-[#6D706A]">Mathematics &bull; Class 9 CBSE</p>
+                    <p className="text-xs font-bold text-[#25231F]">Ananya Sharma</p>
+                    <p className="text-[11px] text-[#6F6A62]">Mathematics &bull; Class 9 CBSE</p>
                   </div>
                 </div>
 
-                <div className="rounded-xl bg-[#FCFBF8] p-3 text-[11px] text-[#6D706A] flex items-center justify-between">
+                <div className="rounded-xl bg-[#FFFBF5] p-3 text-[11px] text-[#6F6A62] flex items-center justify-between">
                   <span>Mon, 04:30 PM &bull; 1-on-1 Online</span>
-                  <span className="font-bold text-[#7257A5]">Class 4 of 12</span>
+                  <span className="font-bold text-[#315F52]">Class 4 of 12</span>
                 </div>
               </div>
 
-              <div className="space-y-2 text-xs text-[#6D706A]">
+              <div className="space-y-2 text-xs text-[#6F6A62]">
                 <div className="flex items-center gap-2">
-                  <IconShieldCheck size={14} className="text-[#5D806F]" />
+                  <IconShieldCheck size={14} className="text-[#315F52]" />
                   <span>Secure prototype credentials simulation</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <IconVideo size={14} className="text-[#7257A5]" />
+                  <IconVideo size={14} className="text-[#315F52]" />
                   <span>Direct link to live 1-on-1 demo rooms</span>
                 </div>
               </div>
@@ -132,16 +132,16 @@ function AuthInner() {
 
             {/* Right Column: Focused Auth Object */}
             <div className="lg:col-span-7">
-              <div className="rounded-3xl border border-[rgba(54,48,60,0.12)] bg-white p-7 sm:p-9 shadow-[0_12px_40px_rgba(0,0,0,0.03)]">
+              <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-9 shadow-[0_12px_40px_rgba(0,0,0,0.03)]">
                 {/* Role Switcher */}
-                <div className="flex rounded-full bg-[#FCFBF8] p-1 border border-[rgba(54,48,60,0.10)] mb-6">
+                <div className="flex rounded-full bg-[#FFFBF5] p-1 border border-[rgba(55,48,40,0.10)] mb-6">
                   <button
                     type="button"
                     onClick={() => setRole("student")}
                     className={`flex-1 rounded-full py-2 text-xs font-bold transition-all text-center ${
                       role === "student"
-                        ? "bg-[#7257A5] text-white shadow-xs"
-                        : "text-[#6D706A] hover:text-[#20221F]"
+                        ? "bg-[#315F52] text-white shadow-xs"
+                        : "text-[#6F6A62] hover:text-[#25231F]"
                     }`}
                   >
                     Student / Parent
@@ -151,8 +151,8 @@ function AuthInner() {
                     onClick={() => setRole("tutor")}
                     className={`flex-1 rounded-full py-2 text-xs font-bold transition-all text-center ${
                       role === "tutor"
-                        ? "bg-[#7257A5] text-white shadow-xs"
-                        : "text-[#6D706A] hover:text-[#20221F]"
+                        ? "bg-[#315F52] text-white shadow-xs"
+                        : "text-[#6F6A62] hover:text-[#25231F]"
                     }`}
                   >
                     Educator / Tutor
@@ -160,7 +160,7 @@ function AuthInner() {
                 </div>
 
                 <div className="mb-6">
-                  <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#20221F]">
+                  <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#25231F]">
                     {mode === "signin"
                       ? role === "student"
                         ? "Sign in to Student Workspace"
@@ -169,7 +169,7 @@ function AuthInner() {
                       ? "Create Student Account"
                       : "Apply as an Educator"}
                   </h2>
-                  <p className="mt-1 text-xs text-[#6D706A]">
+                  <p className="mt-1 text-xs text-[#6F6A62]">
                     {role === "student"
                       ? "Track your tuition routine, upcoming classes, and digital lesson notes."
                       : "Manage your student inquiries, demo slots, and teaching schedule in Hyderabad."}
@@ -188,9 +188,9 @@ function AuthInner() {
 
                 <div className="relative mb-5 text-center">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[rgba(54,48,60,0.10)]" />
+                    <div className="w-full border-t border-[rgba(55,48,40,0.10)]" />
                   </div>
-                  <span className="relative bg-white px-3 text-[11px] font-semibold text-[#969991]">
+                  <span className="relative bg-white px-3 text-[11px] font-semibold text-[#9B958C]">
                     or with email
                   </span>
                 </div>
@@ -198,7 +198,7 @@ function AuthInner() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {mode === "create" && (
                     <div>
-                      <label className="text-xs font-bold text-[#6D706A] block mb-1">
+                      <label className="text-xs font-bold text-[#6F6A62] block mb-1">
                         Full Name
                       </label>
                       <input
@@ -207,13 +207,13 @@ function AuthInner() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder={role === "student" ? "e.g. Aarav Mehta" : "e.g. Ananya Sharma"}
-                        className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-4 py-2.5 text-sm font-semibold text-[#20221F] placeholder:text-[#969991] focus:border-[#7257A5] focus:outline-hidden"
+                        className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-4 py-2.5 text-sm font-semibold text-[#25231F] placeholder:text-[#9B958C] focus:border-[#315F52] focus:outline-hidden"
                       />
                     </div>
                   )}
 
                   <div>
-                    <label className="text-xs font-bold text-[#6D706A] block mb-1">
+                    <label className="text-xs font-bold text-[#6F6A62] block mb-1">
                       Email Address
                     </label>
                     <input
@@ -222,12 +222,12 @@ function AuthInner() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@example.com"
-                      className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-4 py-2.5 text-sm font-semibold text-[#20221F] placeholder:text-[#969991] focus:border-[#7257A5] focus:outline-hidden"
+                      className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-4 py-2.5 text-sm font-semibold text-[#25231F] placeholder:text-[#9B958C] focus:border-[#315F52] focus:outline-hidden"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-[#6D706A] block mb-1">
+                    <label className="text-xs font-bold text-[#6F6A62] block mb-1">
                       Password
                     </label>
                     <input
@@ -236,13 +236,13 @@ function AuthInner() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-4 py-2.5 text-sm font-semibold text-[#20221F] placeholder:text-[#969991] focus:border-[#7257A5] focus:outline-hidden"
+                      className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-4 py-2.5 text-sm font-semibold text-[#25231F] placeholder:text-[#9B958C] focus:border-[#315F52] focus:outline-hidden"
                     />
                   </div>
 
                   {mode === "create" && (
                     <div>
-                      <label className="text-xs font-bold text-[#6D706A] block mb-1">
+                      <label className="text-xs font-bold text-[#6F6A62] block mb-1">
                         Contact Number (Hyderabad)
                       </label>
                       <input
@@ -250,28 +250,28 @@ function AuthInner() {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+91 98765 43210"
-                        className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-4 py-2.5 text-sm font-semibold text-[#20221F] placeholder:text-[#969991] focus:border-[#7257A5] focus:outline-hidden"
+                        className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-4 py-2.5 text-sm font-semibold text-[#25231F] placeholder:text-[#9B958C] focus:border-[#315F52] focus:outline-hidden"
                       />
                     </div>
                   )}
 
                   <button
                     type="submit"
-                    className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(114,87,165,0.22)] justify-center gap-2 mt-2"
+                    className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2 mt-2"
                   >
                     <span>{mode === "signin" ? "Sign In" : "Create Account"}</span>
                     <IconArrowRight size={15} />
                   </button>
                 </form>
 
-                <div className="mt-5 text-center text-xs text-[#6D706A]">
+                <div className="mt-5 text-center text-xs text-[#6F6A62]">
                   {mode === "signin" ? (
                     <p>
                       Don&apos;t have an account yet?{" "}
                       <button
                         type="button"
                         onClick={() => setMode("create")}
-                        className="font-bold text-[#7257A5] hover:underline"
+                        className="font-bold text-[#315F52] hover:underline"
                       >
                         Create one now
                       </button>
@@ -282,7 +282,7 @@ function AuthInner() {
                       <button
                         type="button"
                         onClick={() => setMode("signin")}
-                        className="font-bold text-[#7257A5] hover:underline"
+                        className="font-bold text-[#315F52] hover:underline"
                       >
                         Sign in
                       </button>
@@ -300,7 +300,7 @@ function AuthInner() {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FCFBF8]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FFFBF5]" />}>
       <AuthInner />
     </Suspense>
   );

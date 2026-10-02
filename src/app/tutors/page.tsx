@@ -93,24 +93,24 @@ export default async function TutorDiscoveryPage({
   ].filter(Boolean).length;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FCFBF8]">
+    <div className="flex min-h-screen flex-col bg-[#FFFBF5]">
       <SiteHeader />
 
       <main id="main-content" className="flex-1 pb-20 md:pb-28">
         {/* Top Editorial Header */}
-        <section className="border-b border-[rgba(54,48,60,0.08)] bg-gradient-to-b from-[#EEE7FF]/30 to-[#FCFBF8] py-12 md:py-16">
+        <section className="border-b border-[rgba(55,48,40,0.08)] bg-gradient-to-b from-[#E4EEE9]/30 to-[#FFFBF5] py-12 md:py-16">
           <div className="container-shell">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#7257A5]/20 bg-white px-3.5 py-1 text-xs font-bold text-[#594282]">
-                <IconShieldCheck size={14} className="text-[#7257A5]" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#315F52]/20 bg-white px-3.5 py-1 text-xs font-bold text-[#244A40]">
+                <IconShieldCheck size={14} className="text-[#315F52]" />
                 <span>Verified Hyderabad Mentors &bull; Free 30-Min Demo</span>
               </div>
 
-              <h1 className="mt-4 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-[-0.035em] text-[#20221F]">
+              <h1 className="mt-4 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-[-0.035em] text-[#25231F]">
                 Find the ideal mentor for your child.
               </h1>
 
-              <p className="mt-3 text-base text-[#6D706A] leading-relaxed">
+              <p className="mt-3 text-base text-[#6F6A62] leading-relaxed">
                 Connect with verified 1-on-1 educators in Hyderabad across CBSE, ICSE, and State curricula. Experience teaching rapport first in a free 30-minute online trial.
               </p>
             </div>
@@ -120,19 +120,19 @@ export default async function TutorDiscoveryPage({
         {/* Discovery Filter & Results Layout */}
         <div className="container-shell mt-8 md:mt-12">
           {/* Floating/Sticky Compact Filter Bar */}
-          <div className="sticky top-20 z-30 mb-8 rounded-3xl border border-[rgba(54,48,60,0.12)] bg-white/95 p-4 sm:p-5 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-md">
+          <div className="sticky top-20 z-30 mb-8 rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white/95 p-4 sm:p-5 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-md">
             <form method="GET" action="/tutors" className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(54,48,60,0.06)] pb-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(55,48,40,0.06)] pb-3">
                 {/* Mode Selector */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-[#6D706A]">Mode:</span>
-                  <div className="inline-flex rounded-full bg-[#FCFBF8] p-1 border border-[rgba(54,48,60,0.10)]">
+                  <span className="text-xs font-bold text-[#6F6A62]">Mode:</span>
+                  <div className="inline-flex rounded-full bg-[#FFFBF5] p-1 border border-[rgba(55,48,40,0.10)]">
                     <Link
                       href={`/tutors?mode=online${selectedSubject ? `&subject=${encodeURIComponent(selectedSubject)}` : ""}${selectedClass ? `&class=${encodeURIComponent(selectedClass)}` : ""}`}
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition ${
                         selectedMode === "online"
-                          ? "bg-[#7257A5] text-white shadow-xs"
-                          : "text-[#6D706A] hover:text-[#20221F]"
+                          ? "bg-[#315F52] text-white shadow-xs"
+                          : "text-[#6F6A62] hover:text-[#25231F]"
                       }`}
                     >
                       <IconVideo size={12} />
@@ -143,8 +143,8 @@ export default async function TutorDiscoveryPage({
                       href={`/tutors?mode=home${selectedSubject ? `&subject=${encodeURIComponent(selectedSubject)}` : ""}${selectedClass ? `&class=${encodeURIComponent(selectedClass)}` : ""}`}
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition ${
                         selectedMode === "home"
-                          ? "bg-[#7257A5] text-white shadow-xs"
-                          : "text-[#6D706A] hover:text-[#20221F]"
+                          ? "bg-[#315F52] text-white shadow-xs"
+                          : "text-[#6F6A62] hover:text-[#25231F]"
                       }`}
                     >
                       <IconHomeTuition size={12} />
@@ -155,8 +155,8 @@ export default async function TutorDiscoveryPage({
                       href={`/tutors${selectedSubject ? `?subject=${encodeURIComponent(selectedSubject)}` : ""}`}
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition ${
                         !selectedMode || selectedMode === "all"
-                          ? "bg-[#7257A5] text-white shadow-xs"
-                          : "text-[#6D706A] hover:text-[#20221F]"
+                          ? "bg-[#315F52] text-white shadow-xs"
+                          : "text-[#6F6A62] hover:text-[#25231F]"
                       }`}
                     >
                       <span>All</span>
@@ -166,13 +166,13 @@ export default async function TutorDiscoveryPage({
 
                 {/* Filter Status & Reset */}
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-semibold text-[#6D706A]">
-                    Showing <strong className="text-[#20221F]">{filteredTutors.length}</strong> educators
+                  <span className="text-xs font-semibold text-[#6F6A62]">
+                    Showing <strong className="text-[#25231F]">{filteredTutors.length}</strong> educators
                   </span>
                   {activeFiltersCount > 0 && (
                     <Link
                       href="/tutors"
-                      className="inline-flex items-center gap-1 rounded-full bg-[#FCFBF8] border border-[rgba(54,48,60,0.12)] px-2.5 py-1 text-xs font-bold text-[#C84B31] hover:bg-[#FCEEEA] transition"
+                      className="inline-flex items-center gap-1 rounded-full bg-[#FFFBF5] border border-[rgba(55,48,40,0.12)] px-2.5 py-1 text-xs font-bold text-[#C84B31] hover:bg-[#FCEEEA] transition"
                     >
                       <IconX size={12} />
                       <span>Reset</span>
@@ -190,7 +190,7 @@ export default async function TutorDiscoveryPage({
                     id="filter-subject"
                     name="subject"
                     defaultValue={selectedSubject}
-                    className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-3 py-2 text-xs font-semibold text-[#20221F] focus:border-[#7257A5] focus:outline-hidden"
+                    className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-3 py-2 text-xs font-semibold text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
                   >
                     <option value="">All Subjects</option>
                     {subjects.map((s) => (<option key={s.id} value={s.name}>{s.name}</option>))}
@@ -204,7 +204,7 @@ export default async function TutorDiscoveryPage({
                     id="filter-class"
                     name="class"
                     defaultValue={selectedClass}
-                    className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-3 py-2 text-xs font-semibold text-[#20221F] focus:border-[#7257A5] focus:outline-hidden"
+                    className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-3 py-2 text-xs font-semibold text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
                   >
                     <option value="">All Classes</option>
                     {availableClasses.map((c) => (
@@ -220,7 +220,7 @@ export default async function TutorDiscoveryPage({
                     id="filter-board"
                     name="board"
                     defaultValue={selectedBoard}
-                    className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-3 py-2 text-xs font-semibold text-[#20221F] focus:border-[#7257A5] focus:outline-hidden"
+                    className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-3 py-2 text-xs font-semibold text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
                   >
                     <option value="">All Boards</option>
                     {availableBoards.map((b) => (
@@ -238,7 +238,7 @@ export default async function TutorDiscoveryPage({
                     type="text"
                     defaultValue={selectedLocation}
                     placeholder="Locality (e.g. Madhapur)"
-                    className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-3 py-2 text-xs font-semibold text-[#20221F] placeholder:text-[#969991] focus:border-[#7257A5] focus:outline-hidden"
+                    className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-3 py-2 text-xs font-semibold text-[#25231F] placeholder:text-[#9B958C] focus:border-[#315F52] focus:outline-hidden"
                   />
                 </div>
 
@@ -264,14 +264,14 @@ export default async function TutorDiscoveryPage({
               ))}
             </div>
           ) : (
-            <div className="rounded-3xl border border-[rgba(54,48,60,0.10)] bg-white p-12 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EEE7FF] text-[#594282]">
+            <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-12 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E4EEE9] text-[#244A40]">
                 <IconSearch size={24} />
               </div>
-              <h3 className="mt-4 font-[family-name:var(--font-manrope)] text-xl font-bold text-[#20221F]">
+              <h3 className="mt-4 font-[family-name:var(--font-manrope)] text-xl font-bold text-[#25231F]">
                 No mentors matched your current criteria
               </h3>
-              <p className="mt-2 text-sm text-[#6D706A]">
+              <p className="mt-2 text-sm text-[#6F6A62]">
                 Try adjusting your filters or search by a broader subject or class.
               </p>
               <div className="mt-6">

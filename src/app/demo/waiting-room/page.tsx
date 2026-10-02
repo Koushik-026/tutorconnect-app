@@ -20,14 +20,14 @@ export default function DemoWaitingRoomPage() {
   const [cameraOn, setCameraOn] = useState(true);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FCFBF8] text-[#20221F]">
+    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
       {/* Light Header */}
-      <header className="border-b border-[rgba(54,48,60,0.08)] bg-white/80 py-4 backdrop-blur-md">
+      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href="/dashboard/student"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6D706A] hover:text-[#20221F] transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition-colors"
           >
             <IconArrowLeft size={14} />
             <span>Exit Waiting Room</span>
@@ -38,25 +38,25 @@ export default function DemoWaitingRoomPage() {
       <main className="flex-1 py-10 md:py-16 flex items-center">
         <div className="container-shell max-w-4xl mx-auto w-full">
           <div className="text-center max-w-xl mx-auto mb-8">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E5F0EA] px-3.5 py-1 text-xs font-bold text-[#3D5A4D] mb-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-3.5 py-1 text-xs font-bold text-[#244A40] mb-3">
               <IconClock size={13} />
               <span>Demo Starts in 3 Minutes</span>
             </span>
-            <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#20221F]">
+            <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#25231F]">
               Online Demo Waiting Room
             </h1>
-            <p className="mt-2 text-xs sm:text-sm text-[#6D706A]">
-              Check your camera and audio before joining the 1-on-1 trial with <strong className="text-[#20221F]">Ananya Sharma</strong>.
+            <p className="mt-2 text-xs sm:text-sm text-[#6F6A62]">
+              Check your camera and audio before joining the 1-on-1 trial with <strong className="text-[#25231F]">Ananya Sharma</strong>.
             </p>
           </div>
 
           <div className="grid gap-8 lg:grid-cols-12 items-center">
             {/* Focal Object: Large Camera Preview */}
             <div className="lg:col-span-8">
-              <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-[rgba(54,48,60,0.12)] bg-[#20221F] shadow-[0_12px_40px_rgba(0,0,0,0.06)] flex flex-col justify-between p-5 text-white">
+              <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-[rgba(55,48,40,0.12)] bg-[#25231F] shadow-[0_12px_40px_rgba(0,0,0,0.06)] flex flex-col justify-between p-5 text-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 rounded-full bg-black/40 backdrop-blur-md px-3 py-1 text-xs font-semibold">
-                    <span className="h-2 w-2 rounded-full bg-[#5D806F] animate-pulse" />
+                    <span className="h-2 w-2 rounded-full bg-[#315F52] animate-pulse" />
                     <span>Camera Test: {cameraOn ? "Active" : "Disabled"}</span>
                   </div>
 
@@ -112,49 +112,49 @@ export default function DemoWaitingRoomPage() {
 
             {/* Right Column: Educator Info & Join Action */}
             <div className="lg:col-span-4 space-y-6">
-              <div className="rounded-3xl border border-[rgba(54,48,60,0.10)] bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-4">
+              <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EEE7FF] text-sm font-extrabold text-[#594282]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E4EEE9] text-sm font-extrabold text-[#244A40]">
                     AS
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#20221F]">
+                      <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#25231F]">
                         Ananya Sharma
                       </h3>
-                      <span className="text-[#5D806F]"><IconShieldCheck size={16} /></span>
+                      <span className="text-[#315F52]"><IconShieldCheck size={16} /></span>
                     </div>
-                    <p className="text-xs text-[#6D706A]">Mathematics &amp; Science</p>
+                    <p className="text-xs text-[#6F6A62]">Mathematics &amp; Science</p>
                   </div>
                 </div>
 
-                <div className="space-y-2 border-t border-[rgba(54,48,60,0.08)] pt-4 text-xs text-[#6D706A]">
+                <div className="space-y-2 border-t border-[rgba(55,48,40,0.08)] pt-4 text-xs text-[#6F6A62]">
                   <div className="flex items-center justify-between">
                     <span>Duration:</span>
-                    <span className="font-bold text-[#20221F]">30 Minutes</span>
+                    <span className="font-bold text-[#25231F]">30 Minutes</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Curriculum:</span>
-                    <span className="font-bold text-[#20221F]">Class 9 &bull; CBSE</span>
+                    <span className="font-bold text-[#25231F]">Class 9 &bull; CBSE</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Topic:</span>
-                    <span className="font-bold text-[#20221F]">Quadratic Roots Diagnostic</span>
+                    <span className="font-bold text-[#25231F]">Quadratic Roots Diagnostic</span>
                   </div>
                 </div>
 
                 <Link
                   href="/demo/session"
-                  className="btn btn-primary w-full min-h-[50px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(114,87,165,0.22)] justify-center gap-2 mt-2"
+                  className="btn btn-primary w-full min-h-[50px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2 mt-2"
                 >
                   <span>Join Demo Session</span>
                   <IconArrowRight size={16} />
                 </Link>
               </div>
 
-              <div className="rounded-2xl border border-[rgba(54,48,60,0.08)] bg-[#FFFDF9] p-4 text-xs text-[#6D706A]">
-                <div className="flex items-center gap-2 font-bold text-[#20221F] mb-1">
-                  <IconCheck size={14} className="text-[#5D806F]" />
+              <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFF7ED] p-4 text-xs text-[#6F6A62]">
+                <div className="flex items-center gap-2 font-bold text-[#25231F] mb-1">
+                  <IconCheck size={14} className="text-[#315F52]" />
                   <span>No payment required</span>
                 </div>
                 <p className="text-[11px] leading-relaxed">

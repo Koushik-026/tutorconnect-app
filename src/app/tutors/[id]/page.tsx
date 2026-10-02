@@ -49,22 +49,22 @@ export default async function TutorProfilePage({
   const offersHome = tutor.modes.includes("home");
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FCFBF8]">
+    <div className="flex min-h-screen flex-col bg-[#FFFBF5]">
       <SiteHeader />
 
       <main id="main-content" className="flex-1 pb-24 lg:pb-20">
         {/* Navigation Breadcrumb */}
-        <div className="border-b border-[rgba(54,48,60,0.08)] bg-white py-3.5">
+        <div className="border-b border-[rgba(55,48,40,0.08)] bg-white py-3.5">
           <div className="container-shell flex items-center justify-between">
             <Link
               href="/tutors"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6D706A] hover:text-[#20221F] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition-colors"
             >
               <IconArrowLeft size={14} />
               <span>Back to all tutors</span>
             </Link>
 
-            <span className="text-xs font-semibold text-[#969991]">
+            <span className="text-xs font-semibold text-[#9B958C]">
               Educator Profile &bull; {tutor.name}
             </span>
           </div>
@@ -75,35 +75,35 @@ export default async function TutorProfilePage({
             {/* Left Column: Wide Editorial Dossier */}
             <div className="lg:col-span-8 space-y-10">
               {/* Identity Header */}
-              <div className="rounded-3xl border border-[rgba(54,48,60,0.10)] bg-white p-7 sm:p-9 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+              <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-7 sm:p-9 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
                   <div className="flex items-start gap-5">
                     <div
                       aria-hidden="true"
-                      className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[#EEE7FF] text-2xl font-extrabold text-[#594282] shadow-2xs"
+                      className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[#E4EEE9] text-2xl font-extrabold text-[#244A40] shadow-2xs"
                     >
                       {getInitials(tutor.name)}
                     </div>
 
                     <div>
                       <div className="flex items-center gap-2">
-                        <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#20221F]">
+                        <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
                           {tutor.name}
                         </h1>
-                        <span title="Verified Profile" className="text-[#5D806F]">
+                        <span title="Verified Profile" className="text-[#315F52]">
                           <IconShieldCheck size={20} />
                         </span>
                       </div>
-                      <p className="mt-1 text-sm font-semibold text-[#7257A5]">
+                      <p className="mt-1 text-sm font-semibold text-[#315F52]">
                         {tutor.headline}
                       </p>
-                      <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-[#6D706A]">
+                      <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-[#6F6A62]">
                         <span className="flex items-center gap-1">
-                          <IconMapPin size={13} className="text-[#969991]" />
+                          <IconMapPin size={13} className="text-[#9B958C]" />
                           <span>{tutor.locality}, {tutor.city}</span>
                         </span>
                         <span>&bull;</span>
-                        <span className="font-bold text-[#20221F]">{tutor.experienceYears}y teaching</span>
+                        <span className="font-bold text-[#25231F]">{tutor.experienceYears}y teaching</span>
                         <span>&bull;</span>
                         <span>Languages: {tutor.languages.join(", ")}</span>
                       </div>
@@ -111,25 +111,25 @@ export default async function TutorProfilePage({
                   </div>
 
                   {/* Rating Box */}
-                  <div className="flex sm:flex-col items-center sm:items-end justify-between gap-1 rounded-2xl bg-[#FCFBF8] border border-[rgba(54,48,60,0.08)] px-4 py-2.5 self-start">
-                    <div className="flex items-center gap-1 text-sm font-extrabold text-[#20221F]">
-                      <IconStar size={15} className="text-[#D4A328]" />
+                  <div className="flex sm:flex-col items-center sm:items-end justify-between gap-1 rounded-2xl bg-[#FFFBF5] border border-[rgba(55,48,40,0.08)] px-4 py-2.5 self-start">
+                    <div className="flex items-center gap-1 text-sm font-extrabold text-[#25231F]">
+                      <IconStar size={15} className="text-[#F1B777]" />
                       <span>{tutor.rating.toFixed(1)}</span>
                     </div>
-                    <span className="text-[11px] text-[#6D706A]">{tutor.reviewCount} verified reviews</span>
+                    <span className="text-[11px] text-[#6F6A62]">{tutor.reviewCount} verified reviews</span>
                   </div>
                 </div>
 
                 {/* Modes availability banner */}
-                <div className="mt-6 flex flex-wrap gap-2.5 border-t border-[rgba(54,48,60,0.08)] pt-5 text-xs">
+                <div className="mt-6 flex flex-wrap gap-2.5 border-t border-[rgba(55,48,40,0.08)] pt-5 text-xs">
                   {offersOnline && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E5F0EA] px-3.5 py-1 font-bold text-[#3D5A4D]">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-3.5 py-1 font-bold text-[#244A40]">
                       <IconVideo size={13} />
                       <span>Online Tuition (30-min Free Demo Available)</span>
                     </span>
                   )}
                   {offersHome && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FCE7DE] px-3.5 py-1 font-bold text-[#A85834]">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FBE2D8] px-3.5 py-1 font-bold text-[#BA5945]">
                       <IconHomeTuition size={13} />
                       <span>Eligible Home Tuition ({tutor.locality} Radius)</span>
                     </span>
@@ -140,37 +140,37 @@ export default async function TutorProfilePage({
               {/* Editorial Section: About & Teaching Approach */}
               <div className="space-y-6">
                 <div>
-                  <h2 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[#20221F]">
+                  <h2 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[#25231F]">
                     About the Educator
                   </h2>
-                  <p className="mt-3 text-sm text-[#6D706A] leading-relaxed">
+                  <p className="mt-3 text-sm text-[#6F6A62] leading-relaxed">
                     {tutor.bio}
                   </p>
                 </div>
 
-                <div className="border-t border-[rgba(54,48,60,0.08)] pt-6">
-                  <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#20221F]">
+                <div className="border-t border-[rgba(55,48,40,0.08)] pt-6">
+                  <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#25231F]">
                     Teaching Approach
                   </h3>
-                  <p className="mt-2 text-sm text-[#6D706A] leading-relaxed">
+                  <p className="mt-2 text-sm text-[#6F6A62] leading-relaxed">
                     Emphasizes deep concept intuition before moving to problem-solving drills. Each session begins with a rapid recap of the previous class to ensure steady memory retention, followed by targeted exam-pattern problem breakdown and digital lesson notes when shared by the tutor.
                   </p>
                 </div>
 
-                <div className="border-t border-[rgba(54,48,60,0.08)] pt-6">
-                  <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#20221F]">
+                <div className="border-t border-[rgba(55,48,40,0.08)] pt-6">
+                  <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#25231F]">
                     Academic Scope &amp; Frameworks
                   </h3>
                   <div className="mt-4 grid gap-4 sm:grid-cols-3">
                     <div>
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#969991] block mb-2">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9B958C] block mb-2">
                         Subjects
                       </span>
                       <div className="flex flex-wrap gap-1.5">
                         {tutor.subjects.map((s) => (
                           <span
                             key={s}
-                            className="rounded-full bg-[#EEE7FF] px-3 py-1 text-xs font-bold text-[#594282]"
+                            className="rounded-full bg-[#E4EEE9] px-3 py-1 text-xs font-bold text-[#244A40]"
                           >
                             {s}
                           </span>
@@ -179,14 +179,14 @@ export default async function TutorProfilePage({
                     </div>
 
                     <div>
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#969991] block mb-2">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9B958C] block mb-2">
                         Classes Handled
                       </span>
                       <div className="flex flex-wrap gap-1.5">
                         {tutor.classes.map((c) => (
                           <span
                             key={c}
-                            className="rounded-full bg-[#F4F2EC] px-3 py-1 text-xs font-semibold text-[#53564F]"
+                            className="rounded-full bg-[#FFF7ED] px-3 py-1 text-xs font-semibold text-[#25231F]"
                           >
                             {c}
                           </span>
@@ -195,14 +195,14 @@ export default async function TutorProfilePage({
                     </div>
 
                     <div>
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#969991] block mb-2">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9B958C] block mb-2">
                         Curriculum Boards
                       </span>
                       <div className="flex flex-wrap gap-1.5">
                         {tutor.boards.map((b) => (
                           <span
                             key={b}
-                            className="rounded-full bg-[#E5F0EA] px-3 py-1 text-xs font-bold text-[#3D5A4D]"
+                            className="rounded-full bg-[#E3EADD] px-3 py-1 text-xs font-bold text-[#244A40]"
                           >
                             {b}
                           </span>
@@ -214,17 +214,17 @@ export default async function TutorProfilePage({
               </div>
 
               {/* Class Packages: Presented as Learning Rhythms */}
-              <div className="border-t border-[rgba(54,48,60,0.08)] pt-8">
+              <div className="border-t border-[rgba(55,48,40,0.08)] pt-8">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[#20221F]">
+                    <h2 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[#25231F]">
                       Class Packages (Learning Rhythms)
                     </h2>
-                    <p className="mt-1 text-xs text-[#6D706A]">
+                    <p className="mt-1 text-xs text-[#6F6A62]">
                       Simple, non-recurring class packages. You only pay after your free 30-min demo if satisfied.
                     </p>
                   </div>
-                  <span className="rounded-full bg-[#EEE7FF] px-3 py-1 text-xs font-bold text-[#594282]">
+                  <span className="rounded-full bg-[#E4EEE9] px-3 py-1 text-xs font-bold text-[#244A40]">
                     45 Days Validity
                   </span>
                 </div>
@@ -233,24 +233,24 @@ export default async function TutorProfilePage({
                   {tuitionPackages.map((pkg) => (
                     <div
                       key={pkg.id}
-                      className="rounded-3xl border border-[rgba(54,48,60,0.10)] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between"
+                      className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between"
                     >
                       <div>
-                        <span className="text-xs font-extrabold text-[#7257A5]">
+                        <span className="text-xs font-extrabold text-[#315F52]">
                           {pkg.title}
                         </span>
-                        <div className="mt-2 font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-[#20221F]">
+                        <div className="mt-2 font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-[#25231F]">
                           {formatCurrency(pkg.price)}
                         </div>
-                        <div className="text-xs text-[#6D706A] font-semibold mt-0.5">
+                        <div className="text-xs text-[#6F6A62] font-semibold mt-0.5">
                           {pkg.numberOfClasses} classes &bull; 60m each
                         </div>
-                        <p className="mt-2 text-xs text-[#6D706A] leading-relaxed">
+                        <p className="mt-2 text-xs text-[#6F6A62] leading-relaxed">
                           {pkg.description}
                         </p>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-[rgba(54,48,60,0.08)] text-[11px] font-bold text-[#5D806F]">
+                      <div className="mt-4 pt-3 border-t border-[rgba(55,48,40,0.08)] text-[11px] font-bold text-[#315F52]">
                         45-day package validity
                       </div>
                     </div>
@@ -261,32 +261,32 @@ export default async function TutorProfilePage({
 
             {/* Right Column: Sticky Booking Widget (Desktop) */}
             <div className="lg:col-span-4">
-              <div className="sticky top-24 rounded-3xl border border-[rgba(54,48,60,0.12)] bg-white/95 p-7 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-md">
-                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#3D5A4D] bg-[#E5F0EA] px-3 py-1.5 rounded-full">
+              <div className="sticky top-24 rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white/95 p-7 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-md">
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#244A40] bg-[#E3EADD] px-3 py-1.5 rounded-full">
                   <IconVideo size={13} />
                   <span>Free 30-Min Demo</span>
                 </div>
 
                 <div className="mt-4">
-                  <h3 className="font-[family-name:var(--font-manrope)] text-xl font-extrabold text-[#20221F]">
+                  <h3 className="font-[family-name:var(--font-manrope)] text-xl font-extrabold text-[#25231F]">
                     Evaluate 1-on-1 with {tutor.name}
                   </h3>
-                  <p className="mt-1.5 text-xs text-[#6D706A] leading-relaxed">
+                  <p className="mt-1.5 text-xs text-[#6F6A62] leading-relaxed">
                     Test concept explanation and teaching chemistry in a 30-minute free online session before selecting a routine.
                   </p>
                 </div>
 
-                <div className="mt-5 space-y-2.5 text-xs text-[#20221F]">
+                <div className="mt-5 space-y-2.5 text-xs text-[#25231F]">
                   <div className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#5D806F]" />
+                    <IconCheck size={14} className="text-[#315F52]" />
                     <span>Duration: Exactly 30 minutes</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#5D806F]" />
+                    <IconCheck size={14} className="text-[#315F52]" />
                     <span>Format: Interactive digital classroom</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#5D806F]" />
+                    <IconCheck size={14} className="text-[#315F52]" />
                     <span>Cost: ₹0 (No card details required)</span>
                   </div>
                 </div>
@@ -294,22 +294,22 @@ export default async function TutorProfilePage({
                 <div className="mt-6">
                   <Link
                     href={`/demo/book?tutor=${tutor.id}`}
-                    className="btn btn-primary w-full min-h-[48px] text-sm font-extrabold rounded-full shadow-[0_4px_16px_rgba(114,87,165,0.22)] justify-center gap-2"
+                    className="btn btn-primary w-full min-h-[48px] text-sm font-extrabold rounded-full shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
                   >
                     <span>Book Free Demo Now</span>
                     <IconArrowRight size={15} />
                   </Link>
-                  <p className="mt-2.5 text-center text-[11px] text-[#969991]">
+                  <p className="mt-2.5 text-center text-[11px] text-[#9B958C]">
                     Takes less than 1 minute to schedule
                   </p>
                 </div>
 
-                <div className="mt-5 rounded-2xl border border-[rgba(54,48,60,0.08)] bg-[#FCFBF8] p-4 text-xs text-[#6D706A]">
-                  <span className="font-bold text-[#20221F]">Class Packages:</span>
-                  <div className="mt-1 font-bold text-[#20221F] text-sm">
+                <div className="mt-5 rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-4 text-xs text-[#6F6A62]">
+                  <span className="font-bold text-[#25231F]">Class Packages:</span>
+                  <div className="mt-1 font-bold text-[#25231F] text-sm">
                     Starting from {formatCurrency(tutor.startingMonthlyFee)} (8 classes)
                   </div>
-                  <p className="mt-0.5 text-[11px] text-[#6D706A]">
+                  <p className="mt-0.5 text-[11px] text-[#6F6A62]">
                     Choose 8, 12, or 15 classes after your demo if satisfied.
                   </p>
                 </div>
@@ -319,13 +319,13 @@ export default async function TutorProfilePage({
         </div>
 
         {/* Sticky Mobile Bottom Booking Bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[rgba(54,48,60,0.10)] bg-white/95 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] backdrop-blur-md lg:hidden">
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[rgba(55,48,40,0.10)] bg-white/95 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] backdrop-blur-md lg:hidden">
           <div className="container-shell flex items-center justify-between gap-4">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#969991]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#9B958C]">
                 Free 30-min Trial
               </span>
-              <div className="font-[family-name:var(--font-manrope)] text-sm font-extrabold text-[#20221F]">
+              <div className="font-[family-name:var(--font-manrope)] text-sm font-extrabold text-[#25231F]">
                 Meet {tutor.name}
               </div>
             </div>

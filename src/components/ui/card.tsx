@@ -7,7 +7,7 @@ export function Card({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`rounded-3xl border border-[rgba(54,48,60,0.10)] bg-white text-[#20221F] shadow-[0_4px_24px_rgba(0,0,0,0.02)] transition-shadow duration-200 ${className}`}
+      className={`rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white text-[#25231F] shadow-[0_4px_24px_rgba(55,48,40,0.03)] transition-shadow duration-200 ${className}`}
       {...props}
     >
       {children}
@@ -22,7 +22,7 @@ export function GlassCard({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`rounded-3xl border border-[rgba(54,48,60,0.10)] bg-white/85 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-md text-[#20221F] ${className}`}
+      className={`rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white/90 shadow-[0_8px_32px_rgba(55,48,40,0.04)] backdrop-blur-md text-[#25231F] ${className}`}
       {...props}
     >
       {children}
@@ -33,28 +33,46 @@ export function GlassCard({
 export function BentoCard({
   className = "",
   children,
-  accentColor = "plum",
+  accentColor = "forest",
   ...props
 }: HTMLAttributes<HTMLDivElement> & {
-  accentColor?: "plum" | "sage" | "peach" | "lavender" | "butter" | "sky" | "neutral";
+  accentColor?:
+    | "forest"
+    | "coral"
+    | "apricot"
+    | "moss"
+    | "peach"
+    | "butter"
+    | "rose"
+    | "lavender"
+    | "neutral"
+    | "plum"
+    | "sage"
+    | "sky";
 }) {
-  const accentGradients = {
-    plum: "from-[#7257A5]/10 via-[#7257A5]/3 to-transparent",
-    sage: "from-[#5D806F]/10 via-[#5D806F]/3 to-transparent",
-    peach: "from-[#EFA17F]/10 via-[#EFA17F]/3 to-transparent",
-    lavender: "from-[#EEE7FF]/40 via-[#EEE7FF]/10 to-transparent",
-    butter: "from-[#F7E9BE]/30 via-[#F7E9BE]/10 to-transparent",
-    sky: "from-[#E4F1FA]/40 via-[#E4F1FA]/10 to-transparent",
-    neutral: "from-[rgba(54,48,60,0.06)] via-transparent to-transparent",
+  const accentGradients: Record<string, string> = {
+    forest: "from-[#315F52]/10 via-[#315F52]/3 to-transparent",
+    coral: "from-[#DE765D]/10 via-[#DE765D]/3 to-transparent",
+    apricot: "from-[#F1B777]/14 via-[#F1B777]/4 to-transparent",
+    moss: "from-[#E3EADD]/60 via-[#E3EADD]/20 to-transparent",
+    peach: "from-[#FBE2D8]/50 via-[#FBE2D8]/15 to-transparent",
+    butter: "from-[#F8EAC3]/50 via-[#F8EAC3]/15 to-transparent",
+    rose: "from-[#F5DEE4]/50 via-[#F5DEE4]/15 to-transparent",
+    lavender: "from-[#EEEAF4]/50 via-[#EEEAF4]/15 to-transparent",
+    neutral: "from-[rgba(55,48,40,0.06)] via-transparent to-transparent",
+    /* Aliases */
+    plum: "from-[#315F52]/10 via-[#315F52]/3 to-transparent",
+    sage: "from-[#E3EADD]/60 via-[#E3EADD]/20 to-transparent",
+    sky: "from-[#E4EEE9]/50 via-[#E4EEE9]/15 to-transparent",
   };
 
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl border border-[rgba(54,48,60,0.10)] bg-white p-7 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ${className}`}
+      className={`relative overflow-hidden rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-7 shadow-[0_4px_24px_rgba(55,48,40,0.03)] ${className}`}
       {...props}
     >
       <div
-        className={`pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-gradient-to-br ${accentGradients[accentColor]} blur-2xl`}
+        className={`pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-gradient-to-br ${accentGradients[accentColor] || accentGradients.forest} blur-2xl`}
         aria-hidden="true"
       />
       <div className="relative z-10">{children}</div>
@@ -81,7 +99,7 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={`font-[family-name:var(--font-manrope)] text-lg md:text-xl font-bold tracking-tight text-[#20221F] ${className}`}
+      className={`font-[family-name:var(--font-manrope)] text-lg md:text-xl font-bold tracking-tight text-[#25231F] ${className}`}
       {...props}
     >
       {children}
@@ -95,7 +113,7 @@ export function CardDescription({
   ...props
 }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={`mt-1.5 text-sm text-[#6D706A] leading-relaxed ${className}`} {...props}>
+    <p className={`mt-1.5 text-sm text-[#6F6A62] leading-relaxed ${className}`} {...props}>
       {children}
     </p>
   );

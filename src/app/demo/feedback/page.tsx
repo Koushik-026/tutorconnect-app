@@ -42,13 +42,13 @@ export default function DemoFeedbackPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FCFBF8] text-[#20221F]">
-      <header className="border-b border-[rgba(54,48,60,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
+      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href="/dashboard/student"
-            className="text-xs font-bold text-[#6D706A] hover:text-[#20221F] transition"
+            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
           >
             Skip to Workspace &rarr;
           </Link>
@@ -60,18 +60,18 @@ export default function DemoFeedbackPage() {
           {/* Compact Centered Feedback Object */}
           <form
             onSubmit={handleSubmit}
-            className="rounded-3xl border border-[rgba(54,48,60,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.03)] text-center space-y-6"
+            className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.03)] text-center space-y-6"
           >
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E5F0EA] px-3.5 py-1 text-xs font-bold text-[#3D5A4D]">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-3.5 py-1 text-xs font-bold text-[#244A40]">
               <IconCheck size={14} />
               <span>Demo Session Completed</span>
             </div>
 
             <div>
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#20221F]">
+              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
                 How was your session with Ananya Sharma?
               </h1>
-              <p className="mt-2 text-xs sm:text-sm text-[#6D706A]">
+              <p className="mt-2 text-xs sm:text-sm text-[#6F6A62]">
                 Your feedback helps us curate the right learning rhythm for your child.
               </p>
             </div>
@@ -91,8 +91,8 @@ export default function DemoFeedbackPage() {
                     size={36}
                     className={`${
                       star <= (hoveredRating || rating)
-                        ? "text-[#D4A328] fill-[#D4A328]"
-                        : "text-[rgba(54,48,60,0.18)]"
+                        ? "text-[#F1B777] fill-[#D4A328]"
+                        : "text-[rgba(55,48,40,0.18)]"
                     } transition-colors`}
                   />
                 </button>
@@ -100,8 +100,8 @@ export default function DemoFeedbackPage() {
             </div>
 
             {/* Quick Feedback Tags */}
-            <div className="text-left space-y-2 border-t border-[rgba(54,48,60,0.08)] pt-5">
-              <span className="text-xs font-bold text-[#6D706A] block">
+            <div className="text-left space-y-2 border-t border-[rgba(55,48,40,0.08)] pt-5">
+              <span className="text-xs font-bold text-[#6F6A62] block">
                 What stood out? (Select all that apply)
               </span>
               <div className="flex flex-wrap gap-2">
@@ -114,8 +114,8 @@ export default function DemoFeedbackPage() {
                       onClick={() => toggleTag(tag)}
                       className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
                         selected
-                          ? "bg-[#7257A5] text-white shadow-xs"
-                          : "bg-[#FCFBF8] border border-[rgba(54,48,60,0.10)] text-[#6D706A] hover:text-[#20221F]"
+                          ? "bg-[#315F52] text-white shadow-xs"
+                          : "bg-[#FFFBF5] border border-[rgba(55,48,40,0.10)] text-[#6F6A62] hover:text-[#25231F]"
                       }`}
                     >
                       {tag}
@@ -127,7 +127,7 @@ export default function DemoFeedbackPage() {
 
             {/* Optional Note */}
             <div className="text-left">
-              <label className="text-xs font-bold text-[#6D706A] block mb-1">
+              <label className="text-xs font-bold text-[#6F6A62] block mb-1">
                 Additional Comments (Optional)
               </label>
               <textarea
@@ -135,20 +135,20 @@ export default function DemoFeedbackPage() {
                 value={feedbackText}
                 onChange={(e) => setFeedbackText(e.target.value)}
                 placeholder="Share any specific syllabus topics or questions..."
-                className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] p-3 text-xs text-[#20221F] focus:border-[#7257A5] focus:outline-hidden"
+                className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] p-3 text-xs text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
               />
             </div>
 
             {/* Clear Transition to Class Packages */}
-            <div className="pt-2 border-t border-[rgba(54,48,60,0.08)]">
+            <div className="pt-2 border-t border-[rgba(55,48,40,0.08)]">
               <button
                 type="submit"
-                className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(114,87,165,0.22)] justify-center gap-2"
+                className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
               >
                 <span>Continue to Class Packages</span>
                 <IconArrowRight size={15} />
               </button>
-              <p className="mt-2.5 text-[11px] text-[#969991]">
+              <p className="mt-2.5 text-[11px] text-[#9B958C]">
                 Establish your steady weekly learning rhythm with 8, 12, or 15 classes
               </p>
             </div>

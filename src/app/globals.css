@@ -1,29 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #FCFBF8;
+  --color-canvas: #FFFBF5;
   --color-surface: #FFFFFF;
-  --color-surface-warm: #FFFDF9;
-  --color-plum: #7257A5;
-  --color-plum-deep: #594282;
-  --color-plum-soft: #EEE7FF;
-  --color-lilac-field: #EEE7FF;
-  --color-lavender-soft: #F4F0FF;
-  --color-sage: #5D806F;
-  --color-sage-soft: #E5F0EA;
-  --color-sage-field: #E5F0EA;
-  --color-peach: #EFA17F;
-  --color-peach-soft: #FCE7DE;
-  --color-peach-field: #FCE7DE;
-  --color-sky-field: #E4F1FA;
-  --color-blush-field: #F6E1EB;
-  --color-butter: #D9B85F;
-  --color-butter-soft: #F7E9BE;
-  --color-ink: #20221F;
-  --color-ink-secondary: #6D706A;
-  --color-ink-faint: #969991;
-  --color-border-subtle: rgba(54, 48, 60, 0.10);
-  --color-border-strong: rgba(54, 48, 60, 0.16);
+  --color-surface-warm: #FFF7ED;
+  --color-forest: #315F52;
+  --color-forest-hover: #244A40;
+  --color-forest-soft: #E4EEE9;
+  --color-coral: #DE765D;
+  --color-coral-deep: #BA5945;
+  --color-peach-field: #FBE2D8;
+  --color-apricot: #F1B777;
+  --color-apricot-field: #FCEBD5;
+  --color-rose-field: #F5DEE4;
+  --color-moss-field: #E3EADD;
+  --color-butter-field: #F8EAC3;
+  --color-lavender-field: #EEEAF4;
+  --color-ink: #25231F;
+  --color-ink-secondary: #6F6A62;
+  --color-ink-faint: #9B958C;
+  --color-border-subtle: rgba(55, 48, 40, 0.10);
+  --color-border-strong: rgba(55, 48, 40, 0.17);
   --color-success-deep: #2E7D5B;
   --color-success-soft: #E9F5EF;
   --color-warning-deep: #C27A1B;
@@ -33,43 +30,43 @@
 }
 
 /* =========================================================
-   TutorConnect — Paper Bloom: Airy Learning Canvas Tokens
+   TutorConnect — Sunlit Grove Design Tokens
+   Warm, light, modern educational identity
    ========================================================= */
 
 :root {
-  --tc-canvas: #FCFBF8;
+  --tc-canvas: #FFFBF5;
   --tc-surface: #FFFFFF;
-  --tc-surface-warm: #FFFDF9;
+  --tc-surface-warm: #FFF7ED;
   --tc-surface-elevated: #FFFFFF;
 
-  --tc-primary: #7257A5;
-  --tc-primary-hover: #594282;
-  --tc-primary-soft: #EEE7FF;
+  --tc-primary: #315F52;
+  --tc-primary-hover: #244A40;
+  --tc-primary-soft: #E4EEE9;
 
-  --tc-sage: #5D806F;
-  --tc-sage-hover: #4B6B5C;
-  --tc-sage-soft: #E5F0EA;
+  --tc-forest: #315F52;
+  --tc-forest-hover: #244A40;
+  --tc-forest-soft: #E4EEE9;
 
-  --tc-peach: #EFA17F;
-  --tc-peach-hover: #D98864;
-  --tc-peach-soft: #FCE7DE;
+  --tc-coral: #DE765D;
+  --tc-coral-deep: #BA5945;
+  --tc-peach-field: #FBE2D8;
 
-  --tc-lavender: #B7A5DE;
-  --tc-lavender-soft: #F4F0FF;
+  --tc-apricot: #F1B777;
+  --tc-apricot-field: #FCEBD5;
 
-  --tc-sky-soft: #E4F1FA;
-  --tc-blush-soft: #F6E1EB;
+  --tc-rose-field: #F5DEE4;
+  --tc-moss-field: #E3EADD;
+  --tc-butter-field: #F8EAC3;
+  --tc-lavender-field: #EEEAF4;
 
-  --tc-butter: #D9B85F;
-  --tc-butter-soft: #F7E9BE;
+  --tc-text: #25231F;
+  --tc-text-muted: #6F6A62;
+  --tc-text-faint: #9B958C;
 
-  --tc-text: #20221F;
-  --tc-text-muted: #6D706A;
-  --tc-text-faint: #969991;
-
-  --tc-border: rgba(54, 48, 60, 0.10);
-  --tc-border-strong: rgba(54, 48, 60, 0.16);
-  --tc-border-soft: rgba(54, 48, 60, 0.06);
+  --tc-border: rgba(55, 48, 40, 0.10);
+  --tc-border-strong: rgba(55, 48, 40, 0.17);
+  --tc-border-soft: rgba(55, 48, 40, 0.06);
 
   --tc-success: #2E7D5B;
   --tc-success-soft: #E9F5EF;
@@ -79,14 +76,14 @@
   --tc-danger-soft: #FCEEEA;
 
   --tc-radius-sm: 10px;
-  --tc-radius-md: 16px;
-  --tc-radius-lg: 24px;
-  --tc-radius-xl: 32px;
+  --tc-radius-md: 14px;
+  --tc-radius-lg: 20px;
+  --tc-radius-xl: 28px;
 
-  --tc-shadow-sm: 0 2px 8px rgba(54, 48, 60, 0.03);
-  --tc-shadow-md: 0 8px 24px rgba(54, 48, 60, 0.04);
-  --tc-shadow-lg: 0 16px 40px rgba(54, 48, 60, 0.05);
-  --tc-shadow-glass: 0 8px 32px rgba(54, 48, 60, 0.04);
+  --tc-shadow-sm: 0 2px 8px rgba(55, 48, 40, 0.03);
+  --tc-shadow-md: 0 8px 24px rgba(55, 48, 40, 0.04);
+  --tc-shadow-lg: 0 16px 40px rgba(55, 48, 40, 0.05);
+  --tc-shadow-glass: 0 8px 32px rgba(55, 48, 40, 0.04);
 }
 
 /* =========================================================
@@ -156,13 +153,13 @@ a {
   top: -100px;
   left: 16px;
   z-index: 100;
-  background: var(--tc-primary);
+  background: var(--tc-forest);
   color: white;
   padding: 10px 20px;
   border-radius: 9999px;
   font-weight: 700;
   font-size: 0.875rem;
-  box-shadow: 0 4px 14px rgba(114, 87, 165, 0.35);
+  box-shadow: 0 4px 14px rgba(49, 95, 82, 0.35);
   transition: top 180ms ease;
 }
 
@@ -199,7 +196,7 @@ a {
    ========================================================= */
 
 .glass-nav {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.90);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--tc-border);
@@ -207,7 +204,7 @@ a {
 }
 
 .glass-surface {
-  background: rgba(255, 255, 255, 0.90);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--tc-border);
@@ -215,7 +212,9 @@ a {
 }
 
 /* =========================================================
-   Buttons (Tactile & Airy)
+   Button System — Sunlit Grove Unified Geometry
+   Family 1: Marketing / High-Level CTA (Capsule / Rounded-full, 48-52px, Forest Fill)
+   Family 2: Product / Form Action (12-16px radius, 44-48px min target)
    ========================================================= */
 
 .btn {
@@ -225,12 +224,13 @@ a {
   justify-content: center;
   gap: 8px;
   border: 1px solid transparent;
-  border-radius: 16px;
+  border-radius: 9999px;
   padding: 12px 24px;
   font-size: 0.92rem;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
+  user-select: none;
   text-decoration: none;
   transition:
     transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -241,50 +241,72 @@ a {
 }
 
 .btn:hover {
-  transform: translateY(-1.5px);
+  transform: translateY(-1px);
 }
 
 .btn:active {
-  transform: translateY(0);
+  transform: scale(0.985);
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--tc-primary);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(49, 95, 82, 0.28);
+}
+
+/* Family 2: Product / Form Action */
+.btn-action {
+  border-radius: 14px;
+  min-height: 44px;
+  padding: 10px 18px;
+  font-size: 0.875rem;
 }
 
 .btn-primary {
-  background: var(--tc-primary);
+  background: var(--tc-forest);
   color: #FFFFFF;
-  box-shadow: 0 4px 16px rgba(114, 87, 165, 0.20);
+  box-shadow: 0 4px 16px rgba(49, 95, 82, 0.20);
 }
 
 .btn-primary:hover {
-  background: var(--tc-primary-hover);
-  box-shadow: 0 6px 20px rgba(114, 87, 165, 0.28);
+  background: var(--tc-forest-hover);
+  box-shadow: 0 6px 20px rgba(49, 95, 82, 0.26);
 }
 
 .btn-secondary {
   border-color: var(--tc-border);
   background: var(--tc-surface);
   color: var(--tc-text);
-  box-shadow: 0 1px 3px rgba(54, 48, 60, 0.03);
+  box-shadow: 0 1px 3px rgba(55, 48, 40, 0.03);
 }
 
 .btn-secondary:hover {
-  border-color: rgba(114, 87, 165, 0.3);
-  background: var(--tc-primary-soft);
-  color: var(--tc-primary);
+  border-color: rgba(49, 95, 82, 0.30);
+  background: var(--tc-forest-soft);
+  color: var(--tc-forest);
 }
 
-.btn-sage {
-  background: var(--tc-sage);
+.btn-accent {
+  background: var(--tc-coral);
   color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(93, 128, 111, 0.20);
+  box-shadow: 0 4px 14px rgba(222, 118, 93, 0.20);
 }
 
-.btn-sage:hover {
-  background: var(--tc-sage-hover);
+.btn-accent:hover {
+  background: var(--tc-coral-deep);
+  box-shadow: 0 6px 18px rgba(222, 118, 93, 0.26);
+}
+
+.btn-outline {
+  border-color: var(--tc-border);
+  background: var(--tc-surface);
+  color: var(--tc-text);
+  box-shadow: 0 1px 3px rgba(55, 48, 40, 0.03);
+}
+
+.btn-outline:hover {
+  border-color: rgba(49, 95, 82, 0.35);
+  background: var(--tc-surface-warm);
+  color: var(--tc-forest);
 }
 
 .btn-ghost {
@@ -293,8 +315,18 @@ a {
 }
 
 .btn-ghost:hover {
-  background: rgba(54, 48, 60, 0.05);
+  background: rgba(55, 48, 40, 0.05);
   color: var(--tc-text);
+}
+
+.btn-danger {
+  background: var(--tc-danger);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(200, 75, 49, 0.20);
+}
+
+.btn-danger:hover {
+  background: #B33E26;
 }
 
 .btn:disabled {
@@ -302,6 +334,16 @@ a {
   opacity: 0.55;
   transform: none;
   box-shadow: none;
+}
+
+/* Backward compatibility aliases */
+.btn-sage {
+  background: var(--tc-forest);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(49, 95, 82, 0.20);
+}
+.btn-sage:hover {
+  background: var(--tc-forest-hover);
 }
 
 /* =========================================================
@@ -323,8 +365,8 @@ a {
 }
 
 .tc-card-hover:hover {
-  transform: translateY(-2.5px);
-  border-color: rgba(114, 87, 165, 0.25);
+  transform: translateY(-2px);
+  border-color: rgba(49, 95, 82, 0.25);
   box-shadow: var(--tc-shadow-md);
 }
 
@@ -355,7 +397,7 @@ a {
   background: var(--tc-surface);
   padding: 12px 16px;
   color: var(--tc-text);
-  box-shadow: 0 1px 2px rgba(54, 48, 60, 0.02);
+  box-shadow: 0 1px 2px rgba(55, 48, 40, 0.02);
   transition:
     border-color 150ms ease,
     box-shadow 150ms ease;
@@ -366,13 +408,13 @@ a {
 }
 
 .form-input:hover {
-  border-color: var(--tc-primary);
+  border-color: var(--tc-forest);
 }
 
 .form-input:focus {
-  border-color: var(--tc-primary);
+  border-color: var(--tc-forest);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(114, 87, 165, 0.14);
+  box-shadow: 0 0 0 3px rgba(49, 95, 82, 0.18);
 }
 
 textarea.form-input {
@@ -398,34 +440,52 @@ textarea.form-input {
   white-space: nowrap;
 }
 
-.badge-plum {
-  border: 1px solid rgba(114, 87, 165, 0.2);
-  background: var(--tc-primary-soft);
-  color: var(--tc-primary-hover);
+.badge-forest {
+  border: 1px solid rgba(49, 95, 82, 0.20);
+  background: var(--tc-forest-soft);
+  color: var(--tc-forest-hover);
 }
 
-.badge-sage {
-  border: 1px solid rgba(93, 128, 111, 0.22);
-  background: var(--tc-sage-soft);
-  color: var(--tc-sage);
+.badge-coral {
+  border: 1px solid rgba(222, 118, 93, 0.25);
+  background: var(--tc-peach-field);
+  color: var(--tc-coral-deep);
+}
+
+.badge-apricot {
+  border: 1px solid rgba(241, 183, 119, 0.30);
+  background: var(--tc-apricot-field);
+  color: #8C5D20;
+}
+
+.badge-moss {
+  border: 1px solid rgba(49, 95, 82, 0.15);
+  background: var(--tc-moss-field);
+  color: #2D4F42;
 }
 
 .badge-peach {
-  border: 1px solid rgba(239, 161, 127, 0.25);
-  background: var(--tc-peach-soft);
-  color: #B85F38;
-}
-
-.badge-lavender {
-  border: 1px solid rgba(183, 165, 222, 0.3);
-  background: var(--tc-lavender-soft);
-  color: #554477;
+  border: 1px solid rgba(222, 118, 93, 0.25);
+  background: var(--tc-peach-field);
+  color: var(--tc-coral-deep);
 }
 
 .badge-butter {
-  border: 1px solid rgba(217, 184, 95, 0.3);
-  background: var(--tc-butter-soft);
-  color: #8C6F1E;
+  border: 1px solid rgba(248, 234, 195, 0.8);
+  background: var(--tc-butter-field);
+  color: #7A5812;
+}
+
+.badge-rose {
+  border: 1px solid rgba(222, 118, 93, 0.20);
+  background: var(--tc-rose-field);
+  color: #A84562;
+}
+
+.badge-lavender {
+  border: 1px solid rgba(168, 158, 196, 0.3);
+  background: var(--tc-lavender-field);
+  color: #4F4668;
 }
 
 .badge-green {
@@ -446,12 +506,25 @@ textarea.form-input {
   color: var(--tc-danger);
 }
 
+/* Backward compatibility aliases */
+.badge-plum {
+  border: 1px solid rgba(49, 95, 82, 0.20);
+  background: var(--tc-forest-soft);
+  color: var(--tc-forest-hover);
+}
+
+.badge-sage {
+  border: 1px solid rgba(49, 95, 82, 0.15);
+  background: var(--tc-moss-field);
+  color: #2D4F42;
+}
+
 /* =========================================================
    Atmospheric Dot Pattern & Texture
    ========================================================= */
 
 .paper-grid {
-  background-image: radial-gradient(rgba(114, 87, 165, 0.06) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(49, 95, 82, 0.05) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
