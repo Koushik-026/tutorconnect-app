@@ -8,15 +8,19 @@ import {
   IconFilter,
   IconX,
   IconShieldCheck,
+  IconVideo,
+  IconHomeTuition,
 } from "@/components/ui/icons";
 
 interface TutorDiscoveryPageProps {
   searchParams: Promise<{
     subject?: string;
     class?: string;
+    locality?: string;
     location?: string;
     mode?: string;
     language?: string;
+    board?: string;
   }>;
 }
 
@@ -31,47 +35,45 @@ export default async function TutorDiscoveryPage({
 
   const selectedSubject = params.subject ?? "";
   const selectedClass = params.class ?? "";
-  const selectedLocation = params.location ?? "";
+  const selectedLocation = params.locality ?? params.location ?? "";
   const selectedMode = params.mode ?? "";
   const selectedLanguage = params.language ?? "";
+  const selectedBoard = params.board ?? "";
 
   const filteredTutors = tutors.filter((tutor) => {
     const subjectMatches =
       !selectedSubject ||
-      tutor.subjects.some(
-        (subject) => normalise(subject) === normalise(selectedSubject),
-      );
+      tutor.subjects.some((s) => normalise(s) === normalise(selectedSubject));
 
     const classMatches =
       !selectedClass ||
-      tutor.classes.some(
-        (className) => normalise(className) === normalise(selectedClass),
-      );
-
-    const languageMatches =
-      !selectedLanguage ||
-      tutor.languages.some(
-        (language) => normalise(language) === normalise(selectedLanguage),
-      );
-
-    const modeMatches =
-      !selectedMode ||
-      tutor.modes.includes(selectedMode as "online" | "home");
+      tutor.classes.some((c) => normalise(c) === normalise(selectedClass));
 
     const locationMatches =
       !selectedLocation ||
-      (selectedMode !== "home" && !tutor.modes.includes("home")) ||
       normalise(tutor.locality).includes(normalise(selectedLocation)) ||
-      normalise(tutor.city).includes(normalise(selectedLocation)) ||
-      normalise(selectedLocation).includes(normalise(tutor.locality)) ||
-      normalise(selectedLocation).includes(normalise(tutor.city));
+      normalise(tutor.city).includes(normalise(selectedLocation));
+
+    const modeMatches =
+      !selectedMode ||
+      selectedMode === "all" ||
+      tutor.modes.includes(selectedMode as "online" | "home");
+
+    const languageMatches =
+      !selectedLanguage ||
+      tutor.languages.some((l) => normalise(l) === normalise(selectedLanguage));
+
+    const boardMatches =
+      !selectedBoard ||
+      tutor.boards.some((b) => normalise(b) === normalise(selectedBoard));
 
     return (
       subjectMatches &&
       classMatches &&
-      languageMatches &&
+      locationMatches &&
       modeMatches &&
-      locationMatches
+      languageMatches &&
+      boardMatches
     );
   });
 
@@ -79,228 +81,208 @@ export default async function TutorDiscoveryPage({
     new Set(tutors.flatMap((tutor) => tutor.classes)),
   ).sort();
 
-  const availableLanguages = Array.from(
-    new Set(tutors.flatMap((tutor) => tutor.languages)),
+  const availableBoards = Array.from(
+    new Set(tutors.flatMap((tutor) => tutor.boards)),
   ).sort();
 
-  const filtersAreActive = Boolean(
-    selectedSubject ||
-      selectedClass ||
-      selectedLocation ||
-      selectedMode ||
-      selectedLanguage,
-  );
+  const activeFiltersCount = [
+    selectedSubject,
+    selectedClass,
+    selectedLocation,
+    selectedMode && selectedMode !== "all" ? selectedMode : "",
+    selectedBoard,
+  ].filter(Boolean).length;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F7F4EE]">
+    <div className="flex min-h-screen flex-col bg-[#FCFBF8]">
       <SiteHeader />
 
-      <main id="main-content" className="flex-1 pb-16">
-        {/* Header / Intro Strip */}
-        <section className="border-b border-[#E4DED4] bg-[#FFFEFB] py-10 lg:py-14">
+      <main id="main-content" className="flex-1 pb-20 md:pb-28">
+        {/* Top Editorial Header */}
+        <section className="border-b border-[rgba(54,48,60,0.08)] bg-gradient-to-b from-[#EEE7FF]/30 to-[#FCFBF8] py-12 md:py-16">
           <div className="container-shell">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-[#4F7867]/20 bg-[#E6F0EA] px-3 py-1 text-xs font-bold text-[#3E6153] mb-3">
-                <IconShieldCheck size={13} />
-                <span>Verified Tutors &bull; Free 30-min Demo</span>
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#7257A5]/20 bg-white px-3.5 py-1 text-xs font-bold text-[#594282]">
+                <IconShieldCheck size={14} className="text-[#7257A5]" />
+                <span>Verified Hyderabad Mentors &bull; Free 30-Min Demo</span>
               </div>
-              <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold tracking-tight text-[#232520] sm:text-4xl">
-                Find Your Ideal Educator
+
+              <h1 className="mt-4 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-[-0.035em] text-[#20221F]">
+                Find the ideal mentor for your child.
               </h1>
-              <p className="mt-2 text-sm text-[#676B64] leading-relaxed">
-                Compare verified educator credentials, teaching modes, subjects, and experience across Hyderabad and online.
+
+              <p className="mt-3 text-base text-[#6D706A] leading-relaxed">
+                Connect with verified 1-on-1 educators in Hyderabad across CBSE, ICSE, and State curricula. Experience teaching rapport first in a free 30-minute online trial.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Filter Toolbar & Results */}
-        <section className="py-8">
-          <div className="container-shell">
-            {/* Filter Form Card */}
-            <form
-              method="GET"
-              action="/tutors"
-              className="rounded-2xl border border-[#E4DED4] bg-[#FFFEFB] p-5 shadow-xs mb-8"
-            >
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {/* Discovery Filter & Results Layout */}
+        <div className="container-shell mt-8 md:mt-12">
+          {/* Floating/Sticky Compact Filter Bar */}
+          <div className="sticky top-20 z-30 mb-8 rounded-3xl border border-[rgba(54,48,60,0.12)] bg-white/95 p-4 sm:p-5 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-md">
+            <form method="GET" action="/tutors" className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(54,48,60,0.06)] pb-3">
+                {/* Mode Selector */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-[#6D706A]">Mode:</span>
+                  <div className="inline-flex rounded-full bg-[#FCFBF8] p-1 border border-[rgba(54,48,60,0.10)]">
+                    <Link
+                      href={`/tutors?mode=online${selectedSubject ? `&subject=${encodeURIComponent(selectedSubject)}` : ""}${selectedClass ? `&class=${encodeURIComponent(selectedClass)}` : ""}`}
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition ${
+                        selectedMode === "online"
+                          ? "bg-[#7257A5] text-white shadow-xs"
+                          : "text-[#6D706A] hover:text-[#20221F]"
+                      }`}
+                    >
+                      <IconVideo size={12} />
+                      <span>Online</span>
+                    </Link>
+
+                    <Link
+                      href={`/tutors?mode=home${selectedSubject ? `&subject=${encodeURIComponent(selectedSubject)}` : ""}${selectedClass ? `&class=${encodeURIComponent(selectedClass)}` : ""}`}
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition ${
+                        selectedMode === "home"
+                          ? "bg-[#7257A5] text-white shadow-xs"
+                          : "text-[#6D706A] hover:text-[#20221F]"
+                      }`}
+                    >
+                      <IconHomeTuition size={12} />
+                      <span>Home</span>
+                    </Link>
+
+                    <Link
+                      href={`/tutors${selectedSubject ? `?subject=${encodeURIComponent(selectedSubject)}` : ""}`}
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition ${
+                        !selectedMode || selectedMode === "all"
+                          ? "bg-[#7257A5] text-white shadow-xs"
+                          : "text-[#6D706A] hover:text-[#20221F]"
+                      }`}
+                    >
+                      <span>All</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Filter Status & Reset */}
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-semibold text-[#6D706A]">
+                    Showing <strong className="text-[#20221F]">{filteredTutors.length}</strong> educators
+                  </span>
+                  {activeFiltersCount > 0 && (
+                    <Link
+                      href="/tutors"
+                      className="inline-flex items-center gap-1 rounded-full bg-[#FCFBF8] border border-[rgba(54,48,60,0.12)] px-2.5 py-1 text-xs font-bold text-[#C84B31] hover:bg-[#FCEEEA] transition"
+                    >
+                      <IconX size={12} />
+                      <span>Reset</span>
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              {/* Filters Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2.5">
                 {/* Subject */}
                 <div>
-                  <label htmlFor="filter-subject" className="block text-[11px] font-bold uppercase tracking-wider text-[#989C94] mb-1">
-                    Subject
-                  </label>
+                  <label htmlFor="filter-subject" className="sr-only">Subject</label>
                   <select
                     id="filter-subject"
                     name="subject"
                     defaultValue={selectedSubject}
-                    className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 py-2 text-xs font-semibold text-[#232520] focus:outline-hidden focus:border-[#66518A]"
+                    className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-3 py-2 text-xs font-semibold text-[#20221F] focus:border-[#7257A5] focus:outline-hidden"
                   >
                     <option value="">All Subjects</option>
-                    {subjects.map((s) => (
-                      <option key={s.id} value={s.name}>
-                        {s.name}
-                      </option>
-                    ))}
+                    {subjects.map((s) => (<option key={s.id} value={s.name}>{s.name}</option>))}
                   </select>
                 </div>
 
                 {/* Class */}
                 <div>
-                  <label htmlFor="filter-class" className="block text-[11px] font-bold uppercase tracking-wider text-[#989C94] mb-1">
-                    Class Level
-                  </label>
+                  <label htmlFor="filter-class" className="sr-only">Class</label>
                   <select
                     id="filter-class"
                     name="class"
                     defaultValue={selectedClass}
-                    className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 py-2 text-xs font-semibold text-[#232520] focus:outline-hidden focus:border-[#66518A]"
+                    className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-3 py-2 text-xs font-semibold text-[#20221F] focus:border-[#7257A5] focus:outline-hidden"
                   >
                     <option value="">All Classes</option>
                     {availableClasses.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
+                      <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
                 </div>
 
-                {/* Mode */}
+                {/* Board */}
                 <div>
-                  <label htmlFor="filter-mode" className="block text-[11px] font-bold uppercase tracking-wider text-[#989C94] mb-1">
-                    Teaching Mode
-                  </label>
+                  <label htmlFor="filter-board" className="sr-only">Board</label>
                   <select
-                    id="filter-mode"
-                    name="mode"
-                    defaultValue={selectedMode}
-                    className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 py-2 text-xs font-semibold text-[#232520] focus:outline-hidden focus:border-[#66518A]"
+                    id="filter-board"
+                    name="board"
+                    defaultValue={selectedBoard}
+                    className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-3 py-2 text-xs font-semibold text-[#20221F] focus:border-[#7257A5] focus:outline-hidden"
                   >
-                    <option value="">Online &amp; Home</option>
-                    <option value="online">Online Tuition</option>
-                    <option value="home">Home Tuition</option>
-                  </select>
-                </div>
-
-                {/* Language */}
-                <div>
-                  <label htmlFor="filter-language" className="block text-[11px] font-bold uppercase tracking-wider text-[#989C94] mb-1">
-                    Language
-                  </label>
-                  <select
-                    id="filter-language"
-                    name="language"
-                    defaultValue={selectedLanguage}
-                    className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 py-2 text-xs font-semibold text-[#232520] focus:outline-hidden focus:border-[#66518A]"
-                  >
-                    <option value="">All Languages</option>
-                    {availableLanguages.map((l) => (
-                      <option key={l} value={l}>
-                        {l}
-                      </option>
+                    <option value="">All Boards</option>
+                    {availableBoards.map((b) => (
+                      <option key={b} value={b}>{b}</option>
                     ))}
                   </select>
                 </div>
 
-                {/* Location / Locality */}
+                {/* Locality Input */}
                 <div>
-                  <label htmlFor="filter-location" className="block text-[11px] font-bold uppercase tracking-wider text-[#989C94] mb-1">
-                    Locality
-                  </label>
+                  <label htmlFor="filter-locality" className="sr-only">Locality</label>
                   <input
-                    id="filter-location"
+                    id="filter-locality"
+                    name="locality"
                     type="text"
-                    name="location"
                     defaultValue={selectedLocation}
-                    placeholder="e.g. B.N. Reddy, Madhapur"
-                    className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 py-2 text-xs font-semibold text-[#232520] placeholder:text-[#989C94] focus:outline-hidden focus:border-[#66518A]"
+                    placeholder="Locality (e.g. Madhapur)"
+                    className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-3 py-2 text-xs font-semibold text-[#20221F] placeholder:text-[#969991] focus:border-[#7257A5] focus:outline-hidden"
+                  />
+                </div>
+
+                {/* Apply Button */}
+                <div className="col-span-2 sm:col-span-4 lg:col-span-1">
+                  <input type="hidden" name="mode" value={selectedMode} />
+                  <button
+                    type="submit"
+                    className="btn btn-primary w-full min-h-[38px] rounded-2xl text-xs font-bold justify-center"
                   >
-                  </input>
+                    Apply Filters
+                  </button>
                 </div>
               </div>
-
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#ECE6DC] pt-3">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {filtersAreActive && (
-                    <>
-                      <span className="text-[11px] font-bold text-[#989C94]">Active:</span>
-                      {selectedSubject && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#EFEAF8] px-2 py-0.5 text-[11px] font-bold text-[#4E3C70]">
-                          {selectedSubject}
-                        </span>
-                      )}
-                      {selectedClass && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#ECE6DC] px-2 py-0.5 text-[11px] font-bold text-[#4D504A]">
-                          {selectedClass}
-                        </span>
-                      )}
-                      {selectedMode && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#E6F0EA] px-2 py-0.5 text-[11px] font-bold text-[#3E6153]">
-                          {selectedMode === "online" ? "Online" : "Home"}
-                        </span>
-                      )}
-                      {selectedLocation && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#FDF4E5] px-2 py-0.5 text-[11px] font-bold text-[#965C12]">
-                          {selectedLocation}
-                        </span>
-                      )}
-                      <Link
-                        href="/tutors"
-                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#C84B31] hover:underline ml-1"
-                      >
-                        <IconX size={12} />
-                        <span>Clear All</span>
-                      </Link>
-                    </>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  className="btn btn-primary min-h-[38px] px-4 text-xs font-bold shadow-xs ml-auto"
-                >
-                  <IconFilter size={13} />
-                  <span>Apply Filters</span>
-                </button>
-              </div>
-
-              <p className="mt-2.5 text-[11px] text-[#989C94]">
-                Note: Locality and distance matching represent prototype estimations. Exact home tuition travel coverage is confirmed directly with educators.
-              </p>
             </form>
-
-            {/* Results Grid */}
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#676B64]">
-                Showing {filteredTutors.length} {filteredTutors.length === 1 ? "educator" : "educators"}
-              </span>
-            </div>
-
-            {filteredTutors.length > 0 ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredTutors.map((tutor) => (
-                  <TutorCard key={tutor.id} tutor={tutor} />
-                ))}
-              </div>
-            ) : (
-              <div className="mx-auto max-w-md rounded-2xl border border-[#E4DED4] bg-[#FFFEFB] p-8 text-center shadow-xs">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EFEAF8] text-[#66518A]">
-                  <IconSearch size={22} />
-                </div>
-                <h3 className="mt-4 font-[family-name:var(--font-manrope)] text-lg font-bold text-[#232520]">
-                  No tutors matched your filter
-                </h3>
-                <p className="mt-2 text-sm text-[#676B64] leading-relaxed">
-                  Try adjusting your subject, location, or class criteria to see more available educators.
-                </p>
-                <div className="mt-6">
-                  <Link href="/tutors" className="btn btn-secondary">
-                    <span>Reset All Filters</span>
-                  </Link>
-                </div>
-              </div>
-            )}
           </div>
-        </section>
+
+          {/* Results Grid: 2-column spacious editorial cards */}
+          {filteredTutors.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-2">
+              {filteredTutors.map((tutor) => (
+                <TutorCard key={tutor.id} tutor={tutor} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-[rgba(54,48,60,0.10)] bg-white p-12 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EEE7FF] text-[#594282]">
+                <IconSearch size={24} />
+              </div>
+              <h3 className="mt-4 font-[family-name:var(--font-manrope)] text-xl font-bold text-[#20221F]">
+                No mentors matched your current criteria
+              </h3>
+              <p className="mt-2 text-sm text-[#6D706A]">
+                Try adjusting your filters or search by a broader subject or class.
+              </p>
+              <div className="mt-6">
+                <Link href="/tutors" className="btn btn-primary rounded-full px-6 py-2.5 text-xs font-bold">
+                  View All Educators
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
       </main>
 
       <SiteFooter />
