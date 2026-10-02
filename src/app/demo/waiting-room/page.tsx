@@ -123,14 +123,11 @@ export default function DemoWaitingRoomPage() {
                 <div className="mt-5 rounded-xl border border-slate-800 bg-slate-800/60 p-4">
                   <div className="flex items-center gap-3">
                     <div
-                      role="img"
-                      aria-label="Ananya Sharma"
-                      className="h-11 w-11 shrink-0 rounded-xl bg-cover bg-center border border-slate-700"
-                      style={{
-                        backgroundImage:
-                          "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPQzlQm4NKP8RwwlMcU-iNR7MlCStPHTuPVcPnXON--lVzkkXxm1ybxWUlzS16db2LPkVNwpc8Yq6VEtVSFZio6QcV_HCmwmjn9I_3lrlxyxIGNSB2kbD9ddVK0tOvHW0lUKSzEGCdoY59_wDawLUr0UfLNPQt0j47gLzNAWb2qPr_uUIYdo2Zf2jyUfWwgm4IMCRYuUmOnKtOz8sxp9gE-_dTxCuiVPhfC4yikDR2ozPcCLCcIguDSA')",
-                      }}
-                    />
+                      aria-hidden="true"
+                      className="h-11 w-11 shrink-0 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-teal-500 text-xs font-extrabold text-white shadow-xs"
+                    >
+                      AS
+                    </div>
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="font-bold text-slate-200 text-sm">Ananya Sharma</span>

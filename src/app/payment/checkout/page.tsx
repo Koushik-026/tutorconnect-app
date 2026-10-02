@@ -105,7 +105,7 @@ function CheckoutContent() {
                   Select Payment Method
                 </h1>
                 <p className="text-xs text-slate-500 mb-5">
-                  Choose how you want to pay for this monthly tuition package.
+                  Choose how you want to pay for this tuition class package.
                 </p>
 
                 {/* Method Options */}
@@ -249,15 +249,15 @@ function CheckoutContent() {
                     <span className="font-bold text-slate-900">{days} &bull; {time}</span>
                   </div>
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <span className="text-slate-400">Subtotal</span>
-                    <span className="font-bold text-slate-900">{formatCurrency(price)}</span>
+                    <span className="text-slate-400">Class Package</span>
+                    <span className="font-bold text-slate-900">{classes}-Class Package</span>
                   </div>
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <span className="text-slate-400">Platform &amp; Convenience Fee</span>
-                    <span className="font-bold text-emerald-700">â‚¹0 (Free)</span>
+                    <span className="text-slate-400">Tuition Amount</span>
+                    <span className="font-bold text-slate-900">{formatCurrency(price)}</span>
                   </div>
                   <div className="flex items-center justify-between pt-2">
-                    <span className="font-bold text-slate-900 text-sm">Total Due</span>
+                    <span className="font-bold text-slate-900 text-sm">Total Payable</span>
                     <span className="font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-blue-700">
                       {formatCurrency(price)}
                     </span>

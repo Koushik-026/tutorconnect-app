@@ -228,7 +228,7 @@ function DemoBookingContent() {
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400">Cost</span>
                     <span className="font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-                      Free (â‚¹0)
+                      Free (₹0)
                     </span>
                   </div>
                 </div>

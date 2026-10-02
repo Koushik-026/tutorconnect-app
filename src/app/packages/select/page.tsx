@@ -30,12 +30,12 @@ const packages: PackageOption[] = [
     title: "Starter Plan",
     classes: 8,
     price: 3200,
-    validityDays: 30,
+    validityDays: 45,
     weeklyPace: "2 classes / week",
     description: "Ideal for steady homework guidance and regular doubt resolution.",
     features: [
       "8 1-on-1 tutoring sessions (60 min each)",
-      "Valid for 30 days from first class",
+      "Valid for 45 days from first class",
       "Digital whiteboard notes after each session",
       "Online or verified home tuition mode",
     ],
@@ -45,12 +45,12 @@ const packages: PackageOption[] = [
     title: "Regular Plan",
     classes: 12,
     price: 4500,
-    validityDays: 40,
+    validityDays: 45,
     weeklyPace: "3 classes / week",
     description: "Recommended for continuous learning, regular quizzes, and revision.",
     features: [
       "12 1-on-1 tutoring sessions (60 min each)",
-      "Valid for 40 days from first class",
+      "Valid for 45 days from first class",
       "Bi-weekly practice quizzes & assessments",
       "Direct parent progress updates",
       "Online or verified home tuition mode",
@@ -130,7 +130,7 @@ function PackageSelectionContent() {
               Transparent Tuition
             </span>
             <h1 className="mt-2 font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-slate-950 sm:text-4xl">
-              Choose your monthly class package
+              Choose your class package
             </h1>
             <p className="mt-2 text-sm text-slate-500">
               Selected Educator: <strong className="text-slate-900">{tutor.name}</strong> ({tutor.headline}).
@@ -216,18 +216,18 @@ function PackageSelectionContent() {
             })}
           </div>
 
-          {/* Guarantee Strip */}
+          {/* Support Assistance Strip */}
           <div className="mt-10 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 shrink-0">
                 <IconShieldCheck size={20} />
               </div>
               <div>
-                <span className="font-bold text-xs text-slate-900">100% Replacement Guarantee</span>
-                <p className="text-xs text-slate-500">If your tutor match isn&apos;t ideal, switch educators or request remaining class balance transfer anytime.</p>
+                <span className="font-bold text-xs text-slate-900">Support Assistance</span>
+                <p className="text-xs text-slate-500">Support available if you need help with your tuition arrangement or scheduling assistance.</p>
               </div>
             </div>
-            <span className="text-xs font-semibold text-slate-400 shrink-0">No Long-term Lock-in</span>
+            <span className="text-xs font-semibold text-slate-400 shrink-0">No Hidden Commitments</span>
           </div>
         </div>
 

@@ -124,15 +124,21 @@ export default function DemoSessionPage() {
         <div className="relative flex-1 bg-slate-950 flex items-center justify-center p-3 sm:p-5">
           <div className="relative h-full w-full max-w-5xl rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
             {/* Tutor Video Stream Mock */}
-            <div
-              role="img"
-              aria-label="Tutor teaching live on video"
-              className="h-full w-full bg-cover bg-center"
-              style={{
-                backgroundImage:
-                  "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPQzlQm4NKP8RwwlMcU-iNR7MlCStPHTuPVcPnXON--lVzkkXxm1ybxWUlzS16db2LPkVNwpc8Yq6VEtVSFZio6QcV_HCmwmjn9I_3lrlxyxIGNSB2kbD9ddVK0tOvHW0lUKSzEGCdoY59_wDawLUr0UfLNPQt0j47gLzNAWb2qPr_uUIYdo2Zf2jyUfWwgm4IMCRYuUmOnKtOz8sxp9gE-_dTxCuiVPhfC4yikDR2ozPcCLCcIguDSA')",
-              }}
-            />
+            <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 p-6 text-center">
+              <div
+                aria-hidden="true"
+                className="flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-600 to-teal-500 text-3xl font-extrabold text-white shadow-xl ring-4 ring-blue-500/20"
+              >
+                AS
+              </div>
+              <p className="mt-4 font-[family-name:var(--font-manrope)] text-lg font-bold text-white">
+                Ananya Sharma
+              </p>
+              <div className="mt-1 flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                Live 1-on-1 Interactive Demo
+              </div>
+            </div>
 
             {/* Tutor Name Overlay */}
             <div className="absolute top-4 left-4 rounded-xl bg-slate-900/80 backdrop-blur-md px-3 py-1.5 text-xs font-bold text-white flex items-center gap-1.5 border border-slate-700/60">

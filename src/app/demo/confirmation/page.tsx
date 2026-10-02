@@ -99,7 +99,7 @@ function ConfirmationContent() {
                       Scheduled Date &amp; Time
                     </span>
                     <div className="font-[family-name:var(--font-manrope)] text-base font-extrabold text-slate-900">
-                      {day} August 2026 &bull; {time} â€“ {endTime} IST
+                      {day} August 2026 &bull; {time} – {endTime} IST
                     </div>
                   </div>
                 </div>

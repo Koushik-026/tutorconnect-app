@@ -26,7 +26,7 @@ export const tutors: Tutor[] = [
   {
     id: "ananya-sharma",
     name: "Ananya Sharma",
-    profileImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuDPQzlQm4NKP8RwwlMcU-iNR7MlCStPHTuPVcPnXON--lVzkkXxm1ybxWUlzS16db2LPkVNwpc8Yq6VEtVSFZio6QcV_HCmwmjn9I_3lrlxyxIGNSB2kbD9ddVK0tOvHW0lUKSzEGCdoY59_wDawLUr0UfLNPQt0j47gLzNAWb2qPr_uUIYdo2Zf2jyUfWwgm4IMCRYuUmOnKtOz8sxp9gE-_dTxCuiVPhfC4yikDR2ozPcCLCcIguDSA",
+    profileImage: "",
     headline: "Mathematics & Science Specialist",
     bio: "Patient, concept-first educator who builds intuitive understanding rather than rote memorisation. 8+ years guiding CBSE & ICSE students to academic excellence across Classes 6 to 12.",
 
@@ -219,7 +219,7 @@ export const tuitionPackages: TuitionPackage[] = [
     title: "Starter Plan",
     numberOfClasses: 8,
     price: 3200,
-    validityDays: 30,
+    validityDays: 45,
     classDurationMinutes: 60,
     description: "2 classes per week. Ideal for focused homework support and concept reinforcement.",
   },
@@ -228,7 +228,7 @@ export const tuitionPackages: TuitionPackage[] = [
     title: "Regular Plan",
     numberOfClasses: 12,
     price: 4500,
-    validityDays: 40,
+    validityDays: 45,
     classDurationMinutes: 60,
     description: "3 classes per week. Recommended for steady learning, revision, and regular testing.",
   },

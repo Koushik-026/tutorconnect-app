@@ -128,11 +128,11 @@ export function TutorCard({ tutor }: TutorCardProps) {
         <div className="flex items-baseline justify-between mb-3">
           <div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Starting at
+              Class Packages from
             </span>
             <div className="font-[family-name:var(--font-manrope)] text-lg font-extrabold text-slate-900">
               {formatCurrency(tutor.startingMonthlyFee)}
-              <span className="text-xs font-normal text-slate-500"> / month</span>
+              <span className="text-xs font-normal text-slate-500"> (8 classes)</span>
             </div>
           </div>
           <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">

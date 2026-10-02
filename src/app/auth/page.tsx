@@ -233,7 +233,7 @@ function AuthPageContent() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                    placeholder="••••••••"
                     className="form-input text-xs pr-10"
                   />
                   <button

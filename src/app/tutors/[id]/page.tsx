@@ -235,7 +235,7 @@ export default async function TutorProfilePage({
                   Class Packages
                 </h2>
                 <p className="mt-1 text-xs text-slate-500">
-                  Simple, non-recurring monthly class bundles. You only pay after your free demo.
+                  Simple, non-recurring class packages. You only pay after your free demo.
                 </p>
 
                 <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -307,12 +307,12 @@ export default async function TutorProfilePage({
                 </div>
 
                 <div className="mt-5 rounded-xl border border-slate-100 bg-[#f8fafc] p-3.5 text-xs text-slate-600">
-                  <span className="font-bold text-slate-800">Monthly Tuition Rate:</span>
+                  <span className="font-bold text-slate-800">Class Package Tuition:</span>
                   <div className="mt-1 font-bold text-slate-900 text-sm">
-                    Starts at {formatCurrency(tutor.startingMonthlyFee)} / month
+                    Class Packages from {formatCurrency(tutor.startingMonthlyFee)} (8 classes)
                   </div>
                   <p className="mt-0.5 text-[11px] text-slate-500">
-                    Select a package after your demo if satisfied.
+                    Select an 8, 12, or 15-class package after your demo if satisfied.
                   </p>
                 </div>
               </div>

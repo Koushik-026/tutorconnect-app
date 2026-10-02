@@ -60,6 +60,7 @@ export default async function TutorDiscoveryPage({
 
     const locationMatches =
       !selectedLocation ||
+      (selectedMode !== "home" && !tutor.modes.includes("home")) ||
       normalise(tutor.locality).includes(normalise(selectedLocation)) ||
       normalise(tutor.city).includes(normalise(selectedLocation)) ||
       normalise(selectedLocation).includes(normalise(tutor.locality)) ||
@@ -266,6 +267,9 @@ export default async function TutorDiscoveryPage({
                   <span>Apply Filters</span>
                 </button>
               </div>
+              <p className="mt-2.5 text-[11px] text-slate-400">
+                Note: Locality and distance matching represent prototype estimations. Exact home tuition travel coverage is confirmed directly with educators.
+              </p>
             </form>
           </div>
         </section>

@@ -157,7 +157,7 @@ function ScheduleContent() {
                     <div>
                       <span className="font-bold">Locality Check:</span>
                       <p className="mt-0.5 text-amber-800">
-                        {tutor.name} offers home tuition within a {tutor.travelRadiusKm} km travel radius from {tutor.locality}, Hyderabad. Please verify your address meets this range before proceeding.
+                        {tutor.name} offers home tuition within an estimated {tutor.travelRadiusKm} km travel radius from {tutor.locality}, Hyderabad. Please verify your address meets this range before proceeding (exact travel radius verified directly with tutor).
                       </p>
                     </div>
                   </div>

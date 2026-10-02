@@ -239,26 +239,23 @@ function StudentDashboardContent() {
                       </div>
                       <div className="flex items-center gap-1.5 text-slate-900">
                         <IconClock size={15} className="text-blue-600" />
-                        <span>4:00 PM â€“ 4:30 PM IST</span>
+                        <span>4:00 PM – 4:30 PM IST</span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3 pt-2">
                       <div
-                        role="img"
-                        aria-label="Ananya Sharma"
-                        className="h-10 w-10 shrink-0 rounded-xl bg-cover bg-center border border-slate-200"
-                        style={{
-                          backgroundImage:
-                            "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPQzlQm4NKP8RwwlMcU-iNR7MlCStPHTuPVcPnXON--lVzkkXxm1ybxWUlzS16db2LPkVNwpc8Yq6VEtVSFZio6QcV_HCmwmjn9I_3lrlxyxIGNSB2kbD9ddVK0tOvHW0lUKSzEGCdoY59_wDawLUr0UfLNPQt0j47gLzNAWb2qPr_uUIYdo2Zf2jyUfWwgm4IMCRYuUmOnKtOz8sxp9gE-_dTxCuiVPhfC4yikDR2ozPcCLCcIguDSA')",
-                        }}
-                      />
+                        aria-hidden="true"
+                        className="h-10 w-10 shrink-0 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-teal-500 text-xs font-extrabold text-white shadow-xs"
+                      >
+                        AS
+                      </div>
                       <div>
                         <div className="flex items-center gap-1 text-xs font-bold text-slate-900">
                           <span>Ananya Sharma</span>
                           <IconShieldCheck size={14} className="text-emerald-600" />
                         </div>
-                        <p className="text-[11px] text-slate-500">8y experience &bull; CBSE &bull; 4.9 â˜…</p>
+                        <p className="text-[11px] text-slate-500">8y experience &bull; CBSE &bull; 4.9 ★</p>
                       </div>
                     </div>
                   </div>
@@ -326,7 +323,7 @@ function StudentDashboardContent() {
                   </div>
 
                   <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700">Starts at â‚¹3,200 / month</span>
+                    <span className="text-xs font-bold text-slate-700">8-Class Package from ₹3,200</span>
                     <Link
                       href="/packages/select?tutor=ananya-sharma"
                       className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
@@ -365,20 +362,17 @@ function StudentDashboardContent() {
                       </div>
                       <div className="flex items-center gap-1.5 text-slate-900">
                         <IconClock size={15} className="text-emerald-700" />
-                        <span>4:00 PM â€“ 5:00 PM IST (60m)</span>
+                        <span>4:00 PM – 5:00 PM IST (60m)</span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3 pt-2">
                       <div
-                        role="img"
-                        aria-label="Ananya Sharma"
-                        className="h-10 w-10 shrink-0 rounded-xl bg-cover bg-center border border-slate-200"
-                        style={{
-                          backgroundImage:
-                            "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPQzlQm4NKP8RwwlMcU-iNR7MlCStPHTuPVcPnXON--lVzkkXxm1ybxWUlzS16db2LPkVNwpc8Yq6VEtVSFZio6QcV_HCmwmjn9I_3lrlxyxIGNSB2kbD9ddVK0tOvHW0lUKSzEGCdoY59_wDawLUr0UfLNPQt0j47gLzNAWb2qPr_uUIYdo2Zf2jyUfWwgm4IMCRYuUmOnKtOz8sxp9gE-_dTxCuiVPhfC4yikDR2ozPcCLCcIguDSA')",
-                        }}
-                      />
+                        aria-hidden="true"
+                        className="h-10 w-10 shrink-0 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-teal-500 text-xs font-extrabold text-white shadow-xs"
+                      >
+                        AS
+                      </div>
                       <div>
                         <div className="flex items-center gap-1 text-xs font-bold text-slate-900">
                           <span>Ananya Sharma</span>
@@ -546,7 +540,7 @@ function StudentDashboardContent() {
                   </div>
                   <div className="rounded-xl border border-amber-200/80 bg-amber-50/50 p-4">
                     <span className="text-xs font-bold text-slate-900">
-                      Exercise 4.2: Quadratic Formula (Problems 1â€“10)
+                      Exercise 4.2: Quadratic Formula (Problems 1–10)
                     </span>
                     <p className="mt-1 text-xs text-slate-500">
                       Due before Monday 4:00 PM session
