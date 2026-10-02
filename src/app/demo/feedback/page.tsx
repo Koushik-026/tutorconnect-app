@@ -46,14 +46,14 @@ export default function DemoFeedbackPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#fbfbfc]">
+    <div className="flex min-h-screen flex-col bg-[#F7F4EE] text-[#232520]">
       {/* Header */}
-      <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
-        <div className="container-shell flex h-16 items-center justify-between">
+      <header className="border-b border-[#E4DED4] bg-[#FFFEFB]/90 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
           <Logo />
           <Link
             href="/dashboard/student"
-            className="text-xs font-bold text-slate-500 hover:text-blue-600 transition"
+            className="text-xs font-bold text-[#676B64] hover:text-[#66518A] transition-colors"
           >
             Skip to Dashboard &rarr;
           </Link>
@@ -63,17 +63,17 @@ export default function DemoFeedbackPage() {
       {/* Main Feedback Form */}
       <main id="main-content" className="flex flex-1 items-center justify-center p-4 sm:p-6 lg:p-10">
         <div className="w-full max-w-xl">
-          <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm sm:p-8">
+          <div className="overflow-hidden rounded-3xl border border-[#E4DED4] bg-[#FFFEFB] p-6 sm:p-8 shadow-xs">
             {/* Tutor Snapshot Header */}
             <div className="text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-xs mb-3">
-                <IconSparkles size={28} />
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EFEAF8] text-[#66518A] shadow-xs mb-3">
+                <IconSparkles size={26} />
               </div>
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-slate-950 sm:text-3xl">
+              <h1 className="font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-[#232520] sm:text-3xl">
                 How was your demo session?
               </h1>
-              <p className="mt-1.5 text-xs text-slate-500 sm:text-sm">
-                Your feedback with <strong className="text-slate-900">Ananya Sharma</strong> helps personalize your learning recommendations.
+              <p className="mt-1.5 text-xs text-[#676B64] sm:text-sm">
+                Your feedback with <strong className="text-[#232520]">Ananya Sharma</strong> helps personalize your learning recommendations.
               </p>
             </div>
 
@@ -96,26 +96,26 @@ export default function DemoFeedbackPage() {
                         size={32}
                         className={
                           active
-                            ? "text-amber-400 drop-shadow-xs"
-                            : "text-slate-200"
+                            ? "text-[#D9B85F] drop-shadow-xs"
+                            : "text-[#E4DED4]"
                         }
                       />
                     </button>
                   );
                 })}
               </div>
-              <span className="mt-2 text-xs font-bold text-slate-600">
-                {rating === 5 && "Exceptional &bull; Highly recommended"}
-                {rating === 4 && "Great &bull; Very helpful"}
-                {rating === 3 && "Good &bull; Met expectations"}
-                {rating === 2 && "Fair &bull; Needs improvement"}
+              <span className="mt-2 text-xs font-bold text-[#676B64]">
+                {rating === 5 && "Exceptional • Highly recommended"}
+                {rating === 4 && "Great • Very helpful"}
+                {rating === 3 && "Good • Met expectations"}
+                {rating === 2 && "Fair • Needs improvement"}
                 {rating === 1 && "Not satisfied"}
               </span>
             </div>
 
             {/* Tag Selection */}
-            <div className="mt-6 border-t border-slate-100 pt-5">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 text-center sm:text-left">
+            <div className="mt-6 border-t border-[#E4DED4]/60 pt-5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#676B64] mb-3 text-center sm:text-left">
                 What went well?
               </label>
               <div className="flex flex-wrap gap-2">
@@ -128,8 +128,8 @@ export default function DemoFeedbackPage() {
                       onClick={() => toggleTag(tag)}
                       className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition ${
                         isSelected
-                          ? "border-blue-600 bg-blue-50 text-blue-700 font-bold"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                          ? "border-[#66518A] bg-[#EFEAF8] text-[#66518A] font-bold"
+                          : "border-[#E4DED4] bg-[#FFFEFB] text-[#676B64] hover:border-[#66518A]/40"
                       }`}
                     >
                       {isSelected && <IconCheck size={12} />}
@@ -142,7 +142,7 @@ export default function DemoFeedbackPage() {
 
             {/* Comments Field */}
             <div className="mt-5">
-              <label htmlFor="feedback-comment" className="form-label text-xs">
+              <label htmlFor="feedback-comment" className="block text-xs font-bold text-[#676B64] mb-1.5">
                 Additional Comments (Optional)
               </label>
               <textarea
@@ -150,7 +150,7 @@ export default function DemoFeedbackPage() {
                 value={feedbackText}
                 onChange={(e) => setFeedbackText(e.target.value)}
                 placeholder="Share any specific learning goals or subject topics discussed..."
-                className="form-input text-xs min-h-[80px]"
+                className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] p-3 text-xs text-[#232520] placeholder:text-[#676B64] focus:outline-hidden focus:border-[#66518A] min-h-[80px]"
               />
             </div>
 
@@ -159,7 +159,7 @@ export default function DemoFeedbackPage() {
               <button
                 type="button"
                 onClick={continueToPackages}
-                className="btn btn-primary w-full min-h-[48px] text-sm font-extrabold shadow-sm gap-2"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#66518A] px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[#4E3C70] transition-colors"
               >
                 <span>Continue to Class Packages</span>
                 <IconArrowRight size={15} />
@@ -167,7 +167,7 @@ export default function DemoFeedbackPage() {
 
               <Link
                 href="/dashboard/student"
-                className="btn btn-secondary w-full text-xs font-bold"
+                className="w-full inline-flex items-center justify-center rounded-xl border border-[#E4DED4] bg-[#FFFEFB] py-2.5 px-3 text-xs font-bold text-[#676B64] hover:text-[#232520] hover:bg-[#F7F4EE] transition-colors"
               >
                 <span>Save &amp; View Dashboard</span>
               </Link>

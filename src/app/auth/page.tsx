@@ -8,7 +8,7 @@ import {
   IconGraduationCap,
   IconHomeTuition,
   IconArrowRight,
-  IconShieldCheck,
+  IconCheck,
 } from "@/components/ui/icons";
 
 type Role = "student" | "tutor";
@@ -61,248 +61,286 @@ function AuthPageContent() {
       router.push("/dashboard/student");
     } else {
       setNotice(
-        "Tutor application submitted! Educator onboarding and background verification will be enabled during the provider backend phase.",
+        "Tutor application submitted! Educator onboarding and qualification review will be enabled during the provider backend phase.",
       );
     }
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#fbfbfc]">
+    <div className="flex min-h-screen flex-col bg-[#F7F4EE]">
       {/* Header */}
-      <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
+      <header className="border-b border-[#E4DED4] bg-[#FFFEFB]/90 backdrop-blur-md">
         <div className="container-shell flex h-16 items-center justify-between">
           <Logo />
           <Link
             href="/"
-            className="text-xs font-bold text-slate-500 hover:text-blue-600 transition"
+            className="text-xs font-bold text-[#676B64] hover:text-[#232520] transition"
           >
             &larr; Back to Home
           </Link>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="flex flex-1 items-center justify-center p-4 sm:p-6 lg:p-10">
-        <div className="w-full max-w-md">
-          {/* Role Selector Tabs */}
-          <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5 border border-slate-200/70">
-            <button
-              type="button"
-              onClick={() => setRole("student")}
-              className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold transition ${
-                role === "student"
-                  ? "bg-white text-blue-700 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <IconGraduationCap size={16} />
-              <span>Student / Parent</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole("tutor")}
-              className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold transition ${
-                role === "tutor"
-                  ? "bg-white text-blue-700 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <IconHomeTuition size={16} />
-              <span>Educator / Tutor</span>
-            </button>
-          </div>
-
-          {/* Form Card */}
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm sm:p-8">
-            <div className="text-center">
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-slate-950">
-                {mode === "signin"
-                  ? role === "student"
-                    ? "Welcome back"
-                    : "Tutor sign in"
-                  : role === "student"
-                    ? "Create your student account"
-                    : "Apply as an educator"}
+      {/* Main Container: Editorial Split Composition */}
+      <main className="flex flex-1 items-center justify-center p-4 sm:p-6 lg:p-12">
+        <div className="w-full max-w-4xl grid gap-8 lg:grid-cols-12 items-center">
+          {/* Left Column: Brand & Educational Values (Hidden on small screens) */}
+          <div className="hidden lg:flex lg:col-span-5 flex-col justify-between space-y-6">
+            <div>
+              <span className="inline-block rounded-full bg-[#EFEAF8] border border-[#66518A]/20 px-3 py-1 text-xs font-bold text-[#4E3C70] mb-4">
+                TutorConnect Workspace
+              </span>
+              <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#232520] tracking-tight leading-tight">
+                Empowering focused 1-on-1 learning.
               </h1>
-              <p className="mt-1.5 text-xs text-slate-500">
-                {mode === "signin"
-                  ? "Enter your credentials to access your dashboard"
-                  : role === "student"
-                    ? "Join thousands of learners in Hyderabad & online"
-                    : "Teach online or home tuition with verified status"}
+              <p className="mt-3 text-sm leading-relaxed text-[#676B64]">
+                Sign in to manage your upcoming demo classes, coordinate lesson schedules, and review concept notes in your private student dashboard.
               </p>
             </div>
 
-            {/* Social Login Button */}
-            <div className="mt-6">
+            <div className="rounded-2xl border border-[#E4DED4] bg-[#FFFEFB] p-5 space-y-3.5 text-xs text-[#232520]">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E9F5EF] text-[#2E7D5B]">
+                  <IconCheck size={12} />
+                </span>
+                <span>Verified identity &amp; audited educators</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#EFEAF8] text-[#66518A]">
+                  <IconCheck size={12} />
+                </span>
+                <span>Personalized curriculum pacing</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9DF] text-[#A64E28]">
+                  <IconCheck size={12} />
+                </span>
+                <span>Zero obligation free 30-min demo</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-[#989C94]">
+              Protected under TutorConnect student safety standards.
+            </p>
+          </div>
+
+          {/* Right Column: Focused Auth Card */}
+          <div className="w-full lg:col-span-7 max-w-md mx-auto">
+            {/* Role Selector Tabs */}
+            <div className="mb-5 grid grid-cols-2 gap-2 rounded-2xl bg-[#ECE6DC] p-1.5 border border-[#E4DED4]">
+              <button
+                type="button"
+                onClick={() => setRole("student")}
+                className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold transition ${
+                  role === "student"
+                    ? "bg-[#FFFEFB] text-[#232520] shadow-xs"
+                    : "text-[#676B64] hover:text-[#232520]"
+                }`}
+              >
+                <IconGraduationCap size={16} className={role === "student" ? "text-[#66518A]" : "text-[#989C94]"} />
+                <span>Student / Parent</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setRole("tutor")}
+                className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold transition ${
+                  role === "tutor"
+                    ? "bg-[#FFFEFB] text-[#232520] shadow-xs"
+                    : "text-[#676B64] hover:text-[#232520]"
+                }`}
+              >
+                <IconHomeTuition size={16} className={role === "tutor" ? "text-[#4F7867]" : "text-[#989C94]"} />
+                <span>Educator</span>
+              </button>
+            </div>
+
+            {/* Auth Form Card */}
+            <div className="rounded-3xl border border-[#E4DED4] bg-[#FFFEFB] p-6 sm:p-8 shadow-xs">
+              {/* Card Header */}
+              <div className="mb-6 text-center">
+                <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold tracking-tight text-[#232520]">
+                  {mode === "signin"
+                    ? role === "student"
+                      ? "Welcome back"
+                      : "Educator portal"
+                    : role === "student"
+                    ? "Create student profile"
+                    : "Apply as an educator"}
+                </h2>
+                <p className="mt-1.5 text-xs text-[#676B64]">
+                  {mode === "signin"
+                    ? "Sign in to access your learning schedule."
+                    : "Join TutorConnect to schedule tailored 1-on-1 classes."}
+                </p>
+              </div>
+
+              {/* Notice Banner */}
+              {notice && (
+                <div className="mb-5 rounded-xl border border-[#B7A5DE]/30 bg-[#F4F0FB] p-3 text-xs text-[#554477] flex items-center justify-between">
+                  <span>{notice}</span>
+                  <button
+                    type="button"
+                    onClick={() => setNotice(null)}
+                    className="font-bold underline ml-2 cursor-pointer"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
+
+              {/* Social Login Button */}
               <button
                 type="button"
                 onClick={() => {
-                  if (role === "student") {
-                    router.push("/dashboard/student");
-                  } else {
-                    setNotice("Google authentication for tutors will be connected with Supabase.");
-                  }
+                  if (role === "student") router.push("/dashboard/student");
+                  else setNotice("Google Authentication simulated for prototype.");
                 }}
-                className="btn btn-secondary w-full gap-2.5 text-xs font-bold"
+                className="flex w-full min-h-[46px] items-center justify-center gap-3 rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-4 py-2.5 text-xs font-bold text-[#232520] shadow-2xs hover:bg-[#F7F4EE] hover:border-[#66518A]/30 transition"
               >
                 <GoogleIcon />
                 <span>Continue with Google</span>
               </button>
-            </div>
 
-            {/* Divider */}
-            <div className="my-5 flex items-center gap-3">
-              <div className="h-px flex-1 bg-slate-200" />
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Or with email
-              </span>
-              <div className="h-px flex-1 bg-slate-200" />
-            </div>
+              <div className="my-5 flex items-center gap-3">
+                <div className="h-px flex-1 bg-[#ECE6DC]" />
+                <span className="text-[11px] font-bold uppercase text-[#989C94]">
+                  Or with email
+                </span>
+                <div className="h-px flex-1 bg-[#ECE6DC]" />
+              </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {mode === "create" && (
-                <>
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {mode === "create" && (
                   <div>
-                    <label className="form-label" htmlFor="auth-name">
-                      Full Name
-                    </label>
+                    <label className="form-label text-xs">Full Name</label>
                     <input
-                      id="auth-name"
                       type="text"
                       required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      placeholder="e.g. Aarav Reddy"
+                      placeholder={role === "student" ? "e.g. Aarav Reddy" : "e.g. Ananya Sharma"}
                       className="form-input text-xs"
                     />
                   </div>
+                )}
 
+                {mode === "create" && (
                   <div>
-                    <label className="form-label" htmlFor="auth-phone">
-                      Mobile Number
-                    </label>
+                    <label className="form-label text-xs">Phone Number (Hyderabad)</label>
                     <input
-                      id="auth-phone"
                       type="tel"
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="e.g. 9876543210"
+                      placeholder="+91 98765 43210"
                       className="form-input text-xs"
                     />
                   </div>
-                </>
-              )}
+                )}
 
-              <div>
-                <label className="form-label" htmlFor="auth-email">
-                  Email Address
-                </label>
-                <input
-                  id="auth-email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="form-input text-xs"
-                />
-              </div>
+                <div>
+                  <label className="form-label text-xs">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="student@example.com"
+                    className="form-input text-xs"
+                  />
+                </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="form-label mb-0" htmlFor="auth-password">
-                    Password
-                  </label>
-                  {mode === "signin" && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="form-label text-xs mb-0">Password</label>
+                    {mode === "signin" && (
+                      <button
+                        type="button"
+                        onClick={() => setNotice("Password reset email simulated.")}
+                        className="text-[11px] font-bold text-[#66518A] hover:underline"
+                      >
+                        Forgot?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="form-input text-xs pr-12"
+                    />
                     <button
                       type="button"
-                      onClick={() => setNotice("Password reset email workflow will be connected.")}
-                      className="text-[11px] font-bold text-blue-600 hover:text-blue-700"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-bold text-[#989C94] hover:text-[#232520]"
                     >
-                      Forgot?
+                      {showPassword ? "Hide" : "Show"}
                     </button>
-                  )}
+                  </div>
                 </div>
-                <div className="relative">
-                  <input
-                    id="auth-password"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="form-input text-xs pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600"
-                  >
-                    {showPassword ? "Hide" : "Show"}
-                  </button>
-                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary w-full min-h-[46px] text-xs font-bold shadow-xs mt-2"
+                >
+                  <span>
+                    {mode === "signin"
+                      ? "Sign In to Workspace"
+                      : role === "student"
+                      ? "Create Account"
+                      : "Submit Application"}
+                  </span>
+                  <IconArrowRight size={14} />
+                </button>
+              </form>
+
+              {/* Mode Toggle Switch */}
+              <div className="mt-5 text-center text-xs text-[#676B64]">
+                {mode === "signin" ? (
+                  <span>
+                    Don&apos;t have an account yet?{" "}
+                    <button
+                      type="button"
+                      onClick={() => setMode("create")}
+                      className="font-bold text-[#66518A] hover:underline cursor-pointer"
+                    >
+                      Create one
+                    </button>
+                  </span>
+                ) : (
+                  <span>
+                    Already have an account?{" "}
+                    <button
+                      type="button"
+                      onClick={() => setMode("signin")}
+                      className="font-bold text-[#66518A] hover:underline cursor-pointer"
+                    >
+                      Sign in
+                    </button>
+                  </span>
+                )}
               </div>
-
-              {notice && (
-                <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800 flex items-start gap-2">
-                  <IconShieldCheck size={16} className="shrink-0 mt-0.5" />
-                  <span>{notice}</span>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className="btn btn-primary w-full min-h-[46px] text-xs font-bold shadow-xs mt-2"
-              >
-                <span>{mode === "signin" ? "Sign In" : "Create Account"}</span>
-                <IconArrowRight size={14} />
-              </button>
-            </form>
-
-            {/* Toggle Mode */}
-            <div className="mt-5 text-center text-xs text-slate-500">
-              {mode === "signin" ? (
-                <>
-                  Don&apos;t have an account?{" "}
-                  <button
-                    type="button"
-                    onClick={() => setMode("create")}
-                    className="font-bold text-blue-600 hover:text-blue-700"
-                  >
-                    Sign up now
-                  </button>
-                </>
-              ) : (
-                <>
-                  Already have an account?{" "}
-                  <button
-                    type="button"
-                    onClick={() => setMode("signin")}
-                    className="font-bold text-blue-600 hover:text-blue-700"
-                  >
-                    Sign in
-                  </button>
-                </>
-              )}
             </div>
           </div>
-
-          {/* Prototype disclaimer */}
-          <p className="mt-4 text-center text-[11px] text-slate-400">
-            Frontend demonstration preview &bull; Simulated authentication session
-          </p>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-[#E4DED4] bg-[#FFFEFB] py-4 text-center text-xs text-[#989C94]">
+        <span>&copy; 2026 TutorConnect. Safe learning in Hyderabad.</span>
+      </footer>
     </div>
   );
 }
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#fbfbfc] flex items-center justify-center text-sm font-semibold text-slate-500">Loading authentication...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-[#676B64]">Loading authentication...</div>}>
       <AuthPageContent />
     </Suspense>
   );
