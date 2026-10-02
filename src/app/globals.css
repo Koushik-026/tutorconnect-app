@@ -1,25 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #F7F4EE;
-  --color-surface: #FFFEFB;
-  --color-surface-elevated: #FFFFFF;
-  --color-plum: #66518A;
-  --color-plum-deep: #4E3C70;
-  --color-plum-soft: #EFEAF8;
-  --color-sage: #4F7867;
-  --color-sage-soft: #E6F0EA;
-  --color-peach: #E99873;
-  --color-peach-soft: #FBE9DF;
-  --color-lavender: #B7A5DE;
-  --color-lavender-soft: #F4F0FB;
+  --color-canvas: #FCFBF8;
+  --color-surface: #FFFFFF;
+  --color-surface-warm: #FFFDF9;
+  --color-plum: #7257A5;
+  --color-plum-deep: #594282;
+  --color-plum-soft: #EEE7FF;
+  --color-lilac-field: #EEE7FF;
+  --color-lavender-soft: #F4F0FF;
+  --color-sage: #5D806F;
+  --color-sage-soft: #E5F0EA;
+  --color-sage-field: #E5F0EA;
+  --color-peach: #EFA17F;
+  --color-peach-soft: #FCE7DE;
+  --color-peach-field: #FCE7DE;
+  --color-sky-field: #E4F1FA;
+  --color-blush-field: #F6E1EB;
   --color-butter: #D9B85F;
-  --color-butter-soft: #F8EFCF;
-  --color-ink: #232520;
-  --color-ink-muted: #676B64;
-  --color-ink-faint: #989C94;
-  --color-border-warm: #E4DED4;
-  --color-border-soft: #ECE6DC;
+  --color-butter-soft: #F7E9BE;
+  --color-ink: #20221F;
+  --color-ink-secondary: #6D706A;
+  --color-ink-faint: #969991;
+  --color-border-subtle: rgba(54, 48, 60, 0.10);
+  --color-border-strong: rgba(54, 48, 60, 0.16);
   --color-success-deep: #2E7D5B;
   --color-success-soft: #E9F5EF;
   --color-warning-deep: #C27A1B;
@@ -29,38 +33,43 @@
 }
 
 /* =========================================================
-   TutorConnect — Paper Bloom Design System Tokens
+   TutorConnect — Paper Bloom: Airy Learning Canvas Tokens
    ========================================================= */
 
 :root {
-  --tc-canvas: #F7F4EE;
-  --tc-surface: #FFFEFB;
+  --tc-canvas: #FCFBF8;
+  --tc-surface: #FFFFFF;
+  --tc-surface-warm: #FFFDF9;
   --tc-surface-elevated: #FFFFFF;
 
-  --tc-primary: #66518A;
-  --tc-primary-hover: #4E3C70;
-  --tc-primary-soft: #EFEAF8;
+  --tc-primary: #7257A5;
+  --tc-primary-hover: #594282;
+  --tc-primary-soft: #EEE7FF;
 
-  --tc-sage: #4F7867;
-  --tc-sage-hover: #3E6153;
-  --tc-sage-soft: #E6F0EA;
+  --tc-sage: #5D806F;
+  --tc-sage-hover: #4B6B5C;
+  --tc-sage-soft: #E5F0EA;
 
-  --tc-peach: #E99873;
-  --tc-peach-hover: #D8835C;
-  --tc-peach-soft: #FBE9DF;
+  --tc-peach: #EFA17F;
+  --tc-peach-hover: #D98864;
+  --tc-peach-soft: #FCE7DE;
 
   --tc-lavender: #B7A5DE;
-  --tc-lavender-soft: #F4F0FB;
+  --tc-lavender-soft: #F4F0FF;
+
+  --tc-sky-soft: #E4F1FA;
+  --tc-blush-soft: #F6E1EB;
 
   --tc-butter: #D9B85F;
-  --tc-butter-soft: #F8EFCF;
+  --tc-butter-soft: #F7E9BE;
 
-  --tc-text: #232520;
-  --tc-text-muted: #676B64;
-  --tc-text-faint: #989C94;
+  --tc-text: #20221F;
+  --tc-text-muted: #6D706A;
+  --tc-text-faint: #969991;
 
-  --tc-border: #E4DED4;
-  --tc-border-soft: #ECE6DC;
+  --tc-border: rgba(54, 48, 60, 0.10);
+  --tc-border-strong: rgba(54, 48, 60, 0.16);
+  --tc-border-soft: rgba(54, 48, 60, 0.06);
 
   --tc-success: #2E7D5B;
   --tc-success-soft: #E9F5EF;
@@ -69,14 +78,15 @@
   --tc-danger: #C84B31;
   --tc-danger-soft: #FCEEEA;
 
-  --tc-radius-sm: 8px;
-  --tc-radius-md: 14px;
-  --tc-radius-lg: 20px;
-  --tc-radius-xl: 28px;
+  --tc-radius-sm: 10px;
+  --tc-radius-md: 16px;
+  --tc-radius-lg: 24px;
+  --tc-radius-xl: 32px;
 
-  --tc-shadow-sm: 0 1px 3px rgba(35, 37, 32, 0.04), 0 4px 12px rgba(35, 37, 32, 0.02);
-  --tc-shadow-md: 0 4px 12px rgba(35, 37, 32, 0.05), 0 14px 28px rgba(102, 81, 138, 0.06);
-  --tc-shadow-lg: 0 10px 24px rgba(35, 37, 32, 0.06), 0 24px 50px rgba(102, 81, 138, 0.08);
+  --tc-shadow-sm: 0 2px 8px rgba(54, 48, 60, 0.03);
+  --tc-shadow-md: 0 8px 24px rgba(54, 48, 60, 0.04);
+  --tc-shadow-lg: 0 16px 40px rgba(54, 48, 60, 0.05);
+  --tc-shadow-glass: 0 8px 32px rgba(54, 48, 60, 0.04);
 }
 
 /* =========================================================
@@ -91,7 +101,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 84px;
+  scroll-padding-top: 100px;
 }
 
 body {
@@ -114,8 +124,9 @@ h5,
 h6 {
   margin: 0;
   font-family: var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   color: var(--tc-text);
+  font-weight: 800;
 }
 
 p {
@@ -147,11 +158,11 @@ a {
   z-index: 100;
   background: var(--tc-primary);
   color: white;
-  padding: 10px 18px;
-  border-radius: 12px;
+  padding: 10px 20px;
+  border-radius: 9999px;
   font-weight: 700;
   font-size: 0.875rem;
-  box-shadow: 0 4px 14px rgba(102, 81, 138, 0.35);
+  box-shadow: 0 4px 14px rgba(114, 87, 165, 0.35);
   transition: top 180ms ease;
 }
 
@@ -159,43 +170,63 @@ a {
   top: 16px;
 }
 
-/* Responsive Container Shell */
+/* Spacious Container Shell */
 .container-shell {
-  width: min(calc(100% - 32px), 1220px);
+  width: min(calc(100% - 36px), 1200px);
   margin-inline: auto;
 }
 
 @media (min-width: 640px) {
   .container-shell {
-    width: min(calc(100% - 48px), 1220px);
+    width: min(calc(100% - 64px), 1200px);
   }
 }
 
 @media (min-width: 1024px) {
   .container-shell {
-    width: min(calc(100% - 64px), 1220px);
+    width: min(calc(100% - 96px), 1240px);
   }
 }
 
 @media (min-width: 1440px) {
   .container-shell {
-    width: min(calc(100% - 96px), 1280px);
+    width: min(calc(100% - 128px), 1280px);
   }
 }
 
 /* =========================================================
-   Buttons (Paper Bloom Tactile Feel)
+   Airy Floating Navigation & Glass Surfaces
+   ========================================================= */
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--tc-border);
+  box-shadow: var(--tc-shadow-glass);
+}
+
+.glass-surface {
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--tc-border);
+  box-shadow: var(--tc-shadow-glass);
+}
+
+/* =========================================================
+   Buttons (Tactile & Airy)
    ========================================================= */
 
 .btn {
   display: inline-flex;
-  min-height: 46px;
+  min-height: 48px;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border: 1px solid transparent;
-  border-radius: 14px;
-  padding: 10px 20px;
+  border-radius: 16px;
+  padding: 12px 24px;
   font-size: 0.92rem;
   font-weight: 700;
   line-height: 1;
@@ -225,23 +256,23 @@ a {
 .btn-primary {
   background: var(--tc-primary);
   color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(102, 81, 138, 0.22);
+  box-shadow: 0 4px 16px rgba(114, 87, 165, 0.20);
 }
 
 .btn-primary:hover {
   background: var(--tc-primary-hover);
-  box-shadow: 0 6px 18px rgba(102, 81, 138, 0.28);
+  box-shadow: 0 6px 20px rgba(114, 87, 165, 0.28);
 }
 
 .btn-secondary {
   border-color: var(--tc-border);
   background: var(--tc-surface);
   color: var(--tc-text);
-  box-shadow: 0 1px 3px rgba(35, 37, 32, 0.04);
+  box-shadow: 0 1px 3px rgba(54, 48, 60, 0.03);
 }
 
 .btn-secondary:hover {
-  border-color: var(--tc-primary);
+  border-color: rgba(114, 87, 165, 0.3);
   background: var(--tc-primary-soft);
   color: var(--tc-primary);
 }
@@ -249,7 +280,7 @@ a {
 .btn-sage {
   background: var(--tc-sage);
   color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(79, 120, 103, 0.22);
+  box-shadow: 0 4px 14px rgba(93, 128, 111, 0.20);
 }
 
 .btn-sage:hover {
@@ -262,7 +293,7 @@ a {
 }
 
 .btn-ghost:hover {
-  background: var(--tc-border-soft);
+  background: rgba(54, 48, 60, 0.05);
   color: var(--tc-text);
 }
 
@@ -274,7 +305,7 @@ a {
 }
 
 /* =========================================================
-   Paper Bloom Surfaces & Cards
+   Airy Surfaces & Cards
    ========================================================= */
 
 .tc-card {
@@ -293,7 +324,7 @@ a {
 
 .tc-card-hover:hover {
   transform: translateY(-2.5px);
-  border-color: rgba(102, 81, 138, 0.35);
+  border-color: rgba(114, 87, 165, 0.25);
   box-shadow: var(--tc-shadow-md);
 }
 
@@ -310,7 +341,7 @@ a {
 
 .form-label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   color: var(--tc-text);
   font-size: 0.85rem;
   font-weight: 700;
@@ -318,13 +349,13 @@ a {
 
 .form-input {
   width: 100%;
-  min-height: 46px;
+  min-height: 48px;
   border: 1px solid var(--tc-border);
-  border-radius: 12px;
-  background: var(--tc-surface-elevated);
-  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--tc-surface);
+  padding: 12px 16px;
   color: var(--tc-text);
-  box-shadow: 0 1px 2px rgba(35, 37, 32, 0.02);
+  box-shadow: 0 1px 2px rgba(54, 48, 60, 0.02);
   transition:
     border-color 150ms ease,
     box-shadow 150ms ease;
@@ -341,7 +372,7 @@ a {
 .form-input:focus {
   border-color: var(--tc-primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 81, 138, 0.15);
+  box-shadow: 0 0 0 3px rgba(114, 87, 165, 0.14);
 }
 
 textarea.form-input {
@@ -350,17 +381,17 @@ textarea.form-input {
 }
 
 /* =========================================================
-   Badges (Paper Bloom Accents)
+   Badges & Eyebrows
    ========================================================= */
 
 .badge {
   display: inline-flex;
-  min-height: 26px;
+  min-height: 28px;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
   border-radius: 9999px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1;
@@ -368,19 +399,19 @@ textarea.form-input {
 }
 
 .badge-plum {
-  border: 1px solid rgba(102, 81, 138, 0.2);
+  border: 1px solid rgba(114, 87, 165, 0.2);
   background: var(--tc-primary-soft);
   color: var(--tc-primary-hover);
 }
 
 .badge-sage {
-  border: 1px solid rgba(79, 120, 103, 0.22);
+  border: 1px solid rgba(93, 128, 111, 0.22);
   background: var(--tc-sage-soft);
   color: var(--tc-sage);
 }
 
 .badge-peach {
-  border: 1px solid rgba(233, 152, 115, 0.25);
+  border: 1px solid rgba(239, 161, 127, 0.25);
   background: var(--tc-peach-soft);
   color: #B85F38;
 }
@@ -416,12 +447,12 @@ textarea.form-input {
 }
 
 /* =========================================================
-   Warm Stationery Texture / Dot Grid
+   Atmospheric Dot Pattern & Texture
    ========================================================= */
 
 .paper-grid {
-  background-image: radial-gradient(rgba(102, 81, 138, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(rgba(114, 87, 165, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
 /* =========================================================

@@ -1,176 +1,144 @@
-# TUTORCONNECT DESIGN SYSTEM: PAPER BLOOM
-**Version:** 2.0  
-**Status:** Canonical Visual Identity Contract  
-**Concept Name:** Paper Bloom  
+# TutorConnect Design System: Paper Bloom — Airy Learning Canvas
 
----
+## 1. Product Identity & Philosophy
 
-## 1. Product Personality & Philosophy
+TutorConnect is a personalized education marketplace built on the philosophy of **calm, intentional learning**.
+It is designed to feel like a crafted, thoughtful consumer product rather than a generic SaaS application.
 
-TutorConnect connects ambitious secondary and high-school students (Classes 6–12) with vetted, high-empathy tutors for 1-on-1 online classes and local in-home tuition in Hyderabad.
+### Quality Benchmark & Inspiration Principles
+The visual grammar draws inspiration from modern, airy digital experiences (such as Google Stitch concepts):
+- **Spatial Rhythm:** Generous vertical rhythm (~96–120px desktop section gaps, ~48–64px mobile), base 8px grid, giving every core idea room to breathe.
+- **Architectural Color Fields:** Color is used structurally in large, low-saturation, atmospheric fields (pale lilac, sage field, peach field, soft sky) rather than scattered decorative confetti.
+- **Selective Glassmorphism:** Subtle translucent surfaces with 10–16% soft borders and gentle backdrop blur, reserved for floating navigation, composers, and sticky action surfaces.
+- **Restrained Elevation:** Shadows are nearly imperceptible (`0 8px 32px rgba(0, 0, 0, 0.03–0.05)`), avoiding harsh dark drop shadows.
+- **Typography as Architecture:** Bold, editorial Manrope display headings strongly tracked (-0.035em to -0.04em) paired with highly legible, generous-line-height Inter body text.
 
-The visual identity must feel like a **crafted, thoughtful consumer learning product**—warm, intellectually stimulating, human, and encouraging. It is expressly **not** an enterprise SaaS dashboard, not an aggressive corporate ed-tech platform, and not an AI-generated template.
-
-### Core Character Traits
-- **Calm & Focused:** Generous negative space, warm paper-toned backgrounds, low-stress cognitive load.
-- **Thoughtful & Academic:** Editorial hierarchy, structured typographical anchors, stationery and notebook nuances without feeling archaic.
-- **Youthful & Friendly:** Warm accents (plum, sage, peach, lavender, butter) that feel motivating to teenagers and reassuring to parents.
-- **Crafted & Tactile:** Varied geometry, purposeful borders, asymmetric rhythm, and controlled physical depth.
-- **Light & Airy:** Light-theme-first throughout every user journey; zero oppressive dark panels.
+*Note: External design references serve strictly as a quality benchmark. TutorConnect maintains its own original brand, assets, educational workflows, and visual identity.*
 
 ---
 
 ## 2. Color System
 
-The Paper Bloom palette replaces ubiquitous digital "tech blue" with an organic, editorial collection of botanical, ink, and warm paper tones.
+TutorConnect is **strictly light-theme first**. Dark mode sections, black full-screen blocks, or dark dashboards are forbidden.
 
 ### 2.1 Foundational Surfaces
-| Token Name | Hex Code | Purpose |
+| Token Name | Hex / Value | Purpose |
 | :--- | :--- | :--- |
-| `canvas` | `#F7F4EE` | Overall page backdrop; warm, tactile unbleached paper tone. |
-| `surface` | `#FFFEFB` | Primary content panels, editorial reading blocks, form fields. |
-| `surface-elevated` | `#FFFFFF` | Lifted cards, floating action bars, dropdowns, modal windows. |
-| `border-warm` | `#E4DED4` | Standard structural borders and dividing rules. |
-| `border-soft` | `#ECE6DC` | Subtle dividers, inset table borders, and nested elements. |
+| `canvas` | `#FCFBF8` | Overall page canvas; warm, airy unbleached paper foundation. |
+| `surface` | `#FFFFFF` | Primary content panels, reading blocks, input controls. |
+| `surface-warm` | `#FFFDF9` | Warm off-white surface for secondary containers. |
+| `surface-glass` | `rgba(255, 255, 255, 0.85)` | Translucent floating navigation and interactive composer surfaces. |
+| `border` | `rgba(54, 48, 60, 0.10)` | Subtle structural borders (10% opacity). |
+| `border-strong` | `rgba(54, 48, 60, 0.16)` | Defined active borders and input focus boundaries. |
 
 ### 2.2 Text & Ink Tokens
 | Token Name | Hex Code | Purpose |
 | :--- | :--- | :--- |
-| `ink` | `#232520` | Primary headings, values, key labels, active icons (deep charcoal ink). |
-| `ink-muted` | `#676B64` | Body descriptions, secondary labels, metadata, captions. |
-| `ink-faint` | `#989C94` | Inactive states, timestamps, placeholder text. |
+| `ink` | `#20221F` | Primary headings, values, key labels, deep charcoal ink. |
+| `ink-secondary` | `#6D706A` | Body descriptions, secondary labels, editorial subheadings. |
+| `ink-faint` | `#969991` | Metadata, inactive labels, timestamps, placeholders. |
 
-### 2.3 Accent & Expression Palette
-| Name | Base Hex | Soft Background | Semantic / Subject Association |
+### 2.3 Architectural Color Fields & Accents
+| Name | Accent Hex | Atmospheric Field Hex | Semantic / Subject Role |
 | :--- | :--- | :--- | :--- |
-| **Primary Plum** | `#66518A` | `#EFEAF8` | Primary brand accent, primary CTA, header highlights. |
-| **Primary Deep** | `#4E3C70` | `#E3D8F2` | Hover states, active buttons, high-contrast headings. |
-| **Sage** | `#4F7867` | `#E6F0EA` | Science, verified status, home tuition indicator, growth. |
-| **Peach** | `#E99873` | `#FBE9DF` | Chemistry, conversational alerts, booking milestones. |
-| **Lavender** | `#B7A5DE` | `#F4F0FB` | Mathematics, logic, abstract reasoning motifs. |
-| **Butter** | `#D9B85F` | `#F8EFCF` | English, language arts, editorial bookmarks, reviews. |
-
-### 2.4 Functional Feedback Tokens
-| Purpose | Solid Hex | Soft Background |
-| :--- | :--- | :--- |
-| **Success** | `#2E7D5B` | `#E9F5EF` |
-| **Warning** | `#C27A1B` | `#FDF4E5` |
-| **Danger** | `#C84B31` | `#FCEEEA` |
-| **Info / Tech Blue** | `#3B6FA6` | `#EBF2F9` | *(Strictly reserved for technical system statuses; never used as default brand accent)* |
+| **Primary Plum** | `#7257A5` | `#EEE7FF` (Lilac Field) | Primary brand accent, CTA buttons, hero atmosphere, physics. |
+| **Deep Plum** | `#594282` | `#F4F0FF` (Soft Lavender) | Hover states, active buttons, mathematics motif. |
+| **Sage** | `#5D806F` | `#E5F0EA` (Sage Field) | Verified status, in-person tuition, science motif, progress. |
+| **Peach** | `#EFA17F` | `#FCE7DE` (Peach Field) | Chemistry motif, trial demo narrative, warm alerts. |
+| **Soft Sky** | `#3B6FA6` | `#E4F1FA` (Sky Field) | Scheduling timelines, calendar dates, digital whiteboard. |
+| **Blush** | `#C4658B` | `#F6E1EB` (Blush Field) | Student learning milestones, human guidance accents. |
+| **Butter** | `#D9B85F` | `#F7E9BE` (Butter Field) | Rating stars, English literature, pending notices. |
 
 ---
 
-## 3. Light-Theme Requirement
+## 3. Containment & Anti-Generic Rules
 
-TutorConnect is **strictly a light-themed interface**.
-- No dark landing page sections.
-- No black full-screen headers or footers.
-- No dark dashboard layouts or dark auth screens.
-- In virtual demo sessions, only the raw video camera stream viewport is dark/neutral for video fidelity; all surrounding toolbars, headers, controls, and chat drawers must maintain the light Paper Bloom shell.
+### 3.1 Containment Philosophy
+Before wrapping content in a card, verify whether containment is functionally necessary.
+- Prefer **whitespace, typography, subtle rules, and tinted atmospheric fields** over boxed containers.
+- Avoid repetitive grids of identical cards.
+- Where containment is required, use generous internal padding (32–40px desktop, 20–24px mobile) and soft radii (20–30px).
+
+### 3.2 Anti-Generic Guardrails
+- **NO** endless 3-card white box grids with icons.
+- **NO** generic SaaS bento grids or KPI dashboard metric tiles.
+- **NO** neon gradient text or huge colorful blobs behind headings.
+- **NO** badge or pill overload; limit decorative tags.
+- **NO** AI-generated stock photography or fake educator faces.
+- **NO** dark landing sections, black headers, or dark dashboards. (Only the active video viewport is dark/neutral for video fidelity; all surrounding UI remains light).
 
 ---
 
-## 4. Typography
+## 4. Typography Scale
 
-### 4.1 Typefaces
-- **Headings & Display:** `Manrope` (Variable, weights 600, 700, 800)
-  - Characterized by round, human geometric letterforms with tight tracking (`tracking-tight` / `-0.025em`).
-- **Body & Interface:** `Inter` (Variable, weights 400, 500, 600)
-  - Optimized for exceptional micro-legibility, generous line-height (`leading-relaxed`), and precise tabular numbers.
-
-### 4.2 Hierarchy Standards
-- **Hero Title:** `text-4xl sm:text-5xl lg:text-6xl`, line-height `1.08`, tracking `-0.035em`.
-- **Section Heading:** `text-2xl sm:text-3xl lg:text-4xl`, line-height `1.15`, tracking `-0.025em`.
-- **Panel Title:** `text-xl sm:text-2xl`, font-bold, tracking `-0.02em`.
-- **Card Title:** `text-base sm:text-lg`, font-bold, line-height `1.3`.
-- **Body Text:** `text-sm sm:text-base`, text color `#676B64`, line-height `1.65`.
-- **Metadata / Eyebrow:** `text-[11px] sm:text-xs`, font-bold, uppercase, tracking `0.08em`.
+- **Display Hero:** 56–64px desktop / 38–44px mobile (`tracking-[-0.035em]` to `tracking-[-0.04em]`, line-height `1.08`).
+- **Section Statement:** 44–56px desktop / 30–36px mobile (`tracking-[-0.03em]`, line-height `1.15`).
+- **Product Section Titles:** 28–36px desktop / 22–26px mobile.
+- **Body Text:** 16–18px desktop / 15–16px mobile (`leading-relaxed`, text color `#6D706A`).
+- **Metadata / Eyebrow:** 11–13px uppercase, bold (`tracking-[0.08em]`).
 
 ---
 
 ## 5. Shape Language & Geometry
 
-Avoid uniform corner radii across everything. Hierarchy dictates geometry:
-- **Primary Actions / Buttons:** `14px – 18px` (`rounded-xl` to `rounded-2xl`).
-- **Major Feature Panels & Cards:** `20px – 28px` (`rounded-2xl` to `rounded-3xl`).
-- **Small Metadata & Form Inputs:** `10px – 12px` (`rounded-lg` to `rounded-xl`).
-- **Subject Badges & Tags:** `9999px` (`rounded-full`).
-- **Subject Icons / Illustrations:** Asymmetric or organic squircle geometry (`rounded-2xl` to `rounded-3xl` with organic SVG frames).
+- **Floating Navigation & Hero Composers:** Full pill or large squircle (24–32px radius).
+- **Major Feature Panels & Visual Stages:** 24–32px radius (`rounded-3xl`).
+- **Standard Action Buttons:** 14–18px radius (`rounded-2xl`).
+- **Metadata & Input Controls:** 10–14px radius (`rounded-xl`).
+- **Subject Motif Tiles:** Asymmetric or organic squircle shapes.
 
 ---
 
-## 6. Layout Character & Anti-Generic Rules
+## 6. Glassmorphism & Elevation
 
-### 6.1 Layout Character
-- **Asymmetric Balance:** Avoid rigid symmetry; balance large editorial type blocks with contextual learning widgets.
-- **Varied Containment:** Do not place every thought into a white rectangle. Use typographic groupings, tinted backdrop panels, and subtle borders.
-- **Intentional Breathing Space:** Give concepts room to breathe; generous vertical padding (`py-16` to `py-24` on desktop).
-
-### 6.2 Forbidden Patterns
-- NO endless 3-card pricing columns with blue checkmarks.
-- NO floating glass rectangles with rainbow drop shadows.
-- NO huge blue/purple gradient blobs behind text.
-- NO blue gradient headline text.
-- NO generic SaaS dashboard metric boxes with generic percentage arrows.
-- NO AI-generated stock photos or fake educator faces.
-- NO dark mode sections or muddy gray backgrounds.
+- **Translucency:** `bg-white/85` to `bg-white/92` with `backdrop-blur-md`.
+- **Structural Border:** `1px solid rgba(54, 48, 60, 0.10)`.
+- **Soft Shadow:** `box-shadow: 0 8px 32px rgba(54, 48, 60, 0.04)`.
+- Glass is applied selectively to:
+  1. Floating public navigation
+  2. Hero Tutor Requirement Composer
+  3. Floating classroom bottom controls
+  4. Sticky booking & checkout summary surfaces
 
 ---
 
-## 7. Subject Visual System
+## 7. Public vs. Authenticated Composition
 
-Each core subject receives a signature visual identity and subtle accent pairing:
+### 7.1 Public Experience (Landing, Discovery, Profile)
+- Floating pill-like navigation separated from viewport boundaries.
+- Single dominant focal interaction in hero (Tutor Requirement / Match Composer).
+- Asymmetric storytelling layouts with large negative space.
+- Horizontal subject showcase strips.
 
-| Subject | Accent Color | Soft Tint | Signature Motif |
-| :--- | :--- | :--- | :--- |
-| **Mathematics** | Lavender (`#B7A5DE`) | `#F4F0FB` | Precision geometric coordinates, compass curves, calculus integrals. |
-| **Science** | Sage (`#4F7867`) | `#E6F0EA` | Molecular lattices, plant cell structures, leaf venation. |
-| **Physics** | Primary Plum (`#66518A`) | `#EFEAF8` | Planetary orbital lines, wave frequencies, vectors. |
-| **Chemistry** | Peach (`#E99873`) | `#FBE9DF` | Erlenmeyer vessels, hexagonal carbon rings, valence bonds. |
-| **English** | Butter (`#D9B85F`) | `#F8EFCF` | Editorial quotation marks, book leaves, quill accents. |
-| **Computer Science** | Slate Sage (`#486B67`) | `#E8F0EE` | Matrix coordinates, circuit traces, logical branch trees. |
-
----
-
-## 8. Component Design Language
-
-### 8.1 Buttons
-- **Primary:** Background `#66518A` (Plum), Text `#FFFFFF`. Hover: `#4E3C70`. Subtle warm shadow: `0 4px 14px rgba(102, 81, 138, 0.22)`.
-- **Secondary:** Background `#FFFEFB`, Border `1px solid #E4DED4`, Text `#232520`. Hover: Border `#66518A`, Text `#66518A`, Background `#EFEAF8`.
-- **Sage Action:** Background `#4F7867`, Text `#FFFFFF`. Hover: `#3E6153`.
-- **Ghost:** Transparent background, Text `#676B64`, Hover background `#ECE6DC`.
-
-### 8.2 Input Fields
-- Background `#FFFFFF` or `#FFFEFB`.
-- Border `1px solid #E4DED4`. Hover: `#66518A`.
-- Focus ring: `3px solid rgba(102, 81, 138, 0.15)`.
-
-### 8.3 Badges & Chips
-- Soft-tinted background matching semantic context.
-- Border `1px solid currentColor` with `0.2` opacity.
-- High-contrast text matching the primary accent.
+### 7.2 Authenticated Experience (Student Dashboard)
+- Task-first "My Learning Space" hierarchy: Next class → Weekly rhythm → Learning progress → Lesson notes & homework.
+- One dominant next-class stage rather than equal card piles.
+- Quiet, light desktop navigation sidebar and integrated mobile bottom bar.
 
 ---
 
-## 9. Mobile & Responsive Principles
+## 8. Claim Safety & Product Rules
 
-- **Viewport Targets:** 390px (Mobile), 834px (Tablet), 1440px (Desktop).
-- **Touch Targets:** Minimum 48px × 48px touch bounding box for all interactive elements.
-- **Sticky Actions:** Elevated `#FFFEFB` surface with `#E4DED4` top border and soft backdrop blur.
-- **Thumb Zone Ergonomics:** Primary booking and filter CTAs anchored within natural thumb reach.
-
----
-
-## 10. Iconography
-TutorConnect uses a project-specific custom SVG icon system defined in `@/components/ui/icons.tsx`.
-- Clean geometric single-path or double-path line styling.
-- Scalable vector rendering (`currentColor` fills/strokes).
-- Zero third-party icon bundle dependencies (e.g. no Lucide or external icon packages).
+All frontend copy must adhere strictly to verified capabilities:
+- **Free Demo:** 30 minutes, Online only, 1-on-1, zero payment required.
+- **Class Packages:** 8 classes (₹3,200), 12 classes (₹4,500), 15 classes (₹5,400) — all 60 min/class, 45-day package validity.
+- **No Recurring Subscriptions:** Clear one-time package payments.
+- **Home Tuition:** Subject to tutor availability and location/radius eligibility in Hyderabad.
+- **Verified Language:** "Verified tutor profile", "Identity verified", "Qualification reviewed", "Teaching profile reviewed".
+- **Notes Wording:** "Digital lesson notes when shared by the tutor".
+- **Receipts:** "Prototype receipt shown for this simulated transaction".
 
 ---
 
-## 11. Motion & Microinteractions
+## 9. Iconography & Assets
 
-- Native CSS transitions only (duration: `140ms – 220ms`, easing: `cubic-bezier(0.16, 1, 0.3, 1)`).
-- Full compliance with `prefers-reduced-motion: reduce`.
-- Subtle elevation shifts (`translateY(-1.5px)` on hover, `scale(0.98)` on active press).
+- **Icons:** Project-specific lightweight SVG icon primitives in `@/components/ui/icons.tsx`. Zero external icon package dependencies (e.g. no Lucide, FontAwesome, etc.).
+- **Product Visuals:** Lightweight CSS/SVG illustrations and miniature UI mockups representing tutor match, weekly schedule, and lesson notes. Zero fake stock photography.
+
+---
+
+## 10. Motion & Microinteractions
+
+- Native CSS transitions only (140ms–240ms duration, `cubic-bezier(0.16, 1, 0.3, 1)`).
+- Full support for `prefers-reduced-motion: reduce`.
+- Zero parallax, ambient canvas loops, or cursor tracking effects.
