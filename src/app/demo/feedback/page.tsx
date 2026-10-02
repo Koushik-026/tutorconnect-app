@@ -33,146 +33,127 @@ export default function DemoFeedbackPage() {
 
   function toggleTag(tag: string) {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
   }
 
-  function continueToPackages() {
-    const query = new URLSearchParams({
-      tutor: "ananya-sharma",
-      rating: String(rating),
-    });
-    router.push(`/packages/select?${query.toString()}`);
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    router.push("/packages/select?tutor=ananya-sharma");
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F7F4EE] text-[#232520]">
-      {/* Header */}
-      <header className="border-b border-[#E4DED4] bg-[#FFFEFB]/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
+    <div className="flex min-h-screen flex-col bg-[#FCFBF8] text-[#20221F]">
+      <header className="border-b border-[rgba(54,48,60,0.08)] bg-white/80 py-4 backdrop-blur-md">
+        <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href="/dashboard/student"
-            className="text-xs font-bold text-[#676B64] hover:text-[#66518A] transition-colors"
+            className="text-xs font-bold text-[#6D706A] hover:text-[#20221F] transition"
           >
-            Skip to Dashboard &rarr;
+            Skip to Workspace &rarr;
           </Link>
         </div>
       </header>
 
-      {/* Main Feedback Form */}
-      <main id="main-content" className="flex flex-1 items-center justify-center p-4 sm:p-6 lg:p-10">
-        <div className="w-full max-w-xl">
-          <div className="overflow-hidden rounded-3xl border border-[#E4DED4] bg-[#FFFEFB] p-6 sm:p-8 shadow-xs">
-            {/* Tutor Snapshot Header */}
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EFEAF8] text-[#66518A] shadow-xs mb-3">
-                <IconSparkles size={26} />
-              </div>
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-[#232520] sm:text-3xl">
-                How was your demo session?
+      <main className="flex-1 py-12 md:py-20 flex items-center">
+        <div className="container-shell max-w-xl mx-auto w-full">
+          {/* Compact Centered Feedback Object */}
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-3xl border border-[rgba(54,48,60,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.03)] text-center space-y-6"
+          >
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E5F0EA] px-3.5 py-1 text-xs font-bold text-[#3D5A4D]">
+              <IconCheck size={14} />
+              <span>Demo Session Completed</span>
+            </div>
+
+            <div>
+              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#20221F]">
+                How was your session with Ananya Sharma?
               </h1>
-              <p className="mt-1.5 text-xs text-[#676B64] sm:text-sm">
-                Your feedback with <strong className="text-[#232520]">Ananya Sharma</strong> helps personalize your learning recommendations.
+              <p className="mt-2 text-xs sm:text-sm text-[#6D706A]">
+                Your feedback helps us curate the right learning rhythm for your child.
               </p>
             </div>
 
-            {/* Star Rating Interaction */}
-            <div className="mt-6 flex flex-col items-center">
-              <div className="flex items-center gap-2">
-                {[1, 2, 3, 4, 5].map((star) => {
-                  const active = (hoveredRating || rating) >= star;
-                  return (
-                    <button
-                      key={star}
-                      type="button"
-                      onMouseEnter={() => setHoveredRating(star)}
-                      onMouseLeave={() => setHoveredRating(0)}
-                      onClick={() => setRating(star)}
-                      aria-label={`Rate ${star} stars`}
-                      className="p-1 transition-transform hover:scale-110 active:scale-95"
-                    >
-                      <IconStar
-                        size={32}
-                        className={
-                          active
-                            ? "text-[#D9B85F] drop-shadow-xs"
-                            : "text-[#E4DED4]"
-                        }
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-              <span className="mt-2 text-xs font-bold text-[#676B64]">
-                {rating === 5 && "Exceptional • Highly recommended"}
-                {rating === 4 && "Great • Very helpful"}
-                {rating === 3 && "Good • Met expectations"}
-                {rating === 2 && "Fair • Needs improvement"}
-                {rating === 1 && "Not satisfied"}
-              </span>
+            {/* Large Tactile Rating Stars */}
+            <div className="py-2 flex items-center justify-center gap-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHoveredRating(star)}
+                  onMouseLeave={() => setHoveredRating(0)}
+                  className="p-1 transition-transform hover:scale-110 active:scale-95"
+                >
+                  <IconStar
+                    size={36}
+                    className={`${
+                      star <= (hoveredRating || rating)
+                        ? "text-[#D4A328] fill-[#D4A328]"
+                        : "text-[rgba(54,48,60,0.18)]"
+                    } transition-colors`}
+                  />
+                </button>
+              ))}
             </div>
 
-            {/* Tag Selection */}
-            <div className="mt-6 border-t border-[#E4DED4]/60 pt-5">
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#676B64] mb-3 text-center sm:text-left">
-                What went well?
-              </label>
+            {/* Quick Feedback Tags */}
+            <div className="text-left space-y-2 border-t border-[rgba(54,48,60,0.08)] pt-5">
+              <span className="text-xs font-bold text-[#6D706A] block">
+                What stood out? (Select all that apply)
+              </span>
               <div className="flex flex-wrap gap-2">
                 {feedbackTags.map((tag) => {
-                  const isSelected = selectedTags.includes(tag);
+                  const selected = selectedTags.includes(tag);
                   return (
                     <button
                       key={tag}
                       type="button"
                       onClick={() => toggleTag(tag)}
-                      className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition ${
-                        isSelected
-                          ? "border-[#66518A] bg-[#EFEAF8] text-[#66518A] font-bold"
-                          : "border-[#E4DED4] bg-[#FFFEFB] text-[#676B64] hover:border-[#66518A]/40"
+                      className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                        selected
+                          ? "bg-[#7257A5] text-white shadow-xs"
+                          : "bg-[#FCFBF8] border border-[rgba(54,48,60,0.10)] text-[#6D706A] hover:text-[#20221F]"
                       }`}
                     >
-                      {isSelected && <IconCheck size={12} />}
-                      <span>{tag}</span>
+                      {tag}
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Comments Field */}
-            <div className="mt-5">
-              <label htmlFor="feedback-comment" className="block text-xs font-bold text-[#676B64] mb-1.5">
+            {/* Optional Note */}
+            <div className="text-left">
+              <label className="text-xs font-bold text-[#6D706A] block mb-1">
                 Additional Comments (Optional)
               </label>
               <textarea
-                id="feedback-comment"
+                rows={2}
                 value={feedbackText}
                 onChange={(e) => setFeedbackText(e.target.value)}
-                placeholder="Share any specific learning goals or subject topics discussed..."
-                className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] p-3 text-xs text-[#232520] placeholder:text-[#676B64] focus:outline-hidden focus:border-[#66518A] min-h-[80px]"
+                placeholder="Share any specific syllabus topics or questions..."
+                className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] p-3 text-xs text-[#20221F] focus:border-[#7257A5] focus:outline-hidden"
               />
             </div>
 
-            {/* Primary Action */}
-            <div className="mt-6 space-y-3">
+            {/* Clear Transition to Class Packages */}
+            <div className="pt-2 border-t border-[rgba(54,48,60,0.08)]">
               <button
-                type="button"
-                onClick={continueToPackages}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#66518A] px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[#4E3C70] transition-colors"
+                type="submit"
+                className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(114,87,165,0.22)] justify-center gap-2"
               >
                 <span>Continue to Class Packages</span>
                 <IconArrowRight size={15} />
               </button>
-
-              <Link
-                href="/dashboard/student"
-                className="w-full inline-flex items-center justify-center rounded-xl border border-[#E4DED4] bg-[#FFFEFB] py-2.5 px-3 text-xs font-bold text-[#676B64] hover:text-[#232520] hover:bg-[#F7F4EE] transition-colors"
-              >
-                <span>Save &amp; View Dashboard</span>
-              </Link>
+              <p className="mt-2.5 text-[11px] text-[#969991]">
+                Establish your steady weekly learning rhythm with 8, 12, or 15 classes
+              </p>
             </div>
-          </div>
+          </form>
         </div>
       </main>
     </div>

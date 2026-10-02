@@ -20,14 +20,14 @@ export default function DemoWaitingRoomPage() {
   const [cameraOn, setCameraOn] = useState(true);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F7F4EE] text-[#232520]">
-      {/* Light Paper Bloom Header */}
-      <header className="border-b border-[#E4DED4] bg-[#FFFEFB]/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
+    <div className="flex min-h-screen flex-col bg-[#FCFBF8] text-[#20221F]">
+      {/* Light Header */}
+      <header className="border-b border-[rgba(54,48,60,0.08)] bg-white/80 py-4 backdrop-blur-md">
+        <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href="/dashboard/student"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#676B64] hover:text-[#66518A] transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6D706A] hover:text-[#20221F] transition-colors"
           >
             <IconArrowLeft size={14} />
             <span>Exit Waiting Room</span>
@@ -35,132 +35,132 @@ export default function DemoWaitingRoomPage() {
         </div>
       </header>
 
-      {/* Main Light Shell */}
-      <main id="main-content" className="flex flex-1 items-center justify-center p-4 sm:p-6 lg:p-10">
-        <div className="w-full max-w-2xl">
-          {/* Waiting Room Primary Surface */}
-          <div className="rounded-3xl border border-[#E4DED4] bg-[#FFFEFB] p-6 sm:p-8 shadow-xs space-y-6">
-            {/* Top Status Banner */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E4DED4] pb-5">
-              <div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F0EA] px-3 py-0.5 text-xs font-bold text-[#4F7867]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#4F7867] animate-pulse" />
-                  Tutor is Ready
-                </span>
-                <h1 className="mt-2 font-[family-name:var(--font-manrope)] text-xl font-extrabold text-[#232520] sm:text-2xl">
-                  Demo Session Waiting Room
-                </h1>
-                <p className="mt-0.5 text-xs text-[#676B64]">
-                  Session with <strong className="text-[#232520]">Ananya Sharma</strong> &bull; Grade 10 Mathematics
+      <main className="flex-1 py-10 md:py-16 flex items-center">
+        <div className="container-shell max-w-4xl mx-auto w-full">
+          <div className="text-center max-w-xl mx-auto mb-8">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E5F0EA] px-3.5 py-1 text-xs font-bold text-[#3D5A4D] mb-3">
+              <IconClock size={13} />
+              <span>Demo Starts in 3 Minutes</span>
+            </span>
+            <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#20221F]">
+              Online Demo Waiting Room
+            </h1>
+            <p className="mt-2 text-xs sm:text-sm text-[#6D706A]">
+              Check your camera and audio before joining the 1-on-1 trial with <strong className="text-[#20221F]">Ananya Sharma</strong>.
+            </p>
+          </div>
+
+          <div className="grid gap-8 lg:grid-cols-12 items-center">
+            {/* Focal Object: Large Camera Preview */}
+            <div className="lg:col-span-8">
+              <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-[rgba(54,48,60,0.12)] bg-[#20221F] shadow-[0_12px_40px_rgba(0,0,0,0.06)] flex flex-col justify-between p-5 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 rounded-full bg-black/40 backdrop-blur-md px-3 py-1 text-xs font-semibold">
+                    <span className="h-2 w-2 rounded-full bg-[#5D806F] animate-pulse" />
+                    <span>Camera Test: {cameraOn ? "Active" : "Disabled"}</span>
+                  </div>
+
+                  <span className="rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-xs font-bold">
+                    30-Min Free Trial
+                  </span>
+                </div>
+
+                {cameraOn ? (
+                  <div className="text-center my-auto">
+                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-2xl font-bold text-white border border-white/20">
+                      AM
+                    </div>
+                    <p className="mt-3 text-sm font-semibold text-white/90">Aarav Mehta (Student View)</p>
+                    <p className="text-xs text-white/60">Simulated camera preview active</p>
+                  </div>
+                ) : (
+                  <div className="text-center my-auto">
+                    <p className="text-sm font-semibold text-white/80">Camera is turned off</p>
+                  </div>
+                )}
+
+                {/* Receding Device Controls */}
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setMicrophoneOn((p) => !p)}
+                    className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold backdrop-blur-md transition-all ${
+                      microphoneOn
+                        ? "bg-white/20 hover:bg-white/30 text-white"
+                        : "bg-[#C84B31] text-white"
+                    }`}
+                  >
+                    {microphoneOn ? <IconMic size={15} /> : <IconMicOff size={15} />}
+                    <span>{microphoneOn ? "Mic On" : "Mic Muted"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCameraOn((p) => !p)}
+                    className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold backdrop-blur-md transition-all ${
+                      cameraOn
+                        ? "bg-white/20 hover:bg-white/30 text-white"
+                        : "bg-[#C84B31] text-white"
+                    }`}
+                  >
+                    {cameraOn ? <IconVideo size={15} /> : <IconVideoOff size={15} />}
+                    <span>{cameraOn ? "Camera On" : "Camera Off"}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Educator Info & Join Action */}
+            <div className="lg:col-span-4 space-y-6">
+              <div className="rounded-3xl border border-[rgba(54,48,60,0.10)] bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EEE7FF] text-sm font-extrabold text-[#594282]">
+                    AS
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#20221F]">
+                        Ananya Sharma
+                      </h3>
+                      <span className="text-[#5D806F]"><IconShieldCheck size={16} /></span>
+                    </div>
+                    <p className="text-xs text-[#6D706A]">Mathematics &amp; Science</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 border-t border-[rgba(54,48,60,0.08)] pt-4 text-xs text-[#6D706A]">
+                  <div className="flex items-center justify-between">
+                    <span>Duration:</span>
+                    <span className="font-bold text-[#20221F]">30 Minutes</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Curriculum:</span>
+                    <span className="font-bold text-[#20221F]">Class 9 &bull; CBSE</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Topic:</span>
+                    <span className="font-bold text-[#20221F]">Quadratic Roots Diagnostic</span>
+                  </div>
+                </div>
+
+                <Link
+                  href="/demo/session"
+                  className="btn btn-primary w-full min-h-[50px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(114,87,165,0.22)] justify-center gap-2 mt-2"
+                >
+                  <span>Join Demo Session</span>
+                  <IconArrowRight size={16} />
+                </Link>
+              </div>
+
+              <div className="rounded-2xl border border-[rgba(54,48,60,0.08)] bg-[#FFFDF9] p-4 text-xs text-[#6D706A]">
+                <div className="flex items-center gap-2 font-bold text-[#20221F] mb-1">
+                  <IconCheck size={14} className="text-[#5D806F]" />
+                  <span>No payment required</span>
+                </div>
+                <p className="text-[11px] leading-relaxed">
+                  Evaluate concept clarity during this free trial. You will have full opportunity to choose a package afterwards.
                 </p>
               </div>
-
-              <div className="inline-flex items-center gap-1.5 self-start sm:self-center rounded-xl border border-[#E4DED4] bg-[#F7F4EE] px-3 py-1.5 text-xs font-bold text-[#66518A]">
-                <IconClock size={14} />
-                <span>Starts in 02:45</span>
-              </div>
-            </div>
-
-            {/* Central Camera Preview Surface */}
-            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-[#E4DED4] bg-[#232520] shadow-inner">
-              {cameraOn ? (
-                <div
-                  role="img"
-                  aria-label="Student video preview"
-                  className="h-full w-full bg-cover bg-center opacity-90"
-                  style={{
-                    backgroundImage:
-                      "url('https://images.unsplash.com/photo-1584697964358-3e14ca57658b?auto=format&fit=crop&w=1200&q=80')",
-                  }}
-                />
-              ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center text-[#676B64]">
-                  <IconVideoOff size={40} className="mb-2 text-[#E4DED4]" />
-                  <span className="text-xs font-bold text-white">Camera is turned off</span>
-                </div>
-              )}
-
-              {/* Status overlay chips inside camera box */}
-              <div className="absolute bottom-3 left-3 flex items-center gap-2">
-                <span className="rounded-lg bg-black/60 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-white">
-                  Aarav Mehta (You)
-                </span>
-                <span className={`rounded-lg px-2 py-1 text-[11px] font-bold ${
-                  microphoneOn ? "bg-[#4F7867] text-white" : "bg-rose-600 text-white"
-                }`}>
-                  {microphoneOn ? "Mic On" : "Muted"}
-                </span>
-              </div>
-
-              {/* Quick toggle controls over camera */}
-              <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setMicrophoneOn(!microphoneOn)}
-                  className={`flex h-9 w-9 items-center justify-center rounded-xl transition ${
-                    microphoneOn
-                      ? "bg-white/90 text-[#232520] hover:bg-white"
-                      : "bg-rose-600 text-white hover:bg-rose-700"
-                  }`}
-                  title={microphoneOn ? "Mute Microphone" : "Unmute Microphone"}
-                >
-                  {microphoneOn ? <IconMic size={16} /> : <IconMicOff size={16} />}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setCameraOn(!cameraOn)}
-                  className={`flex h-9 w-9 items-center justify-center rounded-xl transition ${
-                    cameraOn
-                      ? "bg-white/90 text-[#232520] hover:bg-white"
-                      : "bg-rose-600 text-white hover:bg-rose-700"
-                  }`}
-                  title={cameraOn ? "Turn Off Video" : "Turn On Video"}
-                >
-                  {cameraOn ? <IconVideo size={16} /> : <IconVideoOff size={16} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Device Readiness Badges */}
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-              <div className="flex items-center gap-2 rounded-xl border border-[#E4DED4] bg-[#F7F4EE] p-3 text-xs">
-                <IconCheck size={15} className="text-[#4F7867]" />
-                <div>
-                  <p className="font-bold text-[#232520]">Audio Input</p>
-                  <p className="text-[11px] text-[#676B64]">Default Microphone OK</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 rounded-xl border border-[#E4DED4] bg-[#F7F4EE] p-3 text-xs">
-                <IconCheck size={15} className="text-[#4F7867]" />
-                <div>
-                  <p className="font-bold text-[#232520]">Video Feed</p>
-                  <p className="text-[11px] text-[#676B64]">HD Webcam 720p</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 rounded-xl border border-[#E4DED4] bg-[#F7F4EE] p-3 text-xs">
-                <IconShieldCheck size={15} className="text-[#4F7867]" />
-                <div>
-                  <p className="font-bold text-[#232520]">Connection</p>
-                  <p className="text-[11px] text-[#676B64]">High-speed (Fast)</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Single Prominent Join Action */}
-            <div className="pt-2">
-              <Link
-                href="/demo/session"
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#66518A] px-6 py-4 text-sm font-bold text-white shadow-xs hover:bg-[#4E3C70] transition-colors"
-              >
-                <span>Join Demo Session Now</span>
-                <IconArrowRight size={16} />
-              </Link>
-              <p className="mt-2 text-center text-xs text-[#676B64]">
-                Need a moment? The session will remain open for 15 minutes.
-              </p>
             </div>
           </div>
         </div>
