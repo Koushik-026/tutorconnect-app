@@ -41,9 +41,9 @@ const packages: LearningPackage[] = [
     features: [
       "8 1-on-1 personalized sessions (60 min each)",
       "45-day validity from first session",
-      "Digital concept notes after every class",
-      "Choice of Online or verified Home tuition",
-      "Schedule adjustments with 12h notice directly with tutor",
+      "Digital lesson notes when shared by the tutor",
+      "Online or eligible Home tuition",
+      "Flexible weekly learning rhythm",
     ],
   },
   {
@@ -59,8 +59,8 @@ const packages: LearningPackage[] = [
     features: [
       "12 1-on-1 personalized sessions (60 min each)",
       "45-day validity from first session",
-      "Digital concept notes after every class",
-      "Choice of Online or verified Home tuition",
+      "Digital lesson notes when shared by the tutor",
+      "Online or eligible Home tuition",
       "Consistent 3-class weekly learning rhythm",
     ],
   },
@@ -78,8 +78,8 @@ const packages: LearningPackage[] = [
     features: [
       "15 1-on-1 personalized sessions (60 min each)",
       "45-day validity from first session",
-      "Digital concept notes after every class",
-      "Choice of Online or verified Home tuition",
+      "Digital lesson notes when shared by the tutor",
+      "Online or eligible Home tuition",
       "Highest per-class value (₹360/class)",
     ],
   },
@@ -247,7 +247,7 @@ function PackageSelectionContent() {
               <div className="text-xs">
                 <p className="font-bold text-[#232520]">Class Package Support &bull; Package Details</p>
                 <p className="text-[#676B64]">
-                  Classes happen at your agreed schedule. All sessions valid for 45 days. One-time payment with no recurring subscription.
+                  Classes happen at your agreed schedule. Class Package valid for 45 days. One-time payment with no recurring subscription.
                 </p>
               </div>
             </div>

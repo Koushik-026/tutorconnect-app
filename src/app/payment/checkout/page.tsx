@@ -295,7 +295,7 @@ function CheckoutContent() {
                     <IconShieldCheck size={14} />
                     <span>No recurring automatic charges</span>
                   </p>
-                  <p>Classes can be rescheduled anytime with 12h notice directly with your educator.</p>
+                  <p>Schedule timings can be adjusted directly with your educator.</p>
                 </div>
               </div>
             </div>

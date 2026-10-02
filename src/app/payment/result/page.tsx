@@ -107,7 +107,7 @@ function PaymentResultContent() {
 
                 <p className="text-center text-[11px] text-[#676B64] flex items-center justify-center gap-1">
                   <IconShieldCheck size={13} className="text-[#4F7867]" />
-                  <span>Payment receipt available in your account &bull; Prototype simulation</span>
+                  <span>Prototype receipt shown for this simulated transaction</span>
                 </p>
               </div>
             </div>
