@@ -145,7 +145,7 @@ function StudentDashboardContent() {
             <span>&bull;</span>
             <button
               type="button"
-              onClick={() => showNotice("Support available via WhatsApp.")}
+              onClick={() => showNotice("TutorConnect support is available.")}
               className="hover:text-[#232520]"
             >
               Help Desk
@@ -421,7 +421,7 @@ function StudentDashboardContent() {
                   </div>
 
                   <p className="mt-4 text-[11px] text-[#676B64]">
-                    45-day package &bull; 38 days remaining &bull; No auto-renewal
+                    45-day package &bull; 38 days remaining &bull; One-time package
                   </p>
                 </div>
 
@@ -458,26 +458,26 @@ function StudentDashboardContent() {
                   </p>
                 </div>
 
-                {/* Surface 3: Recent Assessments */}
+                {/* Surface 3: Recent Topic Review */}
                 <div className="rounded-3xl border border-[#E4DED4] bg-[#FFFEFB] p-6 shadow-xs flex flex-col justify-between">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#676B64]">
-                      Recent Mastery Quiz
+                      Recent Topic Review
                     </span>
                     <h3 className="mt-2 text-sm font-bold text-[#232520]">
                       Algebra Fundamentals
                     </h3>
                     <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#4F7867] bg-[#E6F0EA] px-2.5 py-1 rounded-lg">
-                      <span>Score: 18 / 20 (90%)</span>
+                      <span>Status: Completed with tutor</span>
                     </div>
                   </div>
 
                   <button
                     type="button"
-                    onClick={() => showNotice("Quiz review notes downloaded.")}
+                    onClick={() => showNotice("Review notes downloaded.")}
                     className="mt-4 text-xs font-bold text-[#66518A] hover:text-[#4E3C70] text-left"
                   >
-                    View Tutor Feedback &rarr;
+                    View Concept Notes &rarr;
                   </button>
                 </div>
               </div>

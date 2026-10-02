@@ -107,7 +107,7 @@ export function SiteFooter() {
                 <span className="text-[#989C94] cursor-default">Identity Verification</span>
               </li>
               <li>
-                <span className="text-[#989C94] cursor-default">Qualification Audits</span>
+                <span className="text-[#989C94] cursor-default">Qualification Review</span>
               </li>
               <li>
                 <span className="text-[#989C94] cursor-default">Tuition Support Assistance</span>

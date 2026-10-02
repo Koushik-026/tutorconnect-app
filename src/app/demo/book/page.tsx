@@ -219,7 +219,7 @@ function DemoBookInner() {
 
                 <div>
                   <label htmlFor="parent-phone" className="block text-xs font-bold text-[#676B64] mb-1.5">
-                    Parent / Contact WhatsApp Number
+                    Parent / Contact Phone Number
                   </label>
                   <input
                     id="parent-phone"
@@ -312,7 +312,7 @@ function DemoBookInner() {
                 </div>
               </div>
 
-              {/* Demo Session Guarantee / Checklist */}
+              {/* Demo Session Details / Checklist */}
               <div className="rounded-2xl border border-[#E4DED4] bg-[#E6F0EA]/50 p-5">
                 <h4 className="font-[family-name:var(--font-manrope)] text-xs font-extrabold uppercase tracking-wider text-[#4F7867] mb-3">
                   What happens during the demo:

@@ -43,7 +43,7 @@ const packages: LearningPackage[] = [
       "45-day validity from first session",
       "Digital concept notes after every class",
       "Choice of Online or verified Home tuition",
-      "Flexible schedule adjustments with 12h notice",
+      "Schedule adjustments with 12h notice directly with tutor",
     ],
   },
   {
@@ -55,14 +55,13 @@ const packages: LearningPackage[] = [
     perClassPrice: 375,
     validityDays: 45,
     paceDescription: "3 classes / week",
-    bestFor: "Recommended for continuous syllabus coverage, regular chapter quizzes, and consistent academic habits.",
+    bestFor: "Recommended for continuous syllabus coverage, regular chapter review, and consistent academic rhythm.",
     features: [
       "12 1-on-1 personalized sessions (60 min each)",
       "45-day validity from first session",
-      "Bi-weekly practice quizzes & performance reviews",
-      "Direct parent progress updates via WhatsApp",
+      "Digital concept notes after every class",
       "Choice of Online or verified Home tuition",
-      "Priority rescheduling window",
+      "Consistent 3-class weekly learning rhythm",
     ],
   },
   {
@@ -74,14 +73,13 @@ const packages: LearningPackage[] = [
     perClassPrice: 360,
     validityDays: 45,
     paceDescription: "3 to 4 classes / week",
-    bestFor: "Deep multi-subject mastery, rigorous board exam preparation, and comprehensive mock question practice.",
+    bestFor: "Comprehensive syllabus coverage, thorough chapter review, and intensive learning rhythm.",
     highlight: true,
     features: [
       "15 1-on-1 personalized sessions (60 min each)",
       "45-day validity from first session",
-      "Complete chapter-wise past board paper review",
-      "Dedicated doubt resolution on-demand between sessions",
-      "Comprehensive monthly progress assessment",
+      "Digital concept notes after every class",
+      "Choice of Online or verified Home tuition",
       "Highest per-class value (₹360/class)",
     ],
   },
@@ -240,23 +238,23 @@ function PackageSelectionContent() {
             })}
           </div>
 
-          {/* Guarantee Note */}
+          {/* Class Package Support Note */}
           <div className="mt-8 rounded-2xl border border-[#E4DED4] bg-[#EFEAF8]/40 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#EFEAF8] text-[#66518A]">
                 <IconShieldCheck size={20} />
               </div>
               <div className="text-xs">
-                <p className="font-bold text-[#232520]">Guaranteed Class Delivery &bull; Safe Learning Agreement</p>
+                <p className="font-bold text-[#232520]">Class Package Support &bull; Package Details</p>
                 <p className="text-[#676B64]">
-                  Classes happen at your agreed schedule. Unused classes remain protected within 45 days. No auto-debit subscriptions.
+                  Classes happen at your agreed schedule. All sessions valid for 45 days. One-time payment with no recurring subscription.
                 </p>
               </div>
             </div>
             <div className="text-xs text-[#676B64] sm:text-right shrink-0">
-              <span className="font-bold text-[#232520]">Need help deciding?</span>
+              <span className="font-bold text-[#232520]">Need help with your tuition arrangement?</span>
               <br />
-              Talk to academic counselor
+              TutorConnect support can assist.
             </div>
           </div>
         </div>

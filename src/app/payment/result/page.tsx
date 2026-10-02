@@ -66,7 +66,7 @@ function PaymentResultContent() {
                   Payment Successful
                 </h1>
                 <p className="mt-1 text-xs text-[#676B64]">
-                  Your learning package has been activated instantly.
+                  Your simulated learning package has been activated for this demo.
                 </p>
               </div>
 
@@ -107,7 +107,7 @@ function PaymentResultContent() {
 
                 <p className="text-center text-[11px] text-[#676B64] flex items-center justify-center gap-1">
                   <IconShieldCheck size={13} className="text-[#4F7867]" />
-                  <span>Receipt sent to WhatsApp &bull; Zero subscription lock-in</span>
+                  <span>Payment receipt available in your account &bull; Prototype simulation</span>
                 </p>
               </div>
             </div>
@@ -149,9 +149,9 @@ function PaymentResultContent() {
 
             <div className="p-6 sm:p-8 space-y-4">
               <div className="rounded-2xl border border-[#E4DED4] bg-[#F7F4EE]/60 p-4 text-xs text-[#676B64] space-y-1.5">
-                <p className="font-bold text-[#232520]">Zero charges incurred</p>
+                <p className="font-bold text-[#232520]">This simulated payment was not completed.</p>
                 <p>
-                  No amount was deducted from your account. You can retry with UPI, another card, or choose a different package.
+                  No real payment is processed in prototype mode. You can retry the simulated checkout or explore other options.
                 </p>
               </div>
 

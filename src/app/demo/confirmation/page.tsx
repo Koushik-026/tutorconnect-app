@@ -73,7 +73,7 @@ function DemoConfirmationInner() {
                 You&apos;re All Set for Your Demo
               </h1>
               <p className="mt-1 text-xs text-[#676B64]">
-                A confirmation invite and calendar link have been sent to your WhatsApp.
+                Session details and schedule timing are confirmed in your TutorConnect workspace.
               </p>
             </div>
 

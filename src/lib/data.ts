@@ -286,6 +286,6 @@ export const platformBenefits = [
   {
     title: "Progress in one place",
     description:
-      "Track attendance, homework submissions, tutor feedback, and assessment reports on one clean dashboard.",
+      "Review session schedules, homework tasks, tutor feedback, and lesson notes on one clean dashboard.",
   },
 ];

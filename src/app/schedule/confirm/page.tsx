@@ -133,7 +133,7 @@ function ScheduleContent() {
                   <div>
                     <strong className="block text-xs font-bold text-[#232520]">Online 1-on-1 Interactive</strong>
                     <p className="mt-0.5 text-[11px] text-[#676B64] leading-relaxed">
-                      Live video with interactive whiteboard, notes sharing, and screen recording access.
+                      Live video with interactive whiteboard and digital notes sharing.
                     </p>
                   </div>
                 </button>

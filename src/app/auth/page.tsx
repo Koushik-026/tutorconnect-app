@@ -103,7 +103,7 @@ function AuthPageContent() {
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E9F5EF] text-[#2E7D5B]">
                   <IconCheck size={12} />
                 </span>
-                <span>Verified identity &amp; audited educators</span>
+                <span>Verified tutor profiles and reviewed qualifications</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#EFEAF8] text-[#66518A]">
@@ -120,7 +120,7 @@ function AuthPageContent() {
             </div>
 
             <p className="text-[11px] text-[#989C94]">
-              Protected under TutorConnect student safety standards.
+              Your account and learning activity will be managed through TutorConnect.
             </p>
           </div>
 
@@ -332,7 +332,7 @@ function AuthPageContent() {
 
       {/* Footer */}
       <footer className="border-t border-[#E4DED4] bg-[#FFFEFB] py-4 text-center text-xs text-[#989C94]">
-        <span>&copy; 2026 TutorConnect. Safe learning in Hyderabad.</span>
+        <span>&copy; 2026 TutorConnect. 1-on-1 tutoring in Hyderabad.</span>
       </footer>
     </div>
   );

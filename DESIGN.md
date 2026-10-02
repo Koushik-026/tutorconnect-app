@@ -161,7 +161,15 @@ Each core subject receives a signature visual identity and subtle accent pairing
 
 ---
 
-## 10. Motion & Microinteractions
+## 10. Iconography
+TutorConnect uses a project-specific custom SVG icon system defined in `@/components/ui/icons.tsx`.
+- Clean geometric single-path or double-path line styling.
+- Scalable vector rendering (`currentColor` fills/strokes).
+- Zero third-party icon bundle dependencies (e.g. no Lucide or external icon packages).
+
+---
+
+## 11. Motion & Microinteractions
 
 - Native CSS transitions only (duration: `140ms – 220ms`, easing: `cubic-bezier(0.16, 1, 0.3, 1)`).
 - Full compliance with `prefers-reduced-motion: reduce`.
