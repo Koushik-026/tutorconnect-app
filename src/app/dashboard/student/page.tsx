@@ -137,13 +137,12 @@ function StudentDashboardContent() {
               Settings
             </button>
             <span>&bull;</span>
-            <button
-              type="button"
-              onClick={() => showNotice("TutorConnect tuition support assistance is active.")}
-              className="hover:text-[#25231F]"
+            <Link
+              href="/auth/signout"
+              className="hover:text-[#DE765D] font-bold transition-colors"
             >
-              Support
-            </button>
+              Sign Out
+            </Link>
           </div>
         </div>
       </aside>
@@ -153,10 +152,16 @@ function StudentDashboardContent() {
         {/* Mobile Top Header */}
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-[rgba(55,48,40,0.08)] bg-white/95 px-4 backdrop-blur-md lg:hidden">
           <Logo />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#315F52] text-xs font-extrabold text-white">
               AR
             </span>
+            <Link
+              href="/auth/signout"
+              className="text-xs font-bold text-[#6F6A62] hover:text-[#DE765D] transition"
+            >
+              Sign Out
+            </Link>
           </div>
         </header>
 
