@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { IconArrowRight, IconShieldCheck, IconCheck } from "@/components/ui/icons";
 import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { sanitizeInternalRedirect } from "@/lib/utils/redirect";
 
 type ChosenRole = "parent" | "student" | "tutor";
 
@@ -19,68 +21,38 @@ function OnboardingInner() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const supabase = createClient();
+  // Client created inside action handler
 
   const handleComplete = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMsg("");
 
+    const safeNext = sanitizeInternalRedirect(nextParam, "/dashboard/student");
+
+    if (!isSupabaseConfigured()) {
+      // In preview mode without Supabase connection, route cleanly to destination
+      router.push(safeNext);
+      return;
+    }
+
     try {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError || !userData?.user) {
-        // If unauthenticated or runtime not connected, route safely
-        router.push(nextParam);
-        return;
-      }
-
-      const userId = userData.user.id;
-
-      // Update profile display name if provided
-      if (displayName.trim()) {
-        await supabase
-          .from("profiles")
-          .update({ display_name: displayName.trim() })
-          .eq("id", userId);
-      }
-
-      // Assign initial role (parent, student, or tutor)
-      const { error: roleError } = await supabase.from("account_roles").insert({
-        user_id: userId,
-        role: selectedRole,
+      const supabase = createClient();
+      // Atomic onboarding via secure PostgreSQL RPC
+      const { error: rpcError } = await supabase.rpc("complete_onboarding", {
+        chosen_role: selectedRole,
+        p_display_name: displayName.trim() || null,
       });
 
-      if (roleError && !roleError.message.includes("duplicate")) {
-        setErrorMsg(roleError.message || "Failed to set role.");
+      if (rpcError) {
+        setErrorMsg(rpcError.message || "Failed to complete account setup.");
         setIsSubmitting(false);
         return;
       }
 
-      // If tutor, create initial pending application foundation
-      if (selectedRole === "tutor") {
-        const slug = (displayName || "tutor").toLowerCase().replace(/[^a-z0-9]/g, "-") + "-" + userId.slice(0, 6);
-        const { data: tutorProfile } = await supabase
-          .from("tutor_profiles")
-          .insert({
-            user_id: userId,
-            slug,
-            display_name: displayName.trim() || "Educator",
-            headline: "Tuition Educator",
-          })
-          .select("id")
-          .single();
-
-        if (tutorProfile?.id) {
-          await supabase.from("tutor_application_states").insert({
-            tutor_profile_id: tutorProfile.id,
-            status: "pending",
-          });
-        }
-      }
-
-      router.push(nextParam);
+      router.push(safeNext);
     } catch {
-      setErrorMsg("An error occurred during onboarding.");
+      setErrorMsg("An unexpected error occurred during onboarding.");
       setIsSubmitting(false);
     }
   };

@@ -11,6 +11,8 @@ import {
   IconCheck,
 } from "@/components/ui/icons";
 import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { sanitizeInternalRedirect } from "@/lib/utils/redirect";
 
 type RoleIntent = "student" | "tutor";
 
@@ -50,13 +52,10 @@ function AuthInner() {
     errorParam ? "Authentication attempt could not be completed. Please try again." : ""
   );
 
-  const supabase = createClient();
-  const isSupabaseConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-  );
+  const isConfigured = isSupabaseConfigured();
 
   const handleGoogleSignIn = async () => {
-    if (!isSupabaseConfigured) {
+    if (!isConfigured) {
       setStatus("error");
       setErrorMessage(
         "Supabase credentials are not yet configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in .env.local to activate live Google authentication."
@@ -67,8 +66,10 @@ function AuthInner() {
     try {
       setStatus("loading");
       setErrorMessage("");
+      const supabase = createClient();
+      const safeNext = sanitizeInternalRedirect(nextParam, "/dashboard/student");
       const origin = window.location.origin;
-      const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(nextParam)}&intent=${role}`;
+      const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(safeNext)}&intent=${role}`;
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -90,7 +91,7 @@ function AuthInner() {
   const handleMagicLinkSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!isSupabaseConfigured) {
+    if (!isConfigured) {
       setStatus("error");
       setErrorMessage(
         "Supabase authentication runtime is not yet configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in .env.local to activate live magic link sign-in."
@@ -107,8 +108,10 @@ function AuthInner() {
     try {
       setStatus("loading");
       setErrorMessage("");
+      const supabase = createClient();
+      const safeNext = sanitizeInternalRedirect(nextParam, "/dashboard/student");
       const origin = window.location.origin;
-      const emailRedirectTo = `${origin}/auth/callback?next=${encodeURIComponent(nextParam)}&intent=${role}`;
+      const emailRedirectTo = `${origin}/auth/confirm?next=${encodeURIComponent(safeNext)}&intent=${role}`;
 
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
