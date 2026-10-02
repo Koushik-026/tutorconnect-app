@@ -2,10 +2,16 @@ import type { ReactNode } from "react";
 
 export type BadgeVariant =
   | "primary"
+  | "plum"
+  | "sage"
   | "teal"
-  | "green"
-  | "amber"
+  | "peach"
+  | "lavender"
   | "violet"
+  | "butter"
+  | "amber"
+  | "green"
+  | "danger"
   | "neutral"
   | "outline";
 
@@ -21,30 +27,35 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  primary:
-    "bg-blue-50 text-blue-700 border-blue-200/80 shadow-xs",
-  teal:
-    "bg-teal-50 text-teal-800 border-teal-200/80 shadow-xs",
-  green:
-    "bg-emerald-50 text-emerald-800 border-emerald-200/80 shadow-xs",
-  amber:
-    "bg-amber-50 text-amber-900 border-amber-200/80 shadow-xs",
-  violet:
-    "bg-violet-50 text-violet-800 border-violet-200/80 shadow-xs",
-  neutral:
-    "bg-slate-100 text-slate-700 border-slate-200/80 shadow-xs",
-  outline:
-    "bg-white/80 text-slate-700 border-slate-200 shadow-xs backdrop-blur-xs",
+  primary: "bg-[#EFEAF8] text-[#4E3C70] border-[#66518A]/25 shadow-xs",
+  plum: "bg-[#EFEAF8] text-[#4E3C70] border-[#66518A]/25 shadow-xs",
+  sage: "bg-[#E6F0EA] text-[#3E6153] border-[#4F7867]/25 shadow-xs",
+  teal: "bg-[#E6F0EA] text-[#3E6153] border-[#4F7867]/25 shadow-xs",
+  peach: "bg-[#FBE9DF] text-[#A64E28] border-[#E99873]/30 shadow-xs",
+  lavender: "bg-[#F4F0FB] text-[#554477] border-[#B7A5DE]/35 shadow-xs",
+  violet: "bg-[#F4F0FB] text-[#554477] border-[#B7A5DE]/35 shadow-xs",
+  butter: "bg-[#F8EFCF] text-[#826514] border-[#D9B85F]/35 shadow-xs",
+  amber: "bg-[#FDF4E5] text-[#965C12] border-[#C27A1B]/30 shadow-xs",
+  green: "bg-[#E9F5EF] text-[#205F45] border-[#2E7D5B]/30 shadow-xs",
+  danger: "bg-[#FCEEEA] text-[#A6361E] border-[#C84B31]/30 shadow-xs",
+  neutral: "bg-[#ECE6DC] text-[#4D504A] border-[#E4DED4] shadow-xs",
+  outline: "bg-[#FFFEFB] text-[#232520] border-[#E4DED4] shadow-xs",
 };
 
 const dotColors: Record<BadgeVariant, string> = {
-  primary: "bg-blue-600",
-  teal: "bg-teal-600",
-  green: "bg-emerald-600",
-  amber: "bg-amber-500",
-  violet: "bg-violet-600",
-  neutral: "bg-slate-500",
-  outline: "bg-slate-400",
+  primary: "bg-[#66518A]",
+  plum: "bg-[#66518A]",
+  sage: "bg-[#4F7867]",
+  teal: "bg-[#4F7867]",
+  peach: "bg-[#E99873]",
+  lavender: "bg-[#B7A5DE]",
+  violet: "bg-[#B7A5DE]",
+  butter: "bg-[#D9B85F]",
+  amber: "bg-[#C27A1B]",
+  green: "bg-[#2E7D5B]",
+  danger: "bg-[#C84B31]",
+  neutral: "bg-[#676B64]",
+  outline: "bg-[#989C94]",
 };
 
 const sizeStyles: Record<BadgeSize, string> = {

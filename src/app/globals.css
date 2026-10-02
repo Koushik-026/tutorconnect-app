@@ -1,46 +1,82 @@
 @import "tailwindcss";
 
+@theme {
+  --color-canvas: #F7F4EE;
+  --color-surface: #FFFEFB;
+  --color-surface-elevated: #FFFFFF;
+  --color-plum: #66518A;
+  --color-plum-deep: #4E3C70;
+  --color-plum-soft: #EFEAF8;
+  --color-sage: #4F7867;
+  --color-sage-soft: #E6F0EA;
+  --color-peach: #E99873;
+  --color-peach-soft: #FBE9DF;
+  --color-lavender: #B7A5DE;
+  --color-lavender-soft: #F4F0FB;
+  --color-butter: #D9B85F;
+  --color-butter-soft: #F8EFCF;
+  --color-ink: #232520;
+  --color-ink-muted: #676B64;
+  --color-ink-faint: #989C94;
+  --color-border-warm: #E4DED4;
+  --color-border-soft: #ECE6DC;
+  --color-success-deep: #2E7D5B;
+  --color-success-soft: #E9F5EF;
+  --color-warning-deep: #C27A1B;
+  --color-warning-soft: #FDF4E5;
+  --color-danger-deep: #C84B31;
+  --color-danger-soft: #FCEEEA;
+}
+
 /* =========================================================
-   TutorConnect — Calm Expressive Learning Design Tokens
+   TutorConnect — Paper Bloom Design System Tokens
    ========================================================= */
 
 :root {
-  --tc-primary: #2563eb;
-  --tc-primary-hover: #1d4ed8;
-  --tc-primary-soft: #eff6ff;
+  --tc-canvas: #F7F4EE;
+  --tc-surface: #FFFEFB;
+  --tc-surface-elevated: #FFFFFF;
 
-  --tc-secondary: #0d9488;
-  --tc-secondary-hover: #0f766e;
-  --tc-secondary-soft: #f0fdfa;
+  --tc-primary: #66518A;
+  --tc-primary-hover: #4E3C70;
+  --tc-primary-soft: #EFEAF8;
 
-  --tc-accent: #7c3aed;
-  --tc-accent-hover: #6d28d9;
-  --tc-accent-soft: #f5f3ff;
+  --tc-sage: #4F7867;
+  --tc-sage-hover: #3E6153;
+  --tc-sage-soft: #E6F0EA;
 
-  --tc-background: #fbfbfc;
-  --tc-surface: #ffffff;
-  --tc-surface-muted: #f8fafc;
-  --tc-surface-raised: #ffffff;
+  --tc-peach: #E99873;
+  --tc-peach-hover: #D8835C;
+  --tc-peach-soft: #FBE9DF;
 
-  --tc-text: #0f172a;
-  --tc-text-soft: #334155;
-  --tc-muted: #64748b;
-  --tc-border: #e2e8f0;
-  --tc-border-subtle: #f1f5f9;
-  --tc-border-strong: #cbd5e1;
+  --tc-lavender: #B7A5DE;
+  --tc-lavender-soft: #F4F0FB;
 
-  --tc-success: #16a34a;
-  --tc-warning: #d97706;
-  --tc-error: #dc2626;
+  --tc-butter: #D9B85F;
+  --tc-butter-soft: #F8EFCF;
+
+  --tc-text: #232520;
+  --tc-text-muted: #676B64;
+  --tc-text-faint: #989C94;
+
+  --tc-border: #E4DED4;
+  --tc-border-soft: #ECE6DC;
+
+  --tc-success: #2E7D5B;
+  --tc-success-soft: #E9F5EF;
+  --tc-warning: #C27A1B;
+  --tc-warning-soft: #FDF4E5;
+  --tc-danger: #C84B31;
+  --tc-danger-soft: #FCEEEA;
 
   --tc-radius-sm: 8px;
   --tc-radius-md: 14px;
   --tc-radius-lg: 20px;
   --tc-radius-xl: 28px;
 
-  --tc-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.03);
-  --tc-shadow-md: 0 4px 10px rgba(15, 23, 42, 0.04), 0 14px 32px rgba(37, 99, 235, 0.07);
-  --tc-shadow-lg: 0 10px 24px rgba(15, 23, 42, 0.06), 0 24px 60px rgba(37, 99, 235, 0.1);
+  --tc-shadow-sm: 0 1px 3px rgba(35, 37, 32, 0.04), 0 4px 12px rgba(35, 37, 32, 0.02);
+  --tc-shadow-md: 0 4px 12px rgba(35, 37, 32, 0.05), 0 14px 28px rgba(102, 81, 138, 0.06);
+  --tc-shadow-lg: 0 10px 24px rgba(35, 37, 32, 0.06), 0 24px 50px rgba(102, 81, 138, 0.08);
 }
 
 /* =========================================================
@@ -62,7 +98,7 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background-color: var(--tc-background);
+  background-color: var(--tc-canvas);
   color: var(--tc-text);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   text-rendering: optimizeLegibility;
@@ -112,10 +148,10 @@ a {
   background: var(--tc-primary);
   color: white;
   padding: 10px 18px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-weight: 700;
   font-size: 0.875rem;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 4px 14px rgba(102, 81, 138, 0.35);
   transition: top 180ms ease;
 }
 
@@ -125,30 +161,30 @@ a {
 
 /* Responsive Container Shell */
 .container-shell {
-  width: min(calc(100% - 32px), 1240px);
+  width: min(calc(100% - 32px), 1220px);
   margin-inline: auto;
 }
 
 @media (min-width: 640px) {
   .container-shell {
-    width: min(calc(100% - 48px), 1240px);
+    width: min(calc(100% - 48px), 1220px);
   }
 }
 
 @media (min-width: 1024px) {
   .container-shell {
-    width: min(calc(100% - 64px), 1240px);
+    width: min(calc(100% - 64px), 1220px);
   }
 }
 
 @media (min-width: 1440px) {
   .container-shell {
-    width: min(calc(100% - 96px), 1320px);
+    width: min(calc(100% - 96px), 1280px);
   }
 }
 
 /* =========================================================
-   Buttons
+   Buttons (Paper Bloom Tactile Feel)
    ========================================================= */
 
 .btn {
@@ -166,7 +202,7 @@ a {
   cursor: pointer;
   text-decoration: none;
   transition:
-    transform 160ms ease,
+    transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
     background-color 160ms ease,
     border-color 160ms ease,
     color 160ms ease,
@@ -188,45 +224,45 @@ a {
 
 .btn-primary {
   background: var(--tc-primary);
-  color: white;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.22);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(102, 81, 138, 0.22);
 }
 
 .btn-primary:hover {
   background: var(--tc-primary-hover);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 6px 18px rgba(102, 81, 138, 0.28);
 }
 
 .btn-secondary {
   border-color: var(--tc-border);
-  background: white;
+  background: var(--tc-surface);
   color: var(--tc-text);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 1px 3px rgba(35, 37, 32, 0.04);
 }
 
 .btn-secondary:hover {
-  border-color: rgba(37, 99, 235, 0.35);
+  border-color: var(--tc-primary);
   background: var(--tc-primary-soft);
   color: var(--tc-primary);
 }
 
-.btn-teal {
-  background: var(--tc-secondary);
-  color: white;
-  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.22);
+.btn-sage {
+  background: var(--tc-sage);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(79, 120, 103, 0.22);
 }
 
-.btn-teal:hover {
-  background: var(--tc-secondary-hover);
+.btn-sage:hover {
+  background: var(--tc-sage-hover);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--tc-text-soft);
+  color: var(--tc-text-muted);
 }
 
 .btn-ghost:hover {
-  background: rgba(241, 245, 249, 0.9);
+  background: var(--tc-border-soft);
   color: var(--tc-text);
 }
 
@@ -238,7 +274,7 @@ a {
 }
 
 /* =========================================================
-   Cards and surfaces
+   Paper Bloom Surfaces & Cards
    ========================================================= */
 
 .tc-card {
@@ -250,24 +286,22 @@ a {
 
 .tc-card-hover {
   transition:
-    transform 200ms ease,
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
     border-color 200ms ease,
     box-shadow 200ms ease;
 }
 
 .tc-card-hover:hover {
-  transform: translateY(-3px);
-  border-color: rgba(37, 99, 235, 0.25);
+  transform: translateY(-2.5px);
+  border-color: rgba(102, 81, 138, 0.35);
   box-shadow: var(--tc-shadow-md);
 }
 
-.glass-card {
-  border: 1px solid rgba(255, 255, 255, 0.7);
+.paper-panel {
+  border: 1px solid var(--tc-border);
   border-radius: var(--tc-radius-xl);
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: var(--tc-shadow-md);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--tc-surface);
+  box-shadow: var(--tc-shadow-sm);
 }
 
 /* =========================================================
@@ -277,37 +311,37 @@ a {
 .form-label {
   display: block;
   margin-bottom: 6px;
-  color: var(--tc-text-soft);
+  color: var(--tc-text);
   font-size: 0.85rem;
   font-weight: 700;
 }
 
 .form-input {
   width: 100%;
-  min-height: 48px;
+  min-height: 46px;
   border: 1px solid var(--tc-border);
   border-radius: 12px;
-  background: white;
+  background: var(--tc-surface-elevated);
   padding: 10px 14px;
   color: var(--tc-text);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+  box-shadow: 0 1px 2px rgba(35, 37, 32, 0.02);
   transition:
     border-color 150ms ease,
     box-shadow 150ms ease;
 }
 
 .form-input::placeholder {
-  color: #94a3b8;
+  color: var(--tc-text-faint);
 }
 
 .form-input:hover {
-  border-color: var(--tc-border-strong);
+  border-color: var(--tc-primary);
 }
 
 .form-input:focus {
   border-color: var(--tc-primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(102, 81, 138, 0.15);
 }
 
 textarea.form-input {
@@ -316,7 +350,7 @@ textarea.form-input {
 }
 
 /* =========================================================
-   Badges
+   Badges (Paper Bloom Accents)
    ========================================================= */
 
 .badge {
@@ -325,7 +359,7 @@ textarea.form-input {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  border-radius: 999px;
+  border-radius: 9999px;
   padding: 4px 10px;
   font-size: 0.75rem;
   font-weight: 700;
@@ -333,42 +367,60 @@ textarea.form-input {
   white-space: nowrap;
 }
 
-.badge-blue {
-  border: 1px solid rgba(37, 99, 235, 0.15);
-  background: #eff6ff;
-  color: #1d4ed8;
+.badge-plum {
+  border: 1px solid rgba(102, 81, 138, 0.2);
+  background: var(--tc-primary-soft);
+  color: var(--tc-primary-hover);
 }
 
-.badge-teal {
-  border: 1px solid rgba(13, 148, 136, 0.18);
-  background: #f0fdfa;
-  color: #0f766e;
+.badge-sage {
+  border: 1px solid rgba(79, 120, 103, 0.22);
+  background: var(--tc-sage-soft);
+  color: var(--tc-sage);
+}
+
+.badge-peach {
+  border: 1px solid rgba(233, 152, 115, 0.25);
+  background: var(--tc-peach-soft);
+  color: #B85F38;
+}
+
+.badge-lavender {
+  border: 1px solid rgba(183, 165, 222, 0.3);
+  background: var(--tc-lavender-soft);
+  color: #554477;
+}
+
+.badge-butter {
+  border: 1px solid rgba(217, 184, 95, 0.3);
+  background: var(--tc-butter-soft);
+  color: #8C6F1E;
 }
 
 .badge-green {
-  border: 1px solid rgba(22, 163, 74, 0.18);
-  background: #f0fdf4;
-  color: #15803d;
-}
-
-.badge-violet {
-  border: 1px solid rgba(124, 58, 237, 0.18);
-  background: #f5f3ff;
-  color: #6d28d9;
+  border: 1px solid rgba(46, 125, 91, 0.25);
+  background: var(--tc-success-soft);
+  color: var(--tc-success);
 }
 
 .badge-amber {
-  border: 1px solid rgba(217, 119, 6, 0.18);
-  background: #fffbeb;
-  color: #b45309;
+  border: 1px solid rgba(194, 122, 27, 0.25);
+  background: var(--tc-warning-soft);
+  color: var(--tc-warning);
+}
+
+.badge-red {
+  border: 1px solid rgba(200, 75, 49, 0.25);
+  background: var(--tc-danger-soft);
+  color: var(--tc-danger);
 }
 
 /* =========================================================
-   Subtle ambient pattern
+   Warm Stationery Texture / Dot Grid
    ========================================================= */
 
-.dot-grid {
-  background-image: radial-gradient(rgba(37, 99, 235, 0.12) 1px, transparent 1px);
+.paper-grid {
+  background-image: radial-gradient(rgba(102, 81, 138, 0.08) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 

@@ -7,7 +7,7 @@ export function Card({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`rounded-2xl border border-slate-200/85 bg-white text-slate-900 shadow-xs transition-shadow duration-200 ${className}`}
+      className={`rounded-2xl border border-[#E4DED4] bg-[#FFFEFB] text-[#232520] shadow-xs transition-shadow duration-200 ${className}`}
       {...props}
     >
       {children}
@@ -22,7 +22,7 @@ export function GlassCard({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`rounded-2xl border border-white/70 bg-white/80 shadow-md backdrop-blur-md ${className}`}
+      className={`rounded-2xl border border-[#E4DED4]/80 bg-[#FFFEFB]/90 shadow-sm backdrop-blur-md ${className}`}
       {...props}
     >
       {children}
@@ -33,22 +33,23 @@ export function GlassCard({
 export function BentoCard({
   className = "",
   children,
-  accentColor = "blue",
+  accentColor = "plum",
   ...props
 }: HTMLAttributes<HTMLDivElement> & {
-  accentColor?: "blue" | "teal" | "violet" | "amber" | "slate";
+  accentColor?: "plum" | "sage" | "peach" | "lavender" | "butter" | "neutral";
 }) {
   const accentGradients = {
-    blue: "from-blue-500/10 via-blue-500/5 to-transparent",
-    teal: "from-teal-500/10 via-teal-500/5 to-transparent",
-    violet: "from-violet-500/10 via-violet-500/5 to-transparent",
-    amber: "from-amber-500/10 via-amber-500/5 to-transparent",
-    slate: "from-slate-500/10 via-slate-500/5 to-transparent",
+    plum: "from-[#66518A]/12 via-[#66518A]/5 to-transparent",
+    sage: "from-[#4F7867]/12 via-[#4F7867]/5 to-transparent",
+    peach: "from-[#E99873]/12 via-[#E99873]/5 to-transparent",
+    lavender: "from-[#B7A5DE]/15 via-[#B7A5DE]/5 to-transparent",
+    butter: "from-[#D9B85F]/15 via-[#D9B85F]/5 to-transparent",
+    neutral: "from-[#E4DED4]/25 via-[#E4DED4]/10 to-transparent",
   };
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-[#E4DED4] bg-[#FFFEFB] p-6 shadow-xs ${className}`}
       {...props}
     >
       <div
@@ -79,7 +80,7 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={`font-[family-name:var(--font-manrope)] text-lg font-bold tracking-tight text-slate-900 ${className}`}
+      className={`font-[family-name:var(--font-manrope)] text-lg font-bold tracking-tight text-[#232520] ${className}`}
       {...props}
     >
       {children}
@@ -93,7 +94,7 @@ export function CardDescription({
   ...props
 }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={`mt-1 text-sm text-slate-500 leading-relaxed ${className}`} {...props}>
+    <p className={`mt-1 text-sm text-[#676B64] leading-relaxed ${className}`} {...props}>
       {children}
     </p>
   );

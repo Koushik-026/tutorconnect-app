@@ -4,7 +4,9 @@ import { forwardRef } from "react";
 export type ButtonVariant =
   | "primary"
   | "secondary"
+  | "sage"
   | "teal"
+  | "peach"
   | "outline"
   | "ghost"
   | "danger";
@@ -21,17 +23,21 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm hover:shadow-md hover:shadow-blue-600/20 active:translate-y-0 hover:-translate-y-0.5 border border-transparent",
+    "bg-[#66518A] hover:bg-[#4E3C70] active:bg-[#3F305B] text-white shadow-sm hover:shadow-md hover:shadow-[#66518A]/25 active:translate-y-0 hover:-translate-y-0.5 border border-transparent",
   secondary:
-    "bg-white hover:bg-blue-50/60 active:bg-blue-100/60 text-slate-800 hover:text-blue-700 border border-slate-200 hover:border-blue-300 shadow-xs active:translate-y-0 hover:-translate-y-0.5",
+    "bg-[#FFFEFB] hover:bg-[#EFEAF8] active:bg-[#E3D8F2] text-[#232520] hover:text-[#66518A] border border-[#E4DED4] hover:border-[#66518A]/40 shadow-xs active:translate-y-0 hover:-translate-y-0.5",
+  sage:
+    "bg-[#4F7867] hover:bg-[#3E6153] active:bg-[#2F4B40] text-white shadow-sm hover:shadow-md hover:shadow-[#4F7867]/25 active:translate-y-0 hover:-translate-y-0.5 border border-transparent",
   teal:
-    "bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white shadow-sm hover:shadow-md hover:shadow-teal-600/20 active:translate-y-0 hover:-translate-y-0.5 border border-transparent",
+    "bg-[#4F7867] hover:bg-[#3E6153] active:bg-[#2F4B40] text-white shadow-sm hover:shadow-md hover:shadow-[#4F7867]/25 active:translate-y-0 hover:-translate-y-0.5 border border-transparent",
+  peach:
+    "bg-[#E99873] hover:bg-[#D8835C] active:bg-[#C2734D] text-white shadow-sm hover:shadow-md hover:shadow-[#E99873]/25 active:translate-y-0 hover:-translate-y-0.5 border border-transparent",
   outline:
-    "bg-transparent hover:bg-slate-100/80 active:bg-slate-200/80 text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300",
+    "bg-transparent hover:bg-[#ECE6DC] active:bg-[#E4DED4] text-[#232520] hover:text-[#232520] border border-[#E4DED4] hover:border-[#66518A]/40",
   ghost:
-    "bg-transparent hover:bg-slate-100 active:bg-slate-200 text-slate-600 hover:text-slate-900 border border-transparent",
+    "bg-transparent hover:bg-[#ECE6DC] active:bg-[#E4DED4] text-[#676B64] hover:text-[#232520] border border-transparent",
   danger:
-    "bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-sm hover:shadow-rose-600/20 active:translate-y-0 hover:-translate-y-0.5 border border-transparent",
+    "bg-[#C84B31] hover:bg-[#AC3E27] active:bg-[#92331F] text-white shadow-sm hover:shadow-md hover:shadow-[#C84B31]/25 active:translate-y-0 hover:-translate-y-0.5 border border-transparent",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -61,7 +67,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         type={type}
         disabled={disabled}
-        className={`inline-flex items-center justify-center transition-all duration-150 cursor-pointer select-none font-[inherit] leading-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none ${
+        className={`inline-flex items-center justify-center transition-all duration-150 cursor-pointer select-none font-[inherit] leading-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#66518A] focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none ${
           variantClasses[variant]
         } ${sizeClasses[size]} ${fullWidth ? "w-full" : ""} ${className}`}
         {...props}
