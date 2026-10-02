@@ -92,91 +92,90 @@ export default async function TutorDiscoveryPage({
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#fbfbfc]">
+    <div className="flex min-h-screen flex-col bg-[#F7F4EE]">
       <SiteHeader />
 
-      <main id="main-content" className="flex-1">
-        {/* Page Hero Header */}
-        <section className="border-b border-slate-200/80 bg-white py-8 sm:py-12">
+      <main id="main-content" className="flex-1 pb-16">
+        {/* Header / Intro Strip */}
+        <section className="border-b border-[#E4DED4] bg-[#FFFEFB] py-10 lg:py-14">
           <div className="container-shell">
-            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-              <div>
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-                  <IconShieldCheck size={14} />
-                  <span>Verified Tutors &bull; Free 30-min Demo</span>
-                </div>
-                <h1 className="mt-3 font-[family-name:var(--font-manrope)] text-2xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
-                  Find the right tutor for your child
-                </h1>
-                <p className="mt-2 text-sm text-slate-500 sm:text-base">
-                  Compare educator credentials, teaching modes, subjects, and experience across Hyderabad and online.
-                </p>
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-[#4F7867]/20 bg-[#E6F0EA] px-3 py-1 text-xs font-bold text-[#3E6153] mb-3">
+                <IconShieldCheck size={13} />
+                <span>Verified Tutors &bull; Free 30-min Demo</span>
               </div>
-
-              <div className="text-xs font-semibold text-slate-500">
-                Showing <strong className="text-slate-900">{filteredTutors.length}</strong> available educators
-              </div>
+              <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold tracking-tight text-[#232520] sm:text-4xl">
+                Find Your Ideal Educator
+              </h1>
+              <p className="mt-2 text-sm text-[#676B64] leading-relaxed">
+                Compare verified educator credentials, teaching modes, subjects, and experience across Hyderabad and online.
+              </p>
             </div>
+          </div>
+        </section>
 
-            {/* Filter Bar */}
+        {/* Filter Toolbar & Results */}
+        <section className="py-8">
+          <div className="container-shell">
+            {/* Filter Form Card */}
             <form
               method="GET"
               action="/tutors"
-              className="mt-6 rounded-2xl border border-slate-200 bg-[#f8fafc] p-3 shadow-xs"
+              className="rounded-2xl border border-[#E4DED4] bg-[#FFFEFB] p-5 shadow-xs mb-8"
             >
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 {/* Subject */}
                 <div>
-                  <label htmlFor="filter-subject" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                  <label htmlFor="filter-subject" className="block text-[11px] font-bold uppercase tracking-wider text-[#989C94] mb-1">
                     Subject
                   </label>
                   <select
                     id="filter-subject"
                     name="subject"
                     defaultValue={selectedSubject}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-blue-500"
+                    className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 py-2 text-xs font-semibold text-[#232520] focus:outline-hidden focus:border-[#66518A]"
                   >
                     <option value="">All Subjects</option>
-                    {subjects.map((sub) => (
-                      <option key={sub.id} value={sub.name}>
-                        {sub.name}
+                    {subjects.map((s) => (
+                      <option key={s.id} value={s.name}>
+                        {s.name}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                {/* Grade / Class */}
+                {/* Class */}
                 <div>
-                  <label htmlFor="filter-class" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
-                    Class
+                  <label htmlFor="filter-class" className="block text-[11px] font-bold uppercase tracking-wider text-[#989C94] mb-1">
+                    Class Level
                   </label>
                   <select
                     id="filter-class"
                     name="class"
                     defaultValue={selectedClass}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-blue-500"
+                    className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 py-2 text-xs font-semibold text-[#232520] focus:outline-hidden focus:border-[#66518A]"
                   >
                     <option value="">All Classes</option>
-                    {availableClasses.map((cls) => (
-                      <option key={cls} value={cls}>
-                        {cls}
+                    {availableClasses.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                {/* Teaching Mode */}
+                {/* Mode */}
                 <div>
-                  <label htmlFor="filter-mode" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
-                    Mode
+                  <label htmlFor="filter-mode" className="block text-[11px] font-bold uppercase tracking-wider text-[#989C94] mb-1">
+                    Teaching Mode
                   </label>
                   <select
                     id="filter-mode"
                     name="mode"
                     defaultValue={selectedMode}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-blue-500"
+                    className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 py-2 text-xs font-semibold text-[#232520] focus:outline-hidden focus:border-[#66518A]"
                   >
-                    <option value="">Any Mode</option>
+                    <option value="">Online &amp; Home</option>
                     <option value="online">Online Tuition</option>
                     <option value="home">Home Tuition</option>
                   </select>
@@ -184,19 +183,19 @@ export default async function TutorDiscoveryPage({
 
                 {/* Language */}
                 <div>
-                  <label htmlFor="filter-language" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                  <label htmlFor="filter-language" className="block text-[11px] font-bold uppercase tracking-wider text-[#989C94] mb-1">
                     Language
                   </label>
                   <select
                     id="filter-language"
                     name="language"
                     defaultValue={selectedLanguage}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-blue-500"
+                    className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 py-2 text-xs font-semibold text-[#232520] focus:outline-hidden focus:border-[#66518A]"
                   >
-                    <option value="">Any Language</option>
-                    {availableLanguages.map((lang) => (
-                      <option key={lang} value={lang}>
-                        {lang}
+                    <option value="">All Languages</option>
+                    {availableLanguages.map((l) => (
+                      <option key={l} value={l}>
+                        {l}
                       </option>
                     ))}
                   </select>
@@ -204,7 +203,7 @@ export default async function TutorDiscoveryPage({
 
                 {/* Location / Locality */}
                 <div>
-                  <label htmlFor="filter-location" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                  <label htmlFor="filter-location" className="block text-[11px] font-bold uppercase tracking-wider text-[#989C94] mb-1">
                     Locality
                   </label>
                   <input
@@ -213,47 +212,43 @@ export default async function TutorDiscoveryPage({
                     name="location"
                     defaultValue={selectedLocation}
                     placeholder="e.g. B.N. Reddy, Madhapur"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:border-blue-500"
-                  />
+                    className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 py-2 text-xs font-semibold text-[#232520] placeholder:text-[#989C94] focus:outline-hidden focus:border-[#66518A]"
+                  >
+                  </input>
                 </div>
               </div>
 
-              <div className="mt-3 flex items-center justify-between border-t border-slate-200/70 pt-3">
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#ECE6DC] pt-3">
                 <div className="flex flex-wrap items-center gap-1.5">
                   {filtersAreActive && (
                     <>
-                      <span className="text-[11px] font-bold text-slate-400">Filters:</span>
+                      <span className="text-[11px] font-bold text-[#989C94]">Active:</span>
                       {selectedSubject && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#EFEAF8] px-2 py-0.5 text-[11px] font-bold text-[#4E3C70]">
                           {selectedSubject}
                         </span>
                       )}
                       {selectedClass && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#ECE6DC] px-2 py-0.5 text-[11px] font-bold text-[#4D504A]">
                           {selectedClass}
                         </span>
                       )}
                       {selectedMode && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#E6F0EA] px-2 py-0.5 text-[11px] font-bold text-[#3E6153]">
                           {selectedMode === "online" ? "Online" : "Home"}
                         </span>
                       )}
                       {selectedLocation && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#FDF4E5] px-2 py-0.5 text-[11px] font-bold text-[#965C12]">
                           {selectedLocation}
-                        </span>
-                      )}
-                      {selectedLanguage && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
-                          {selectedLanguage}
                         </span>
                       )}
                       <Link
                         href="/tutors"
-                        className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 ml-1"
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#C84B31] hover:underline ml-1"
                       >
                         <IconX size={12} />
-                        Clear All
+                        <span>Clear All</span>
                       </Link>
                     </>
                   )}
@@ -261,22 +256,25 @@ export default async function TutorDiscoveryPage({
 
                 <button
                   type="submit"
-                  className="btn btn-primary min-h-[38px] px-4 text-xs font-bold shrink-0 ml-auto"
+                  className="btn btn-primary min-h-[38px] px-4 text-xs font-bold shadow-xs ml-auto"
                 >
                   <IconFilter size={13} />
                   <span>Apply Filters</span>
                 </button>
               </div>
-              <p className="mt-2.5 text-[11px] text-slate-400">
+
+              <p className="mt-2.5 text-[11px] text-[#989C94]">
                 Note: Locality and distance matching represent prototype estimations. Exact home tuition travel coverage is confirmed directly with educators.
               </p>
             </form>
-          </div>
-        </section>
 
-        {/* Tutor Results Grid */}
-        <section className="py-10 sm:py-14">
-          <div className="container-shell">
+            {/* Results Grid */}
+            <div className="mb-4 flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#676B64]">
+                Showing {filteredTutors.length} {filteredTutors.length === 1 ? "educator" : "educators"}
+              </span>
+            </div>
+
             {filteredTutors.length > 0 ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredTutors.map((tutor) => (
@@ -284,14 +282,14 @@ export default async function TutorDiscoveryPage({
                 ))}
               </div>
             ) : (
-              <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xs">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+              <div className="mx-auto max-w-md rounded-2xl border border-[#E4DED4] bg-[#FFFEFB] p-8 text-center shadow-xs">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EFEAF8] text-[#66518A]">
                   <IconSearch size={22} />
                 </div>
-                <h3 className="mt-4 font-[family-name:var(--font-manrope)] text-lg font-bold text-slate-900">
+                <h3 className="mt-4 font-[family-name:var(--font-manrope)] text-lg font-bold text-[#232520]">
                   No tutors matched your filter
                 </h3>
-                <p className="mt-2 text-sm text-slate-500 leading-relaxed">
+                <p className="mt-2 text-sm text-[#676B64] leading-relaxed">
                   Try adjusting your subject, location, or class criteria to see more available educators.
                 </p>
                 <div className="mt-6">

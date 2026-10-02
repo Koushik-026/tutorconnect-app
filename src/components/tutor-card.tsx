@@ -8,7 +8,6 @@ import {
   IconHomeTuition,
   IconArrowRight,
 } from "./ui/icons";
-import { Badge } from "./ui/badge";
 
 interface TutorCardProps {
   tutor: Tutor;
@@ -36,7 +35,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
   const offersHome = tutor.modes.includes("home");
 
   return (
-    <article className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/85 bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-md hover:shadow-blue-500/5 sm:p-6">
+    <article className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-[#E4DED4] bg-[#FFFEFB] p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-[#66518A]/40 hover:shadow-md hover:shadow-[#66518A]/5 sm:p-6">
       <div>
         {/* Top Header: Identity + Rating */}
         <div className="flex items-start justify-between gap-3">
@@ -45,13 +44,13 @@ export function TutorCard({ tutor }: TutorCardProps) {
               <div
                 role="img"
                 aria-label={`${tutor.name} photo`}
-                className="h-14 w-14 shrink-0 rounded-2xl border border-slate-100 bg-cover bg-center shadow-xs"
+                className="h-14 w-14 shrink-0 rounded-2xl border border-[#E4DED4] bg-cover bg-center shadow-xs"
                 style={{ backgroundImage: `url('${tutor.profileImage}')` }}
               />
             ) : (
               <div
                 aria-hidden="true"
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-blue-600 to-teal-500 text-base font-extrabold text-white shadow-xs"
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#66518A] via-[#554173] to-[#4F7867] text-base font-extrabold text-white shadow-xs"
               >
                 {getInitials(tutor.name)}
               </div>
@@ -59,83 +58,90 @@ export function TutorCard({ tutor }: TutorCardProps) {
 
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <h3 className="truncate font-[family-name:var(--font-manrope)] text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                <h3 className="truncate font-[family-name:var(--font-manrope)] text-lg font-bold text-[#232520] group-hover:text-[#66518A] transition-colors">
                   {tutor.name}
                 </h3>
                 {tutor.verification.length > 0 && (
-                  <span title="Verified Tutor" className="text-emerald-600 shrink-0">
+                  <span title="Verified Tutor Profile" className="text-[#2E7D5B] shrink-0">
                     <IconShieldCheck size={16} />
                   </span>
                 )}
               </div>
-              <p className="truncate text-xs font-semibold text-slate-500">
+              <p className="truncate text-xs font-semibold text-[#676B64]">
                 {tutor.headline}
               </p>
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 text-xs font-bold text-amber-800 border border-amber-200/60">
-            <IconStar size={13} className="text-amber-500" />
+          <div className="flex shrink-0 items-center gap-1 rounded-lg bg-[#FDF4E5] px-2 py-1 text-xs font-extrabold text-[#965C12] border border-[#C27A1B]/30">
+            <IconStar size={13} className="text-[#C27A1B]" />
             <span>{tutor.rating.toFixed(1)}</span>
-            <span className="text-amber-600/70 text-[10px]">({tutor.reviewCount})</span>
+            <span className="text-[#965C12]/70 text-[10px]">({tutor.reviewCount})</span>
           </div>
         </div>
 
-        {/* Subjects & Curriculum */}
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {tutor.subjects.map((subject) => (
-            <Badge key={subject} variant="primary" size="sm">
-              {subject}
-            </Badge>
-          ))}
-          <Badge variant="neutral" size="sm">
-            {tutor.experienceYears}y exp
-          </Badge>
-        </div>
-
-        {/* Target Classes & Boards */}
-        <p className="mt-3 text-xs font-medium text-slate-500">
-          {tutor.classes.slice(0, 3).join(", ")}
-          {tutor.classes.length > 3 ? ` + ${tutor.classes.length - 3} more` : ""} &bull;{" "}
-          {tutor.boards.join(", ")}
+        {/* Bio Excerpt */}
+        <p className="mt-3.5 line-clamp-2 text-xs leading-relaxed text-[#676B64]">
+          {tutor.bio}
         </p>
 
+        {/* Subjects & Board Badges */}
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {tutor.subjects.slice(0, 3).map((subject) => (
+            <span
+              key={subject}
+              className="rounded-md bg-[#F4F0FB] px-2 py-0.5 text-[11px] font-bold text-[#554477] border border-[#B7A5DE]/25"
+            >
+              {subject}
+            </span>
+          ))}
+
+          {tutor.boards.slice(0, 2).map((board) => (
+            <span
+              key={board}
+              className="rounded-md bg-[#ECE6DC] px-2 py-0.5 text-[11px] font-bold text-[#4D504A]"
+            >
+              {board}
+            </span>
+          ))}
+        </div>
+
         {/* Modes & Location */}
-        <div className="mt-4 space-y-1.5 border-t border-slate-100 pt-3 text-xs text-slate-600">
-          <div className="flex flex-wrap items-center gap-2">
-            {offersOnline && (
-              <span className="inline-flex items-center gap-1 font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
-                <IconVideo size={13} />
-                Online
-              </span>
-            )}
-            {offersHome && (
-              <span className="inline-flex items-center gap-1 font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md">
-                <IconHomeTuition size={13} />
-                Home ({tutor.travelRadiusKm} km)
-              </span>
-            )}
-          </div>
-          <p className="flex items-center gap-1 text-slate-400 text-[11px] truncate">
-            <IconMapPin size={12} className="shrink-0" />
-            {tutor.locality}, {tutor.city}
-          </p>
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+          {offersOnline && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#EFEAF8] px-2.5 py-0.5 font-bold text-[#4E3C70] border border-[#66518A]/20">
+              <IconVideo size={13} />
+              <span>Online</span>
+            </span>
+          )}
+
+          {offersHome && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#E6F0EA] px-2.5 py-0.5 font-bold text-[#3E6153] border border-[#4F7867]/20">
+              <IconHomeTuition size={13} />
+              <span>Home ({tutor.travelRadiusKm} km)</span>
+            </span>
+          )}
+
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#989C94]">
+            <IconMapPin size={12} />
+            <span className="truncate">{tutor.locality}</span>
+          </span>
         </div>
       </div>
 
       {/* Footer: Price + CTAs */}
-      <div className="mt-5 border-t border-slate-100 pt-4">
+      <div className="mt-5 border-t border-[#ECE6DC] pt-4">
         <div className="flex items-baseline justify-between mb-3">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#989C94]">
               Class Packages from
             </span>
-            <div className="font-[family-name:var(--font-manrope)] text-lg font-extrabold text-slate-900">
+            <div className="font-[family-name:var(--font-manrope)] text-lg font-extrabold text-[#232520]">
               {formatCurrency(tutor.startingMonthlyFee)}
-              <span className="text-xs font-normal text-slate-500"> (8 classes)</span>
+              <span className="text-xs font-normal text-[#676B64]"> (8 classes)</span>
             </div>
           </div>
-          <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+          <span className="text-[11px] font-bold text-[#2E7D5B] bg-[#E9F5EF] px-2 py-0.5 rounded-full border border-[#2E7D5B]/20">
             Free Demo Included
           </span>
         </div>
@@ -143,15 +149,16 @@ export function TutorCard({ tutor }: TutorCardProps) {
         <div className="grid grid-cols-2 gap-2">
           <Link
             href={`/tutors/${tutor.id}`}
-            className="inline-flex min-h-[42px] items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+            className="inline-flex min-h-[42px] items-center justify-center rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3 text-xs font-bold text-[#232520] hover:bg-[#EFEAF8] hover:text-[#66518A] hover:border-[#66518A]/40 transition-colors"
           >
             View Profile
           </Link>
+
           <Link
             href={`/demo/book?tutor=${tutor.id}`}
-            className="inline-flex min-h-[42px] items-center justify-center rounded-xl bg-blue-600 px-3 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors gap-1"
+            className="btn btn-primary min-h-[42px] px-3 text-xs font-bold shadow-xs gap-1"
           >
-            Book Demo
+            <span>Book Demo</span>
             <IconArrowRight size={13} />
           </Link>
         </div>
