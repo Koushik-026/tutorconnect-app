@@ -11,6 +11,7 @@ import {
   IconCreditCard,
   IconArrowRight,
   IconArrowLeft,
+  IconCheck,
 } from "@/components/ui/icons";
 
 type PaymentMethod = "upi" | "card" | "netbanking";
@@ -30,272 +31,193 @@ function CheckoutContent() {
   const tutorId = searchParams.get("tutor") ?? "ananya-sharma";
   const tutor = tutors.find((t) => t.id === tutorId) ?? tutors[0];
 
-  const classes = Number(searchParams.get("classes")) || 15;
-  const price = Number(searchParams.get("price")) || 5400;
+  const classes = Number(searchParams.get("classes")) || 12;
+  const price = Number(searchParams.get("price")) || 4500;
   const mode = searchParams.get("mode") ?? "online";
-  const days = searchParams.get("days") ?? "Mon, Wed, Fri";
-  const time = searchParams.get("time") ?? "4:00 PM";
+  const days = searchParams.get("days") ?? "Monday, Wednesday, Friday";
+  const time = searchParams.get("time") ?? "5:00 PM";
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi");
   const [upiId, setUpiId] = useState("student@oksbi");
+  const [simulateOutcome, setSimulateOutcome] = useState<"success" | "failed">("success");
 
-  function handleSuccessPayment() {
+  function handleProcessPayment() {
     const query = new URLSearchParams({
-      status: "success",
+      status: simulateOutcome,
       tutor: tutor.id,
       classes: String(classes),
       amount: String(price),
       method: paymentMethod.toUpperCase(),
-      transaction: `TC-${Date.now().toString().slice(-8)}`,
-    });
-    router.push(`/payment/result?${query.toString()}`);
-  }
-
-  function handleFailedPayment() {
-    const query = new URLSearchParams({
-      status: "failed",
-      tutor: tutor.id,
-      classes: String(classes),
-      amount: String(price),
+      transaction: `TC-${Date.now().toString().slice(-6)}`,
+      mode,
     });
     router.push(`/payment/result?${query.toString()}`);
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F7F4EE] text-[#232520]">
-      {/* Header */}
-      <header className="border-b border-[#E4DED4] bg-[#FFFEFB]/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
-          <Logo />
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#4F7867] bg-[#E6F0EA] px-3 py-1 rounded-full border border-[#4F7867]/30">
-            <IconLock size={12} />
-            <span>256-bit Encrypted Checkout</span>
+    <div className="flex min-h-screen flex-col bg-[#FCFBF8] text-[#20221F]">
+      {/* Quiet Header */}
+      <header className="border-b border-[rgba(54,48,60,0.08)] bg-white/80 py-4 backdrop-blur-md">
+        <div className="container-shell flex items-center justify-between">
+          <Link href="/">
+            <Logo />
+          </Link>
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[#5D806F]">
+            <IconLock size={13} />
+            <span>Simulated Prototype Checkout</span>
           </div>
         </div>
       </header>
 
-      {/* Main Checkout View: Calm, High Contrast, Warm White */}
-      <main id="main-content" className="flex-1 py-8 sm:py-12">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          {/* Progress Indicator */}
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#66518A]">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#66518A] text-white text-[10px]">
-                3
-              </span>
-              <span>Final Step &bull; Review &amp; Payment Confirmation</span>
-            </div>
+      <main className="flex-1 py-10 md:py-16">
+        <div className="container-shell max-w-4xl mx-auto">
+          <div className="mb-8">
             <Link
-              href={`/schedule/confirm?tutor=${tutor.id}&classes=${classes}&price=${price}`}
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#676B64] hover:text-[#232520] transition-colors"
+              href={`/schedule/confirm?tutor=${tutor.id}`}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6D706A] hover:text-[#20221F] transition mb-3"
             >
               <IconArrowLeft size={13} />
-              <span>Back to Schedule</span>
+              <span>Back to Schedule Selection</span>
             </Link>
+            <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#20221F]">
+              Checkout &amp; Tuition Confirmation
+            </h1>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-12">
-            {/* Left 7 cols: Payment Method Form */}
+          <div className="grid gap-8 lg:grid-cols-12 items-start">
+            {/* Left: Quiet Payment Method & Simulation Controls */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="rounded-3xl border border-[#E4DED4] bg-[#FFFEFB] p-6 shadow-xs space-y-6">
-                <h1 className="font-[family-name:var(--font-manrope)] text-xl font-extrabold text-[#232520]">
-                  Payment Method
-                </h1>
+              {/* Payment Method Selector */}
+              <div className="rounded-3xl border border-[rgba(54,48,60,0.12)] bg-white p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-6">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-[#6D706A] block">
+                  Select Payment Method
+                </span>
 
-                {/* Method selector */}
-                <div className="grid grid-cols-3 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("upi")}
-                    className={`p-3 rounded-2xl border text-center transition-all ${
-                      paymentMethod === "upi"
-                        ? "border-[#66518A] bg-[#EFEAF8] text-[#66518A] font-bold shadow-xs"
-                        : "border-[#E4DED4] bg-[#FFFEFB] text-[#676B64] hover:border-[#66518A]/40"
-                    }`}
-                  >
-                    <span className="text-xs font-bold block">UPI</span>
-                    <span className="text-[10px] text-[#676B64]">GPay / PhonePe</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("card")}
-                    className={`p-3 rounded-2xl border text-center transition-all ${
-                      paymentMethod === "card"
-                        ? "border-[#66518A] bg-[#EFEAF8] text-[#66518A] font-bold shadow-xs"
-                        : "border-[#E4DED4] bg-[#FFFEFB] text-[#676B64] hover:border-[#66518A]/40"
-                    }`}
-                  >
-                    <span className="text-xs font-bold block">Cards</span>
-                    <span className="text-[10px] text-[#676B64]">Debit / Credit</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("netbanking")}
-                    className={`p-3 rounded-2xl border text-center transition-all ${
-                      paymentMethod === "netbanking"
-                        ? "border-[#66518A] bg-[#EFEAF8] text-[#66518A] font-bold shadow-xs"
-                        : "border-[#E4DED4] bg-[#FFFEFB] text-[#676B64] hover:border-[#66518A]/40"
-                    }`}
-                  >
-                    <span className="text-xs font-bold block">Net Banking</span>
-                    <span className="text-[10px] text-[#676B64]">All Indian Banks</span>
-                  </button>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: "upi", label: "UPI" },
+                    { id: "card", label: "Card" },
+                    { id: "netbanking", label: "NetBanking" },
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setPaymentMethod(m.id as PaymentMethod)}
+                      className={`rounded-2xl border py-2.5 text-center text-xs font-bold transition ${
+                        paymentMethod === m.id
+                          ? "border-[#7257A5] bg-[#EEE7FF]/60 text-[#594282] shadow-xs"
+                          : "border-[rgba(54,48,60,0.10)] bg-[#FFFDF9] text-[#6D706A] hover:text-[#20221F]"
+                      }`}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Method Details */}
                 {paymentMethod === "upi" && (
-                  <div className="space-y-3 pt-2">
-                    <label htmlFor="upi-id" className="block text-xs font-bold text-[#676B64]">
-                      Virtual Payment Address (VPA / UPI ID)
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[#6D706A] block">
+                      UPI ID (Virtual Payment Address)
                     </label>
                     <input
-                      id="upi-id"
                       type="text"
                       value={upiId}
                       onChange={(e) => setUpiId(e.target.value)}
-                      placeholder="e.g. mobile@upi"
-                      className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3.5 py-2.5 text-xs text-[#232520] focus:border-[#66518A] focus:outline-hidden"
+                      placeholder="username@bank"
+                      className="w-full rounded-2xl border border-[rgba(54,48,60,0.12)] bg-[#FFFDF9] px-4 py-2.5 text-xs font-semibold text-[#20221F] focus:border-[#7257A5] focus:outline-hidden"
                     />
-                    <p className="text-[11px] text-[#676B64]">
-                      A test payment request simulation will be authorized without real charge.
+                    <p className="text-[11px] text-[#969991]">
+                      Google Pay, PhonePe, Paytm, or BHIM supported
                     </p>
                   </div>
                 )}
 
-                {paymentMethod === "card" && (
-                  <div className="space-y-3 pt-2">
-                    <div>
-                      <label htmlFor="card-number" className="block text-xs font-bold text-[#676B64] mb-1">
-                        Card Number (Simulated)
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="card-number"
-                          type="text"
-                          defaultValue="•••• •••• •••• 4242"
-                          className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3.5 py-2.5 text-xs text-[#232520] focus:border-[#66518A] focus:outline-hidden"
-                        />
-                        <IconCreditCard size={16} className="absolute right-3 top-3 text-[#676B64]" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label htmlFor="card-expiry" className="block text-xs font-bold text-[#676B64] mb-1">
-                          Expiry
-                        </label>
-                        <input
-                          id="card-expiry"
-                          type="text"
-                          defaultValue="12/28"
-                          className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3.5 py-2.5 text-xs text-[#232520] focus:border-[#66518A] focus:outline-hidden"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="card-cvv" className="block text-xs font-bold text-[#676B64] mb-1">
-                          CVV
-                        </label>
-                        <input
-                          id="card-cvv"
-                          type="password"
-                          defaultValue="•••"
-                          className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3.5 py-2.5 text-xs text-[#232520] focus:border-[#66518A] focus:outline-hidden"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {paymentMethod === "netbanking" && (
-                  <div className="space-y-3 pt-2">
-                    <label htmlFor="bank-select" className="block text-xs font-bold text-[#676B64]">
-                      Select Bank
-                    </label>
-                    <select
-                      id="bank-select"
-                      className="w-full rounded-xl border border-[#E4DED4] bg-[#FFFEFB] px-3.5 py-2.5 text-xs text-[#232520] focus:border-[#66518A] focus:outline-hidden"
+                {/* Prototype Simulation Selector */}
+                <div className="rounded-2xl border border-[rgba(54,48,60,0.08)] bg-[#FCFBF8] p-4 space-y-2">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6D706A] block">
+                    Prototype Simulation Control:
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSimulateOutcome("success")}
+                      className={`flex-1 rounded-xl py-2 text-xs font-bold transition ${
+                        simulateOutcome === "success"
+                          ? "bg-[#E5F0EA] text-[#3D5A4D] border border-[#5D806F]/30"
+                          : "bg-white text-[#6D706A] border border-[rgba(54,48,60,0.10)]"
+                      }`}
                     >
-                      <option>State Bank of India (SBI)</option>
-                      <option>HDFC Bank</option>
-                      <option>ICICI Bank</option>
-                      <option>Axis Bank</option>
-                    </select>
+                      Simulate Success
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSimulateOutcome("failed")}
+                      className={`flex-1 rounded-xl py-2 text-xs font-bold transition ${
+                        simulateOutcome === "failed"
+                          ? "bg-[#FCEEEA] text-[#A6361E] border border-[#C84B31]/30"
+                          : "bg-white text-[#6D706A] border border-[rgba(54,48,60,0.10)]"
+                      }`}
+                    >
+                      Simulate Failure
+                    </button>
                   </div>
-                )}
-
-                {/* Primary Simulated Payment Buttons */}
-                <div className="pt-4 space-y-3">
-                  <button
-                    type="button"
-                    onClick={handleSuccessPayment}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#66518A] px-6 py-4 text-sm font-bold text-white shadow-xs hover:bg-[#4E3C70] transition-colors"
-                  >
-                    <span>Pay {formatCurrency(price)} &amp; Activate Package</span>
-                    <IconArrowRight size={16} />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleFailedPayment}
-                    className="w-full text-center text-xs font-bold text-[#676B64] hover:text-rose-700 py-2 transition-colors"
-                  >
-                    Simulate Payment Decline (Test Edge Case)
-                  </button>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={handleProcessPayment}
+                  className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(114,87,165,0.22)] justify-center gap-2"
+                >
+                  <span>Pay {formatCurrency(price)} &amp; Confirm Routine</span>
+                  <IconArrowRight size={15} />
+                </button>
               </div>
             </div>
 
-            {/* Right 5 cols: Order Summary */}
-            <div className="lg:col-span-5 space-y-5">
-              <div className="rounded-3xl border border-[#E4DED4] bg-[#FFFEFB] p-6 shadow-xs space-y-4">
-                <h2 className="font-[family-name:var(--font-manrope)] text-base font-extrabold text-[#232520] border-b border-[#E4DED4] pb-3">
-                  Order Summary
-                </h2>
+            {/* Right: Package Summary Order Card */}
+            <div className="lg:col-span-5">
+              <div className="rounded-3xl border border-[rgba(54,48,60,0.12)] bg-white p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-5">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-[#6D706A] block">
+                  Tuition Order Summary
+                </span>
 
-                <div className="space-y-3 text-xs">
-                  <div className="flex justify-between text-[#676B64]">
-                    <span>Tutor</span>
-                    <span className="font-bold text-[#232520]">{tutor.name}</span>
+                <div className="flex items-center gap-3 border-b border-[rgba(54,48,60,0.06)] pb-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EEE7FF] text-sm font-bold text-[#594282]">
+                    AS
                   </div>
-
-                  <div className="flex justify-between text-[#676B64]">
-                    <span>Package</span>
-                    <span className="font-bold text-[#232520]">{classes} Classes Bundle</span>
-                  </div>
-
-                  <div className="flex justify-between text-[#676B64]">
-                    <span>Class Duration</span>
-                    <span className="font-bold text-[#232520]">60 min / session</span>
-                  </div>
-
-                  <div className="flex justify-between text-[#676B64]">
-                    <span>Tuition Format</span>
-                    <span className="font-bold text-[#232520] uppercase">{mode}</span>
-                  </div>
-
-                  <div className="flex justify-between text-[#676B64]">
-                    <span>Schedule Rhythm</span>
-                    <span className="font-bold text-[#232520]">{days} @ {time}</span>
-                  </div>
-
-                  <div className="flex justify-between text-[#676B64]">
-                    <span>Package Validity</span>
-                    <span className="font-bold text-[#232520]">45 Days</span>
-                  </div>
-
-                  <div className="border-t border-[#E4DED4] pt-3 flex justify-between text-base font-extrabold text-[#232520]">
-                    <span>Total Amount</span>
-                    <span className="text-[#66518A]">{formatCurrency(price)}</span>
+                  <div>
+                    <p className="text-sm font-bold text-[#20221F]">{tutor.name}</p>
+                    <p className="text-xs text-[#6D706A]">{tutor.headline}</p>
                   </div>
                 </div>
 
-                <div className="pt-2 text-[11px] text-[#676B64] space-y-1.5 border-t border-[#E4DED4]/60">
-                  <p className="flex items-center gap-1.5 text-[#4F7867] font-semibold">
-                    <IconShieldCheck size={14} />
-                    <span>No recurring automatic charges</span>
-                  </p>
-                  <p>Schedule timings can be adjusted directly with your educator.</p>
+                <div className="space-y-3 text-xs">
+                  <div className="flex items-center justify-between text-[#6D706A]">
+                    <span>Class Package:</span>
+                    <span className="font-bold text-[#20221F]">{classes} Classes (60m each)</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[#6D706A]">
+                    <span>Validity Window:</span>
+                    <span className="font-bold text-[#20221F]">45 Days from first class</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[#6D706A]">
+                    <span>Tuition Mode:</span>
+                    <span className="font-bold text-[#20221F]">
+                      {mode === "online" ? "1-on-1 Online" : "Home (" + tutor.locality + ")"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[#6D706A]">
+                    <span>Weekly Rhythm:</span>
+                    <span className="font-bold text-[#20221F]">{days} @ {time}</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-[rgba(54,48,60,0.08)] pt-4 flex items-baseline justify-between">
+                  <span className="text-sm font-bold text-[#20221F]">Total Package Fee:</span>
+                  <span className="font-[family-name:var(--font-manrope)] text-2xl font-extrabold text-[#20221F]">
+                    {formatCurrency(price)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -308,13 +230,7 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#F7F4EE] text-xs font-bold text-[#676B64]">
-          Loading secure checkout...
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="min-h-screen bg-[#FCFBF8]" />}>
       <CheckoutContent />
     </Suspense>
   );

@@ -11,6 +11,8 @@ import {
   IconShieldCheck,
   IconArrowLeft,
   IconSparkles,
+  IconClock,
+  IconCalendar,
 } from "@/components/ui/icons";
 
 interface LearningPackage {
@@ -41,7 +43,7 @@ const packages: LearningPackage[] = [
     features: [
       "8 1-on-1 personalized sessions (60 min each)",
       "45-day validity from first session",
-      "Digital lesson notes when shared by the tutor",
+      "Digital lesson notes when shared by tutor",
       "Online or eligible Home tuition",
       "Flexible weekly learning rhythm",
     ],
@@ -55,32 +57,32 @@ const packages: LearningPackage[] = [
     perClassPrice: 375,
     validityDays: 45,
     paceDescription: "3 classes / week",
-    bestFor: "Recommended for continuous syllabus coverage, regular chapter review, and consistent academic rhythm.",
+    bestFor: "Recommended for continuous syllabus coverage, exam preparation, and building problem-solving velocity.",
+    highlight: true,
     features: [
       "12 1-on-1 personalized sessions (60 min each)",
       "45-day validity from first session",
-      "Digital lesson notes when shared by the tutor",
+      "Digital lesson notes when shared by tutor",
       "Online or eligible Home tuition",
-      "Consistent 3-class weekly learning rhythm",
+      "Flexible weekly learning rhythm",
     ],
   },
   {
     id: "package-15",
-    rhythmName: "Focused Progress",
-    intensity: "Accelerated Rhythm",
+    rhythmName: "Comprehensive Mastery",
+    intensity: "Intensive Rhythm",
     classes: 15,
     price: 5400,
     perClassPrice: 360,
     validityDays: 45,
-    paceDescription: "3 to 4 classes / week",
-    bestFor: "Comprehensive syllabus coverage, thorough chapter review, and intensive learning rhythm.",
-    highlight: true,
+    paceDescription: "3-4 classes / week",
+    bestFor: "Designed for in-depth curriculum mastery, board exam drills, and high-frequency subject support.",
     features: [
       "15 1-on-1 personalized sessions (60 min each)",
       "45-day validity from first session",
-      "Digital lesson notes when shared by the tutor",
+      "Digital lesson notes when shared by tutor",
       "Online or eligible Home tuition",
-      "Highest per-class value (₹360/class)",
+      "Flexible weekly learning rhythm",
     ],
   },
 ];
@@ -93,144 +95,139 @@ function formatCurrency(amount: number) {
   }).format(amount);
 }
 
-function PackageSelectionContent() {
+function PackagesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const tutorId = searchParams.get("tutor") ?? "ananya-sharma";
-  const tutor = tutors.find((t) => t.id === tutorId) ?? tutors[0];
+  const tutorId = searchParams.get("tutor") || "ananya-sharma";
+  const tutor = tutors.find((t) => t.id === tutorId) || tutors[0];
 
-  const [selectedPackageId, setSelectedPackageId] = useState("package-15");
+  const [selectedPackageId, setSelectedPackageId] = useState<string>("package-12");
 
-  const selectedPackage =
-    packages.find((item) => item.id === selectedPackageId) ?? packages[2];
-
-  function continueToSchedule() {
+  const handleSelectPackage = (pkg: LearningPackage) => {
+    setSelectedPackageId(pkg.id);
     const query = new URLSearchParams({
       tutor: tutor.id,
-      package: selectedPackage.id,
-      classes: String(selectedPackage.classes),
-      price: String(selectedPackage.price),
+      package: pkg.id,
+      classes: String(pkg.classes),
+      amount: String(pkg.price),
     });
     router.push(`/schedule/confirm?${query.toString()}`);
-  }
+  };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F7F4EE] text-[#232520]">
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-[#E4DED4] bg-[#FFFEFB]/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Logo />
+    <div className="flex min-h-screen flex-col bg-[#FCFBF8] text-[#20221F]">
+      <header className="border-b border-[rgba(54,48,60,0.08)] bg-white/80 py-4 backdrop-blur-md">
+        <div className="container-shell flex items-center justify-between">
+          <Link href="/">
+            <Logo />
+          </Link>
           <Link
             href={`/tutors/${tutor.id}`}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#676B64] hover:text-[#66518A] transition-colors"
+            className="text-xs font-bold text-[#6D706A] hover:text-[#20221F] transition"
           >
-            <IconArrowLeft size={14} />
-            <span>Tutor Dossier</span>
+            &larr; Back to {tutor.name}&apos;s Profile
           </Link>
         </div>
       </header>
 
-      {/* Main Body */}
-      <main id="main-content" className="flex-1 py-8 sm:py-12 pb-32">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          {/* Header intro */}
-          <div className="max-w-3xl mb-8">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#B7A5DE]/40 bg-[#EFEAF8] px-3 py-1 text-xs font-bold tracking-wide text-[#66518A]">
-              Step 1 of 3 &bull; Learning Rhythm Selection
+      <main className="flex-1 py-12 md:py-20">
+        <div className="container-shell max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EEE7FF] px-3.5 py-1 text-xs font-bold text-[#594282] mb-3">
+              <IconSparkles size={13} />
+              <span>Learning Rhythms with {tutor.name}</span>
             </span>
-            <h1 className="mt-3 font-[family-name:var(--font-manrope)] text-2xl font-extrabold tracking-tight text-[#232520] sm:text-3xl lg:text-4xl">
-              Choose Your Learning Intensity with {tutor.name}
+            <h1 className="font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#20221F]">
+              Choose Your Class Package
             </h1>
-            <p className="mt-2 text-sm text-[#676B64] leading-relaxed">
-              Every learner progresses differently. Select the weekly rhythm that matches your goals.
-              All packages include 60-minute classes, 45-day validity, and zero recurring lock-in.
+            <p className="mt-2 text-sm text-[#6D706A]">
+              Simple, transparent class packages. Every package includes 60-minute classes and 45-day validity. No recurring subscriptions.
             </p>
           </div>
 
-          {/* Asymmetric Learning Rhythm Stack (NOT standard 3 SaaS cards) */}
-          <div className="space-y-4">
+          {/* Spacious Horizontal Stacked Rhythm Bands */}
+          <div className="space-y-6">
             {packages.map((pkg) => {
-              const isSelected = selectedPackageId === pkg.id;
               return (
                 <div
                   key={pkg.id}
-                  onClick={() => setSelectedPackageId(pkg.id)}
-                  className={`relative cursor-pointer rounded-3xl border transition-all ${
-                    isSelected
-                      ? "border-[#66518A] bg-[#FFFEFB] shadow-md ring-2 ring-[#66518A]/20"
-                      : "border-[#E4DED4] bg-[#FFFEFB]/80 hover:bg-[#FFFEFB] hover:border-[#66518A]/40"
-                  } p-5 sm:p-7`}
+                  className={`relative rounded-3xl border transition-all duration-200 p-6 sm:p-8 ${
+                    pkg.highlight
+                      ? "border-[#7257A5] bg-white shadow-[0_12px_40px_rgba(114,87,165,0.08)] ring-2 ring-[#7257A5]/10"
+                      : "border-[rgba(54,48,60,0.10)] bg-white hover:border-[#7257A5]/30 shadow-[0_4px_24px_rgba(0,0,0,0.02)]"
+                  }`}
                 >
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-                    {/* Left: Rhythm Identity & Description */}
-                    <div className="space-y-2 max-w-xl">
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        <span className="rounded-full bg-[#EFEAF8] px-3 py-0.5 text-xs font-extrabold text-[#66518A]">
-                          {pkg.classes} Classes Bundle
+                  {pkg.highlight && (
+                    <span className="absolute -top-3 left-8 rounded-full bg-[#7257A5] px-3.5 py-0.5 text-[11px] font-extrabold text-white shadow-xs">
+                      Most Popular Rhythm
+                    </span>
+                  )}
+
+                  <div className="grid gap-6 lg:grid-cols-12 items-center">
+                    {/* Left: Package Info */}
+                    <div className="lg:col-span-5 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-[#EEE7FF] px-2.5 py-0.5 text-xs font-bold text-[#594282]">
+                          {pkg.intensity}
                         </span>
-                        <span className="text-xs font-bold text-[#676B64]">
+                        <span className="text-xs font-semibold text-[#6D706A]">
                           {pkg.paceDescription}
                         </span>
-                        {pkg.highlight && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#E6F0EA] px-2.5 py-0.5 text-[11px] font-bold text-[#4F7867]">
-                            <IconSparkles size={12} />
-                            Recommended Rhythm
-                          </span>
-                        )}
                       </div>
 
-                      <h2 className="font-[family-name:var(--font-manrope)] text-xl font-extrabold text-[#232520]">
+                      <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#20221F]">
                         {pkg.rhythmName}
                       </h2>
-                      <p className="text-xs text-[#676B64] leading-relaxed">
+                      <p className="text-xs text-[#6D706A] leading-relaxed">
                         {pkg.bestFor}
                       </p>
+                    </div>
 
-                      {/* Feature chips */}
-                      <div className="pt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-[#232520]">
-                        <span className="flex items-center gap-1.5">
-                          <IconCheck size={13} className="text-[#4F7867]" />
-                          60 mins/class
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <IconCheck size={13} className="text-[#4F7867]" />
-                          45 days validity
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <IconCheck size={13} className="text-[#4F7867]" />
-                          Online or Home mode
-                        </span>
+                    {/* Middle: Features List */}
+                    <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-[rgba(54,48,60,0.08)] pt-4 lg:pt-0 lg:pl-6 space-y-2 text-xs text-[#20221F]">
+                      <div className="flex items-center gap-2">
+                        <IconCheck size={14} className="text-[#5D806F] shrink-0" />
+                        <span className="font-semibold">{pkg.classes} Classes (60m each)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <IconCheck size={14} className="text-[#5D806F] shrink-0" />
+                        <span>45-day package validity</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <IconCheck size={14} className="text-[#5D806F] shrink-0" />
+                        <span>Digital lesson notes when shared by tutor</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <IconCheck size={14} className="text-[#5D806F] shrink-0" />
+                        <span>Flexible weekly learning rhythm</span>
                       </div>
                     </div>
 
-                    {/* Right: Price & Selector Button */}
-                    <div className="flex items-center justify-between lg:flex-col lg:items-end gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-[#E4DED4]">
-                      <div className="lg:text-right">
-                        <div className="flex items-baseline gap-1.5 lg:justify-end">
-                          <span className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#232520]">
-                            {formatCurrency(pkg.price)}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-[#676B64]">
-                          ₹{pkg.perClassPrice} per 60-min class &bull; One-time
+                    {/* Right: Pricing & CTA */}
+                    <div className="lg:col-span-3 flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 border-t lg:border-t-0 lg:border-l border-[rgba(54,48,60,0.08)] pt-4 lg:pt-0 lg:pl-6">
+                      <div className="text-left lg:text-right">
+                        <span className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#20221F]">
+                          {formatCurrency(pkg.price)}
+                        </span>
+                        <p className="text-xs text-[#6D706A] font-medium">
+                          {formatCurrency(pkg.perClassPrice)} / class
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition ${
-                            isSelected
-                              ? "border-[#66518A] bg-[#66518A]"
-                              : "border-[#E4DED4] bg-white"
-                          }`}
-                        >
-                          {isSelected && <span className="h-2 w-2 rounded-full bg-white" />}
-                        </div>
-                        <span className="text-xs font-bold text-[#66518A] lg:hidden">
-                          {isSelected ? "Selected" : "Select"}
-                        </span>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectPackage(pkg)}
+                        className={`btn w-full sm:w-auto min-h-[46px] px-6 rounded-full text-xs font-bold justify-center gap-2 ${
+                          pkg.highlight
+                            ? "btn-primary shadow-[0_4px_16px_rgba(114,87,165,0.22)]"
+                            : "btn-outline"
+                        }`}
+                      >
+                        <span>Select Rhythm</span>
+                        <IconArrowRight size={14} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -238,67 +235,25 @@ function PackageSelectionContent() {
             })}
           </div>
 
-          {/* Class Package Support Note */}
-          <div className="mt-8 rounded-2xl border border-[#E4DED4] bg-[#EFEAF8]/40 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#EFEAF8] text-[#66518A]">
-                <IconShieldCheck size={20} />
-              </div>
-              <div className="text-xs">
-                <p className="font-bold text-[#232520]">Class Package Support &bull; Package Details</p>
-                <p className="text-[#676B64]">
-                  Classes happen at your agreed schedule. Class Package valid for 45 days. One-time payment with no recurring subscription.
-                </p>
-              </div>
-            </div>
-            <div className="text-xs text-[#676B64] sm:text-right shrink-0">
-              <span className="font-bold text-[#232520]">Need help with your tuition arrangement?</span>
-              <br />
-              TutorConnect support can assist.
-            </div>
+          {/* Bottom Trust Guarantee Note */}
+          <div className="mt-12 rounded-2xl border border-[rgba(54,48,60,0.08)] bg-[#FFFDF9] p-5 text-center text-xs text-[#6D706A] space-y-1">
+            <p className="font-bold text-[#20221F]">
+              Direct 1-on-1 Tuition &bull; No Auto-Renewal &bull; 45-Day Validity
+            </p>
+            <p>
+              Your schedule and preferred dates will be selected on the next screen before proceeding to simulated checkout.
+            </p>
           </div>
         </div>
       </main>
-
-      {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#E4DED4] bg-[#FFFEFB]/95 px-4 py-3.5 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-          <div>
-            <span className="text-[11px] uppercase tracking-wider text-[#676B64] font-bold">Selected Rhythm</span>
-            <div className="flex items-baseline gap-2">
-              <strong className="text-sm font-extrabold text-[#232520]">
-                {selectedPackage.classes} Classes ({selectedPackage.rhythmName})
-              </strong>
-              <span className="text-xs font-bold text-[#66518A]">
-                {formatCurrency(selectedPackage.price)}
-              </span>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={continueToSchedule}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#66518A] px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[#4E3C70] transition-colors"
-          >
-            <span>Proceed to Schedule Rhythm</span>
-            <IconArrowRight size={15} />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
 
-export default function PackageSelectionPage() {
+export default function PackagesSelectPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#F7F4EE] text-xs font-bold text-[#676B64]">
-          Loading learning packages...
-        </div>
-      }
-    >
-      <PackageSelectionContent />
+    <Suspense fallback={<div className="min-h-screen bg-[#FCFBF8]" />}>
+      <PackagesContent />
     </Suspense>
   );
 }
