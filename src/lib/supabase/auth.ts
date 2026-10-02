@@ -1,4 +1,5 @@
 import { createClient } from "./server";
+import { isSupabaseConfigured } from "./config";
 
 export interface VerifiedAuthResult {
   userId: string | null;
@@ -12,10 +13,7 @@ export interface VerifiedAuthResult {
  * Does not trust unverified getSession() calls.
  */
 export async function getVerifiedAuth(): Promise<VerifiedAuthResult> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
+  if (!isSupabaseConfigured()) {
     return {
       userId: null,
       email: null,
@@ -51,4 +49,40 @@ export async function getVerifiedAuth(): Promise<VerifiedAuthResult> {
       isConfigured: true,
     };
   }
+}
+
+/**
+ * Retrieves account roles for a verified user using server client.
+ */
+export async function getAccountRoles(userId: string): Promise<string[]> {
+  if (!isSupabaseConfigured() || !userId) {
+    return [];
+  }
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("account_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    if (error || !data) {
+      return [];
+    }
+
+    return data.map((r: { role: string }) => r.role);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Checks whether the verified user has any of the permitted roles.
+ */
+export async function hasAnyRole(
+  userId: string,
+  allowedRoles: string[]
+): Promise<boolean> {
+  const roles = await getAccountRoles(userId);
+  return roles.some((role) => allowedRoles.includes(role));
 }
