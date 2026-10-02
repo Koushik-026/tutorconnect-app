@@ -3,14 +3,22 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   const { origin } = new URL(request.url);
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  try {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  } catch {
+    // Graceful no-op if Supabase runtime is unconfigured
+  }
   return NextResponse.redirect(`${origin}/auth`);
 }
 
 export async function GET(request: NextRequest) {
   const { origin } = new URL(request.url);
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  try {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  } catch {
+    // Graceful no-op if Supabase runtime is unconfigured
+  }
   return NextResponse.redirect(`${origin}/auth`);
 }

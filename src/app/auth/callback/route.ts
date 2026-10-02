@@ -12,6 +12,10 @@ export async function GET(request: NextRequest) {
   // Sanitize next redirect to prevent open redirect vulnerabilities
   const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard/student";
 
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+    return NextResponse.redirect(`${origin}/auth?error=unconfigured`);
+  }
+
   const supabase = await createClient();
 
   if (code) {
