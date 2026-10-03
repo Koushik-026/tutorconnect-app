@@ -2,7 +2,8 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { TutorCard } from "@/components/tutor-card";
-import { subjects, tutors } from "@/lib/data";
+import { subjects } from "@/lib/data";
+import { getCatalogueTutors } from "@/lib/services/workflow";
 import {
   IconSearch,
   IconX,
@@ -32,6 +33,7 @@ export default async function TutorDiscoveryPage({
 }: TutorDiscoveryPageProps) {
   const params = await searchParams;
 
+  const tutors = await getCatalogueTutors();
   const selectedSubject = params.subject ?? "";
   const selectedClass = params.class ?? "";
   const selectedLocation = params.locality ?? params.location ?? "";

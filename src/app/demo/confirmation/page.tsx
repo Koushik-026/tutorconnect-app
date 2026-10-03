@@ -1,10 +1,13 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
 import { tutors } from "@/lib/data";
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import type { DemoBookingRow } from "@/lib/types/database";
 import {
   IconCheck,
   IconShieldCheck,
@@ -25,13 +28,56 @@ function getEndTime(time: string) {
 
 function DemoConfirmationInner() {
   const searchParams = useSearchParams();
+  const bookingId = searchParams.get("booking_id");
   const tutorId = searchParams.get("tutor") || "ananya-sharma";
-  const date = searchParams.get("date") || "2026-10-05";
-  const time = searchParams.get("time") || "04:30 PM";
-  const student = searchParams.get("student") || "Aarav Mehta";
+  const queryDate = searchParams.get("date") || "2026-10-05";
+  const queryTime = searchParams.get("time") || "04:30 PM";
+  const queryStudent = searchParams.get("student") || "Aarav Mehta";
 
-  const tutor = tutors.find((t) => t.id === tutorId) || tutors[0];
-  const endTime = getEndTime(time);
+  const [booking, setBooking] = useState<DemoBookingRow | null>(null);
+  const tutor = tutors.find((t) => t.id === (booking?.tutor_slug || tutorId)) || tutors[0];
+
+  useEffect(() => {
+    if (!bookingId || !isSupabaseConfigured()) return;
+
+    const supabase = createClient();
+    supabase
+      .from("demo_bookings")
+      .select("*")
+      .eq("id", bookingId)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setBooking(data as DemoBookingRow);
+        }
+      });
+  }, [bookingId]);
+
+  let displayDate = queryDate;
+  let displayTime = queryTime;
+  let displayEndTime = getEndTime(queryTime);
+  const displayStudent = queryStudent;
+
+  if (booking) {
+    const start = new Date(booking.scheduled_start_at);
+    const end = new Date(booking.scheduled_end_at);
+    displayDate = start.toLocaleDateString("en-IN", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    displayTime = start.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    displayEndTime = end.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FFFBF5]">
@@ -60,7 +106,7 @@ function DemoConfirmationInner() {
             </div>
 
             <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#25231F]">
-              You&apos;re Scheduled with {tutor.name}
+              You&apos;re Scheduled with {booking?.tutor_name || tutor.name}
             </h1>
             <p className="mt-2 text-sm text-[#6F6A62]">
               We have reserved your free 30-minute 1-on-1 online trial.
@@ -71,11 +117,15 @@ function DemoConfirmationInner() {
               <div className="flex items-start justify-between border-b border-[rgba(55,48,40,0.06)] pb-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E4EEE9] text-sm font-extrabold text-[#244A40]">
-                    AS
+                    {(booking?.tutor_name || tutor.name)
+                      .split(" ")
+                      .map((w) => w[0])
+                      .join("")
+                      .slice(0, 2)}
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-bold text-[#25231F]">{tutor.name}</p>
+                      <p className="text-sm font-bold text-[#25231F]">{booking?.tutor_name || tutor.name}</p>
                       <span className="text-[#315F52]"><IconShieldCheck size={15} /></span>
                     </div>
                     <p className="text-xs text-[#6F6A62]">{tutor.headline}</p>
@@ -89,18 +139,20 @@ function DemoConfirmationInner() {
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
                   <span className="text-[#9B958C] font-bold block mb-0.5">DATE &amp; TIME</span>
-                  <p className="font-bold text-[#25231F] text-sm">{date}</p>
-                  <p className="text-[#6F6A62]">{time} &ndash; {endTime}</p>
+                  <p className="font-bold text-[#25231F] text-sm">{displayDate}</p>
+                  <p className="text-[#6F6A62]">{displayTime} &ndash; {displayEndTime}</p>
                 </div>
                 <div>
-                  <span className="text-[#9B958C] font-bold block mb-0.5">STUDENT</span>
-                  <p className="font-bold text-[#25231F] text-sm">{student}</p>
-                  <p className="text-[#6F6A62]">Interactive Whiteboard Demo</p>
+                  <span className="text-[#9B958C] font-bold block mb-0.5">STUDENT &amp; SUBJECT</span>
+                  <p className="font-bold text-[#25231F] text-sm">
+                    {displayStudent} &bull; {booking?.subject || "Mathematics & Science"}
+                  </p>
+                  <p className="text-[#6F6A62]">Interactive Digital Classroom</p>
                 </div>
               </div>
             </div>
 
-            {/* Small Preparation Checklist */}
+            {/* Preparation Checklist */}
             <div className="mt-8 text-left space-y-2.5 border-t border-[rgba(55,48,40,0.08)] pt-6">
               <span className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62] block mb-2">
                 Quick Preparation Checklist
@@ -122,7 +174,7 @@ function DemoConfirmationInner() {
             {/* Actions */}
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
               <Link
-                href={`/demo/waiting-room?tutor=${tutor.id}&date=${date}&time=${encodeURIComponent(time)}`}
+                href={`/demo/waiting-room?tutor=${tutor.id}&date=${displayDate}&time=${encodeURIComponent(displayTime)}`}
                 className="btn btn-primary min-h-[48px] px-8 rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
               >
                 <span>Enter Demo Waiting Room</span>

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { tutors, tuitionPackages } from "@/lib/data";
+import { tuitionPackages } from "@/lib/data";
+import { getTutorBySlug } from "@/lib/services/workflow";
 import {
   IconStar,
   IconShieldCheck,
@@ -39,7 +40,7 @@ export default async function TutorProfilePage({
   params,
 }: TutorProfilePageProps) {
   const { id } = await params;
-  const tutor = tutors.find((t) => t.id === id);
+  const tutor = await getTutorBySlug(id);
 
   if (!tutor) {
     notFound();
@@ -131,7 +132,7 @@ export default async function TutorProfilePage({
                   {offersHome && (
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FBE2D8] px-3.5 py-1 font-bold text-[#BA5945]">
                       <IconHomeTuition size={13} />
-                      <span>Eligible Home Tuition ({tutor.locality} Radius)</span>
+                      <span>Home Tuition &bull; Availability confirmed during scheduling</span>
                     </span>
                   )}
                 </div>

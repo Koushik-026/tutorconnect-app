@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { submitDemoFeedbackAction } from "@/app/actions/workflow";
 import {
   IconStar,
   IconCheck,
@@ -19,8 +20,11 @@ const feedbackTags = [
   "Strong Subject Mastery",
 ];
 
-export default function DemoFeedbackPage() {
+function DemoFeedbackInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const bookingId = searchParams.get("booking_id");
+  const tutorSlug = searchParams.get("tutor") || "ananya-sharma";
 
   const [rating, setRating] = useState(5);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -29,6 +33,7 @@ export default function DemoFeedbackPage() {
     "Patient & Encouraging",
   ]);
   const [feedbackText, setFeedbackText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function toggleTag(tag: string) {
     setSelectedTags((prev) =>
@@ -36,9 +41,26 @@ export default function DemoFeedbackPage() {
     );
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    router.push("/packages/select?tutor=ananya-sharma");
+    setIsSubmitting(true);
+
+    if (bookingId) {
+      try {
+        await submitDemoFeedbackAction({
+          bookingId,
+          rating,
+          tags: selectedTags,
+          feedbackText,
+          interestedInTuition: true,
+        });
+      } catch {
+        // Non-blocking for demo flow
+      }
+    }
+
+    setIsSubmitting(false);
+    router.push(`/packages/select?tutor=${encodeURIComponent(tutorSlug)}`);
   }
 
   return (
@@ -69,7 +91,7 @@ export default function DemoFeedbackPage() {
 
             <div>
               <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
-                How was your session with Ananya Sharma?
+                How was your demo session?
               </h1>
               <p className="mt-2 text-xs sm:text-sm text-[#6F6A62]">
                 Your feedback helps us curate the right learning rhythm for your child.
@@ -143,9 +165,10 @@ export default function DemoFeedbackPage() {
             <div className="pt-2 border-t border-[rgba(55,48,40,0.08)]">
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
               >
-                <span>Continue to Class Packages</span>
+                <span>{isSubmitting ? "Saving..." : "Continue to Class Packages"}</span>
                 <IconArrowRight size={15} />
               </button>
               <p className="mt-2.5 text-[11px] text-[#9B958C]">
@@ -156,5 +179,13 @@ export default function DemoFeedbackPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function DemoFeedbackPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#FFFBF5]" />}>
+      <DemoFeedbackInner />
+    </Suspense>
   );
 }
