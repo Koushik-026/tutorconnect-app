@@ -1,15 +1,22 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import type {
+  StudentProfile,
+  StudentTutorEnrollmentRow,
+  ClassSessionRow,
+  DemoBookingRow,
+} from "@/lib/types/database";
 import {
   IconCalendar,
   IconClock,
   IconShieldCheck,
   IconArrowRight,
-  IconChecklist,
   IconBookOpen,
   IconMessageSquare,
   IconCreditCard,
@@ -20,10 +27,10 @@ import {
 
 const navigationItems = [
   { label: "Learning Space", icon: "home", href: "/dashboard/student", active: true },
-  { label: "My Sessions", icon: "calendar", href: "#", active: false },
+  { label: "My Sessions", icon: "calendar", href: "/dashboard/student/sessions", active: false },
   { label: "Find Educators", icon: "search", href: "/tutors", active: false },
   { label: "Doubt Chat", icon: "messages", href: "#", active: false },
-  { label: "Tuition Packages", icon: "payments", href: "#", active: false },
+  { label: "Tuition Packages", icon: "payments", href: "/packages/select", active: false },
 ];
 
 function NavIcon({ type, size = 18 }: { type: string; size?: number }) {
@@ -47,18 +54,115 @@ function NavIcon({ type, size = 18 }: { type: string; size?: number }) {
 
 function StudentDashboardContent() {
   const searchParams = useSearchParams();
-
-  const state = searchParams.get("state") === "active" ? "active" : "pre-demo";
-  const activeClasses = Number(searchParams.get("classes")) || 15;
-  const completedClasses = state === "active" ? 3 : 0;
-  const remainingClasses = activeClasses - completedClasses;
+  const urlState = searchParams.get("state");
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [profile, setProfile] = useState<StudentProfile | null>(null);
+  const [activeEnrollment, setActiveEnrollment] = useState<StudentTutorEnrollmentRow | null>(null);
+  const [nextSession, setNextSession] = useState<ClassSessionRow | null>(null);
+  const [upcomingDemo, setUpcomingDemo] = useState<DemoBookingRow | null>(null);
 
   function showNotice(msg: string) {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   }
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadDashboardData() {
+      if (!isSupabaseConfigured()) return;
+
+      try {
+        const supabase = createClient();
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
+        if (!user || ignore) return;
+
+        // 1. Fetch learner profile
+        const { data: profs } = await supabase
+          .from("student_profiles")
+          .select("*")
+          .eq("owner_user_id", user.id)
+          .order("created_at", { ascending: true })
+          .limit(1);
+
+        if (!ignore && profs && profs[0]) {
+          setProfile(profs[0] as StudentProfile);
+        }
+
+        // 2. Fetch active enrollments
+        const { data: enrolls } = await supabase
+          .from("student_tutor_enrollments")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (!ignore && enrolls && enrolls[0]) {
+          setActiveEnrollment(enrolls[0] as StudentTutorEnrollmentRow);
+        }
+
+        // 3. Fetch next scheduled session
+        const { data: sessions } = await supabase
+          .from("class_sessions")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("status", "scheduled")
+          .order("scheduled_start_at", { ascending: true })
+          .limit(1);
+
+        if (!ignore && sessions && sessions[0]) {
+          setNextSession(sessions[0] as ClassSessionRow);
+        }
+
+        // 4. Fetch upcoming demo booking
+        const { data: demos } = await supabase
+          .from("demo_bookings")
+          .select("*")
+          .eq("user_id", user.id)
+          .in("status", ["confirmed", "requested"])
+          .order("scheduled_start_at", { ascending: true })
+          .limit(1);
+
+        if (!ignore && demos && demos[0]) {
+          setUpcomingDemo(demos[0] as DemoBookingRow);
+        }
+      } catch (e) {
+        console.error("Dashboard data load error:", e);
+      }
+    }
+
+    void loadDashboardData();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  // Determine effective dashboard state:
+  // Prioritize live database enrollment -> live database demo -> URL simulation param
+  const hasLiveEnrollment = Boolean(activeEnrollment);
+  const hasLiveDemo = Boolean(upcomingDemo);
+  const isSimulatedActive = urlState === "active";
+
+  const isModeActive = hasLiveEnrollment || isSimulatedActive;
+
+  const totalClasses = activeEnrollment?.total_classes || (isSimulatedActive ? 15 : 0);
+  const remainingClasses = activeEnrollment ? activeEnrollment.remaining_classes : isSimulatedActive ? 12 : 0;
+  const completedClasses = Math.max(0, totalClasses - remainingClasses);
+  const progressPercent = totalClasses > 0 ? Math.round((completedClasses / totalClasses) * 100) : 0;
+
+  const learnerName = profile?.display_name || "Aarav";
+  const learnerInitials = learnerName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const tutorDisplayName = activeEnrollment?.tutor_name || upcomingDemo?.tutor_name || "Ananya Sharma";
+  const tutorHeadline = activeEnrollment ? "Active Tuition Mentor" : "Mathematics &bull; 8+ Yrs Exp";
 
   return (
     <div className="flex min-h-screen bg-[#FFFBF5] text-[#25231F]">
@@ -120,29 +224,29 @@ function StudentDashboardContent() {
         <div className="p-4 border-t border-[rgba(55,48,40,0.08)] space-y-2">
           <div className="flex items-center gap-3 rounded-2xl bg-[#FFFBF5] p-3 border border-[rgba(55,48,40,0.08)]">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#315F52] font-extrabold text-white text-xs">
-              AR
+              {learnerInitials || "TC"}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-bold text-[#25231F]">Aarav Reddy</p>
-              <p className="truncate text-[11px] text-[#6F6A62]">Class 9 &bull; CBSE</p>
+              <p className="truncate text-xs font-bold text-[#25231F]">{learnerName}</p>
+              <p className="truncate text-[11px] text-[#6F6A62]">
+                {profile?.class_level || "Class 9"} &bull; {profile?.board || "CBSE"}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center justify-between px-2 pt-1 text-[11px] text-[#6F6A62]">
-            <button
-              type="button"
-              onClick={() => showNotice("Settings preferences.")}
-              className="hover:text-[#25231F]"
-            >
-              Settings
-            </button>
-            <span>&bull;</span>
-            <Link
-              href="/auth/signout"
-              className="hover:text-[#DE765D] font-bold transition-colors"
-            >
-              Sign Out
+            <Link href="/dashboard/student/sessions" className="hover:text-[#25231F]">
+              My Sessions
             </Link>
+            <span>&bull;</span>
+            <form method="POST" action="/auth/signout">
+              <button
+                type="submit"
+                className="hover:text-[#DE765D] font-bold transition-colors"
+              >
+                Sign Out
+              </button>
+            </form>
           </div>
         </div>
       </aside>
@@ -154,14 +258,16 @@ function StudentDashboardContent() {
           <Logo />
           <div className="flex items-center gap-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#315F52] text-xs font-extrabold text-white">
-              AR
+              {learnerInitials || "TC"}
             </span>
-            <Link
-              href="/auth/signout"
-              className="text-xs font-bold text-[#6F6A62] hover:text-[#DE765D] transition"
-            >
-              Sign Out
-            </Link>
+            <form method="POST" action="/auth/signout">
+              <button
+                type="submit"
+                className="text-xs font-bold text-[#6F6A62] hover:text-[#DE765D] transition"
+              >
+                Sign Out
+              </button>
+            </form>
           </div>
         </header>
 
@@ -173,340 +279,245 @@ function StudentDashboardContent() {
                 My Learning Space
               </span>
               <h1 className="mt-1 font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
-                Welcome back, Aarav.
+                Welcome back, {learnerName}.
               </h1>
               <p className="mt-1 text-xs sm:text-sm text-[#6F6A62]">
-                {state === "active"
-                  ? "Your active tuition rhythm is on track. Keep up the weekly momentum!"
-                  : "Your free 30-minute diagnostic demo with Ananya Sharma is scheduled."}
+                {isModeActive
+                  ? "Your active tuition rhythm is on track. Keep up the steady weekly momentum!"
+                  : hasLiveDemo
+                  ? `Your free 30-minute diagnostic trial with ${tutorDisplayName} is scheduled.`
+                  : "Explore verified educators and book a free 30-minute demo to begin."}
               </p>
             </div>
 
-            {/* Prototype State Toggle */}
-            <div className="flex items-center gap-2 self-start rounded-full border border-[rgba(55,48,40,0.10)] bg-white p-1 text-xs">
+            <div className="flex items-center gap-2 self-start">
               <Link
-                href="/dashboard/student"
-                className={`rounded-full px-3 py-1 font-bold transition ${
-                  state === "pre-demo"
-                    ? "bg-[#315F52] text-white"
-                    : "text-[#6F6A62] hover:text-[#25231F]"
-                }`}
+                href="/dashboard/student/sessions"
+                className="btn btn-outline min-h-[38px] px-4 rounded-full text-xs font-bold"
               >
-                Pre-Demo View
-              </Link>
-              <Link
-                href="/dashboard/student?state=active&classes=15&amount=5400"
-                className={`rounded-full px-3 py-1 font-bold transition ${
-                  state === "active"
-                    ? "bg-[#315F52] text-white"
-                    : "text-[#6F6A62] hover:text-[#25231F]"
-                }`}
-              >
-                Active Routine View
+                <span>View All Sessions</span>
               </Link>
             </div>
           </div>
 
-          {/* =====================================================
-              1. DOMINANT NEXT-CLASS COMPOSITION (Visual Priority #1)
-          ====================================================== */}
+          {/* 1. DOMINANT NEXT-CLASS / DEMO COMPOSITION */}
           <section className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-6 sm:p-8 md:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.03)]">
             <div className="grid gap-8 lg:grid-cols-12 items-center">
               {/* Left Portion: Session Focus & Topic */}
               <div className="lg:col-span-7 space-y-3">
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-[#E3EADD] px-3 py-0.5 text-xs font-bold text-[#244A40]">
-                    {state === "active" ? "Next Scheduled Class" : "Upcoming Free Trial"}
+                    {nextSession
+                      ? "Next Scheduled Class"
+                      : upcomingDemo
+                      ? "Upcoming Free Trial"
+                      : "Tuition Overview"}
                   </span>
                   <span className="text-xs font-semibold text-[#6F6A62]">
-                    {state === "active" ? "Class 4 of 15" : "30-Minute Online Trial"}
+                    {isModeActive
+                      ? `Class ${completedClasses + 1} of ${totalClasses}`
+                      : "30-Minute Online Trial"}
                   </span>
                 </div>
 
                 <h2 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F] leading-tight">
-                  {state === "active"
-                    ? "Quadratic Factorization & Problem Solving"
-                    : "Diagnostic Session: Quadratic Roots & Concepts"}
+                  {nextSession
+                    ? `${nextSession.subject} with ${nextSession.tutor_name}`
+                    : upcomingDemo
+                    ? `Trial Session with ${upcomingDemo.tutor_name}`
+                    : "No Upcoming Classes Scheduled"}
                 </h2>
 
                 <p className="text-xs sm:text-sm text-[#6F6A62] leading-relaxed max-w-xl">
-                  {state === "active"
-                    ? "Continuing syllabus coverage for CBSE Class 9 Mathematics. Focus on multi-step factorization methods and textbook problem solving."
-                    : "Meet your educator, review current syllabus comfort, and determine where focused practice is needed most."}
+                  {nextSession
+                    ? `Continuing syllabus coverage. Session mode: ${nextSession.session_mode === "home" ? "Home In-person" : "1-on-1 Online"}.`
+                    : upcomingDemo
+                    ? `Diagnostic trial session. Purpose: ${upcomingDemo.learning_goal || "Evaluate teaching style and subject comfort."}`
+                    : "Schedule a free demo with any of our verified educators to explore concepts before selecting a routine."}
                 </p>
 
-                <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-semibold text-[#25231F]">
-                  <span className="flex items-center gap-1.5 text-[#244A40]">
-                    <IconCalendar size={14} />
-                    <span>Monday, Oct 5, 2026</span>
-                  </span>
-                  <span className="flex items-center gap-1.5 text-[#244A40]">
-                    <IconClock size={14} />
-                    <span>04:30 PM &ndash; {state === "active" ? "05:30 PM" : "05:00 PM"}</span>
-                  </span>
-                </div>
+                {(nextSession || upcomingDemo) && (
+                  <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-semibold text-[#25231F]">
+                    <span className="flex items-center gap-1.5 text-[#244A40]">
+                      <IconCalendar size={14} />
+                      <span>
+                        {new Date(
+                          (nextSession?.scheduled_start_at || upcomingDemo?.scheduled_start_at) as string
+                        ).toLocaleDateString("en-IN", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-1.5 text-[#244A40]">
+                      <IconClock size={14} />
+                      <span>
+                        {new Date(
+                          (nextSession?.scheduled_start_at || upcomingDemo?.scheduled_start_at) as string
+                        ).toLocaleTimeString("en-IN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </span>
+                    </span>
+                  </div>
+                )}
               </div>
 
-              {/* Right Supporting Portion: Tutor & Join Action */}
+              {/* Right Supporting Portion: Tutor & Action */}
               <div className="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-[rgba(55,48,40,0.08)] pt-6 lg:pt-0 lg:pl-8 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E4EEE9] text-base font-extrabold text-[#244A40]">
-                    AS
+                    {tutorDisplayName
+                      .split(" ")
+                      .map((w) => w[0])
+                      .join("")
+                      .slice(0, 2)}
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-bold text-[#25231F]">Ananya Sharma</p>
+                      <p className="text-sm font-bold text-[#25231F]">{tutorDisplayName}</p>
                       <span className="text-[#315F52]"><IconShieldCheck size={16} /></span>
                     </div>
-                    <p className="text-xs text-[#6F6A62]">Mathematics &bull; 8+ Yrs Exp</p>
+                    <p className="text-xs text-[#6F6A62]">{tutorHeadline}</p>
                   </div>
                 </div>
 
-                <div className="space-y-2 text-xs text-[#6F6A62]">
-                  <div className="flex justify-between">
-                    <span>Format:</span>
-                    <span className="font-bold text-[#25231F]">1-on-1 Online Classroom</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Notes:</span>
-                    <span className="font-semibold text-[#315F52]">Digital whiteboard enabled</span>
-                  </div>
-                </div>
-
-                <Link
-                  href={state === "active" ? "/demo/session" : "/demo/waiting-room"}
-                  className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
-                >
-                  <span>{state === "active" ? "Join Scheduled Class" : "Enter Waiting Room"}</span>
-                  <IconArrowRight size={15} />
-                </Link>
+                {nextSession ? (
+                  nextSession.session_mode === "online" ? (
+                    <div className="space-y-1">
+                      <button
+                        type="button"
+                        disabled
+                        className="btn btn-primary w-full min-h-[46px] rounded-full text-xs font-bold opacity-60 cursor-not-allowed justify-center"
+                      >
+                        Join Class
+                      </button>
+                      <p className="text-[10px] text-center text-[#9B958C]">
+                        Video room available in demo mode / coming next
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFF7ED] p-3 text-center text-xs font-semibold text-[#6F6A62]">
+                      Home tuition visit scheduled
+                    </div>
+                  )
+                ) : upcomingDemo ? (
+                  <Link
+                    href={`/demo/waiting-room?tutor=${upcomingDemo.tutor_slug}`}
+                    className="btn btn-primary w-full min-h-[46px] rounded-full text-xs font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
+                  >
+                    <span>Enter Demo Waiting Room</span>
+                    <IconArrowRight size={14} />
+                  </Link>
+                ) : (
+                  <Link
+                    href="/tutors"
+                    className="btn btn-primary w-full min-h-[46px] rounded-full text-xs font-bold justify-center"
+                  >
+                    <span>Browse Verified Tutors</span>
+                  </Link>
+                )}
               </div>
             </div>
           </section>
 
-          {/* =====================================================
-              2. WIDE LEARNING RHYTHM & PROGRESS COMPOSITION
-          ====================================================== */}
-          <section className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[rgba(55,48,40,0.06)] pb-5">
-              <div>
-                <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
-                  Learning Rhythm Status
-                </span>
-                <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-[#25231F]">
-                  {state === "active"
-                    ? "Comprehensive Mastery Rhythm (15 Classes)"
-                    : "Trial Phase: Free 30-Minute Diagnostic Demo"}
-                </h3>
-              </div>
-
-              {state === "active" ? (
-                <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-[#E4EEE9] px-3 py-1 text-xs font-bold text-[#244A40]">
-                    45-Day Validity Active
-                  </span>
-                  <span className="text-xs text-[#6F6A62]">
-                    <strong className="text-[#25231F]">{remainingClasses}</strong> classes left
-                  </span>
-                </div>
-              ) : (
-                <span className="rounded-full bg-[#E3EADD] px-3 py-1 text-xs font-bold text-[#244A40]">
-                  Demo Reserved &bull; ₹0 Paid
-                </span>
-              )}
-            </div>
-
-            {state === "active" ? (
-              <div className="mt-6 space-y-4">
-                {/* Visual Progress Bar */}
+          {/* 2. TUITION RHYTHM & PACKAGE PROGRESS */}
+          {isModeActive && (
+            <section className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                  <div className="flex justify-between text-xs font-semibold text-[#6F6A62] mb-2">
-                    <span>Course Progress: {completedClasses} of {activeClasses} sessions completed</span>
-                    <span className="text-[#315F52] font-bold">20%</span>
-                  </div>
-                  <div className="h-2.5 w-full rounded-full bg-[#FFFBF5] border border-[rgba(55,48,40,0.08)] overflow-hidden">
-                    <div className="h-full rounded-full bg-[#315F52]" style={{ width: "20%" }} />
-                  </div>
-                </div>
-
-                {/* Schedule Days */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
-                  <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
-                    <span className="text-[#9B958C] font-bold block mb-1">RECURRING DAYS</span>
-                    <p className="font-bold text-[#25231F]">Mon, Wed, Fri</p>
-                    <p className="text-[11px] text-[#6F6A62]">05:00 PM (60 mins)</p>
-                  </div>
-                  <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
-                    <span className="text-[#9B958C] font-bold block mb-1">ASSIGNED EDUCATOR</span>
-                    <p className="font-bold text-[#25231F]">Ananya Sharma</p>
-                    <p className="text-[11px] text-[#6F6A62]">Verified Specialist</p>
-                  </div>
-                  <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
-                    <span className="text-[#9B958C] font-bold block mb-1">PACKAGE EXPIRY</span>
-                    <p className="font-bold text-[#25231F]">Nov 19, 2026</p>
-                    <p className="text-[11px] text-[#315F52]">45 days from first class</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl bg-[#FFFBF5] p-5 border border-[rgba(55,48,40,0.08)]">
-                <div>
-                  <h4 className="text-sm font-bold text-[#25231F]">What happens next?</h4>
-                  <p className="mt-1 text-xs text-[#6F6A62] leading-relaxed max-w-xl">
-                    Attend your 30-minute online trial. If your child and tutor establish good rapport, you can select an 8, 12, or 15-class package right from this workspace.
+                  <h3 className="font-[family-name:var(--font-manrope)] text-lg font-extrabold text-[#25231F]">
+                    Active Learning Package &bull; Class Ledger
+                  </h3>
+                  <p className="text-xs text-[#6F6A62]">
+                    Audited class consumption for active enrollment
                   </p>
                 </div>
-                <Link
-                  href="/packages/select"
-                  className="btn btn-outline min-h-[42px] px-5 rounded-full text-xs font-bold shrink-0"
-                >
-                  <span>Preview Packages</span>
-                </Link>
-              </div>
-            )}
-          </section>
-
-          {/* =====================================================
-              3. EDITORIAL SPLIT: LESSON NOTES & HOMEWORK
-          ====================================================== */}
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Left: Digital Lesson Notes */}
-            <section className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-4">
-              <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E4EEE9] text-[#244A40]">
-                    <IconBookOpen size={16} />
-                  </span>
-                  <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#25231F]">
-                    Digital Lesson Notes
-                  </h3>
-                </div>
-                <span className="text-[11px] text-[#9B958C]">Shared by tutor</span>
+                <span className="self-start rounded-full bg-[#E4EEE9] px-3 py-1 text-xs font-bold text-[#244A40]">
+                  {remainingClasses} of {totalClasses} Classes Remaining
+                </span>
               </div>
 
-              <div className="space-y-3">
-                {[
-                  {
-                    title: "Class 3: Splitting the Middle Term",
-                    date: "Oct 2, 2026",
-                    file: "Algebra_Ch4_Recap.pdf",
-                    pages: "3 pages &bull; Whiteboard captures",
-                  },
-                  {
-                    title: "Class 2: Quadratic Identities & Roots",
-                    date: "Sep 30, 2026",
-                    file: "Identities_Formula_Sheet.pdf",
-                    pages: "2 pages &bull; Core formula summary",
-                  },
-                  {
-                    title: "Class 1: Introduction & Diagnostic",
-                    date: "Sep 28, 2026",
-                    file: "Baseline_Diagnostic_Notes.pdf",
-                    pages: "2 pages &bull; Focus areas roadmap",
-                  },
-                ].map((note) => (
+              {/* Progress Bar */}
+              <div className="space-y-1.5">
+                <div className="h-3 w-full rounded-full bg-[#FFF7ED] overflow-hidden">
                   <div
-                    key={note.title}
-                    className="flex items-center justify-between rounded-2xl border border-[rgba(55,48,40,0.06)] bg-[#FFF7ED] p-3.5 hover:border-[#315F52]/25 transition"
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-[#25231F]">{note.title}</p>
-                      <p className="text-[11px] text-[#6F6A62] mt-0.5">{note.pages}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => showNotice(`Viewing ${note.file}`)}
-                      className="text-xs font-bold text-[#315F52] hover:underline"
-                    >
-                      View
-                    </button>
-                  </div>
-                ))}
+                    className="h-full bg-[#315F52] rounded-full transition-all duration-500"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[11px] font-semibold text-[#6F6A62]">
+                  <span>{completedClasses} classes audited &amp; completed</span>
+                  <span>{progressPercent}% completed</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
+                <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
+                  <span className="text-[#9B958C] font-bold block mb-0.5">TOTAL CLASSES</span>
+                  <p className="font-extrabold text-base text-[#25231F]">{totalClasses}</p>
+                </div>
+                <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
+                  <span className="text-[#9B958C] font-bold block mb-0.5">REMAINING</span>
+                  <p className="font-extrabold text-base text-[#244A40]">{remainingClasses}</p>
+                </div>
+                <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
+                  <span className="text-[#9B958C] font-bold block mb-0.5">CLASS DURATION</span>
+                  <p className="font-extrabold text-base text-[#25231F]">60 Mins</p>
+                </div>
+                <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
+                  <span className="text-[#9B958C] font-bold block mb-0.5">VALIDITY</span>
+                  <p className="font-extrabold text-base text-[#25231F]">45 Days</p>
+                </div>
               </div>
             </section>
+          )}
 
-            {/* Right: Homework & Tasks */}
-            <section className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-4">
-              <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E3EADD] text-[#244A40]">
-                    <IconChecklist size={16} />
-                  </span>
-                  <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#25231F]">
-                    Homework &amp; Practice
-                  </h3>
-                </div>
-                <span className="text-[11px] text-[#315F52] font-bold">1 Pending</span>
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  {
-                    task: "NCERT Exercise 4.2: Q1 to Q6",
-                    deadline: "Due Before Class 4 (Oct 5)",
-                    status: "Pending",
-                    subject: "Mathematics",
-                  },
-                  {
-                    task: "Factorization Worksheet (Level 1)",
-                    deadline: "Completed on Oct 1",
-                    status: "Reviewed",
-                    subject: "Mathematics",
-                  },
-                  {
-                    task: "Diagnostic Review Checklist",
-                    deadline: "Completed on Sep 29",
-                    status: "Reviewed",
-                    subject: "Mathematics",
-                  },
-                ].map((item) => (
-                  <div
-                    key={item.task}
-                    className="flex items-center justify-between rounded-2xl border border-[rgba(55,48,40,0.06)] bg-[#FFF7ED] p-3.5"
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-[#25231F]">{item.task}</p>
-                      <p className="text-[11px] text-[#6F6A62] mt-0.5">{item.deadline}</p>
-                    </div>
-                    <span
-                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                        item.status === "Pending"
-                          ? "bg-[#FBE2D8] text-[#BA5945]"
-                          : "bg-[#E3EADD] text-[#244A40]"
-                      }`}
-                    >
-                      {item.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        </main>
-
-        {/* Mobile Integrated Bottom Navigation */}
-        <nav
-          aria-label="Mobile Bottom Navigation"
-          className="fixed bottom-0 inset-x-0 z-40 flex h-16 items-center justify-around border-t border-[rgba(55,48,40,0.10)] bg-white/95 backdrop-blur-md px-2 lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.04)]"
-        >
-          {navigationItems.map((item) => (
+          {/* 3. QUICK LINKS & SUPPORT */}
+          <section className="grid gap-4 sm:grid-cols-3">
             <Link
-              key={item.label}
-              href={item.href.startsWith("/") ? item.href : "#"}
-              onClick={() => {
-                if (!item.href.startsWith("/")) {
-                  showNotice(`${item.label} workspace will open soon.`);
-                }
-              }}
-              className={`flex flex-col items-center gap-1 text-[10px] font-bold transition ${
-                item.active ? "text-[#315F52]" : "text-[#6F6A62] hover:text-[#25231F]"
-              }`}
+              href="/dashboard/student/sessions"
+              className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-5 hover:border-[#315F52]/40 transition group"
             >
-              <NavIcon type={item.icon} size={18} />
-              <span>{item.label}</span>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E4EEE9] text-[#244A40] mb-3 group-hover:scale-105 transition-transform">
+                <IconCalendar size={18} />
+              </div>
+              <h4 className="text-xs font-bold text-[#25231F]">My Schedule</h4>
+              <p className="text-[11px] text-[#6F6A62] mt-0.5">
+                Review upcoming classes and audit completed sessions
+              </p>
             </Link>
-          ))}
-        </nav>
+
+            <Link
+              href="/packages/select"
+              className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-5 hover:border-[#315F52]/40 transition group"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF7ED] text-[#315F52] mb-3 group-hover:scale-105 transition-transform">
+                <IconCreditCard size={18} />
+              </div>
+              <h4 className="text-xs font-bold text-[#25231F]">Class Packages</h4>
+              <p className="text-[11px] text-[#6F6A62] mt-0.5">
+                Explore 8, 12, or 15 class learning packages
+              </p>
+            </Link>
+
+            <Link
+              href="/tutors"
+              className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-5 hover:border-[#315F52]/40 transition group"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FBE2D8] text-[#BA5945] mb-3 group-hover:scale-105 transition-transform">
+                <IconSearch size={18} />
+              </div>
+              <h4 className="text-xs font-bold text-[#25231F]">Discover Mentors</h4>
+              <p className="text-[11px] text-[#6F6A62] mt-0.5">
+                Browse educators across CBSE, ICSE, and State boards
+              </p>
+            </Link>
+          </section>
+        </main>
       </div>
     </div>
   );
