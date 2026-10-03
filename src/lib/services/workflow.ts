@@ -247,59 +247,32 @@ export async function createDemoBooking(params: {
   try {
     const supabase = await createClient();
 
-    // 1. Verify tutor exists and is approved
-    const { data: tutor, error: tErr } = await supabase
-      .from("public_tutor_catalog")
-      .select("*")
-      .eq("slug", params.tutorSlug)
-      .eq("is_approved", true)
-      .single();
+    // Call canonical database RPC exclusively (no direct JS insert fallback)
+    const { data: rpcRes, error: rpcErr } = await supabase.rpc("create_demo_booking", {
+      p_student_profile_id: params.studentProfileId,
+      p_tutor_slug: params.tutorSlug,
+      p_subject: params.subject,
+      p_scheduled_start_at: params.scheduledStartAt,
+      p_learning_goal: params.learningGoal || null,
+    });
 
-    if (tErr || !tutor) {
-      console.error("Tutor not found or not approved:", params.tutorSlug);
+    if (rpcErr || !rpcRes) {
+      console.error("create_demo_booking RPC error:", rpcErr);
       return null;
     }
 
-    // 2. Validate subject belongs to tutor
-    if (tutor.subjects && tutor.subjects.length > 0 && !tutor.subjects.includes(params.subject)) {
-      console.error("Subject not offered by tutor:", params.subject);
-      return null;
-    }
-
-    // 3. Validate scheduledStartAt is in future
-    const startDate = new Date(params.scheduledStartAt);
-    if (startDate.getTime() <= Date.now()) {
-      console.error("Demo booking must be in the future");
-      return null;
-    }
-
-    const endDate = new Date(startDate.getTime() + 30 * 60000);
-
-    const { data, error } = await supabase
+    const { data: booking, error: fetchErr } = await supabase
       .from("demo_bookings")
-      .insert({
-        user_id: params.userId,
-        student_profile_id: params.studentProfileId,
-        tutor_slug: tutor.slug,
-        tutor_name: tutor.name,
-        subject: params.subject,
-        session_mode: "online",
-        duration_minutes: 30,
-        price_inr: 0,
-        scheduled_start_at: startDate.toISOString(),
-        scheduled_end_at: endDate.toISOString(),
-        status: "confirmed",
-        learning_goal: params.learningGoal || null,
-        meeting_reference: "demo-" + tutor.slug + "-" + Date.now().toString().slice(-4),
-      })
-      .select()
+      .select("*")
+      .eq("id", rpcRes.booking_id)
       .single();
 
-    if (error || !data) {
-      console.error("Failed to create demo booking:", error);
+    if (fetchErr || !booking) {
+      console.error("Failed to fetch created demo booking:", fetchErr);
       return null;
     }
-    return data as DemoBookingRow;
+
+    return booking as DemoBookingRow;
   } catch (e) {
     console.error("createDemoBooking exception:", e);
     return null;

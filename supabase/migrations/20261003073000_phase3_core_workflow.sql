@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS public.public_tutor_catalog (
   city text NOT NULL DEFAULT 'Hyderabad',
   travel_radius_km integer NOT NULL DEFAULT 0,
   starting_package_price_inr integer NOT NULL DEFAULT 3200,
-  verification text[] NOT NULL DEFAULT ARRAY['Qualification reviewed', 'Teaching profile reviewed'],
+  verification text[] NOT NULL DEFAULT '{}',
   available_days text[] NOT NULL DEFAULT ARRAY['Monday', 'Wednesday', 'Friday', 'Saturday'],
   available_times text[] NOT NULL DEFAULT ARRAY['4:00 PM', '5:00 PM', '6:00 PM'],
   is_approved boolean NOT NULL DEFAULT false,
@@ -83,21 +83,47 @@ CREATE POLICY "public_tutor_catalog_admin_delete"
   USING (private.is_admin());
 
 -- ----------------------------------------------------------------------------
--- 2. STUDENT PROFILES ROLE-BASED INSERT HARDENING
+-- 2. STUDENT PROFILES ROLE-BASED ACCESS & INSERT HARDENING
 -- ----------------------------------------------------------------------------
+-- Phase 2 defined permissive 'student_profiles_owner_all' FOR ALL.
+-- Drop it so the restrictive role-based INSERT policy is authoritative.
+DROP POLICY IF EXISTS "student_profiles_owner_all" ON public.student_profiles;
+DROP POLICY IF EXISTS "student_profiles_owner_select" ON public.student_profiles;
 DROP POLICY IF EXISTS "student_profiles_owner_insert" ON public.student_profiles;
+DROP POLICY IF EXISTS "student_profiles_owner_update" ON public.student_profiles;
+DROP POLICY IF EXISTS "student_profiles_owner_delete" ON public.student_profiles;
+
+CREATE POLICY "student_profiles_owner_select"
+  ON public.student_profiles
+  FOR SELECT
+  TO authenticated
+  USING ((select auth.uid()) = owner_user_id OR private.is_admin());
+
 CREATE POLICY "student_profiles_owner_insert"
   ON public.student_profiles
   FOR INSERT
   TO authenticated
   WITH CHECK (
-    (select auth.uid()) = owner_user_id
-    AND EXISTS (
+    ((select auth.uid()) = owner_user_id AND EXISTS (
       SELECT 1 FROM public.account_roles
       WHERE user_id = (select auth.uid())
-        AND role IN ('parent', 'student', 'admin')
-    )
+        AND role IN ('parent', 'student')
+    ))
+    OR private.is_admin()
   );
+
+CREATE POLICY "student_profiles_owner_update"
+  ON public.student_profiles
+  FOR UPDATE
+  TO authenticated
+  USING ((select auth.uid()) = owner_user_id OR private.is_admin())
+  WITH CHECK ((select auth.uid()) = owner_user_id OR private.is_admin());
+
+CREATE POLICY "student_profiles_owner_delete"
+  ON public.student_profiles
+  FOR DELETE
+  TO authenticated
+  USING ((select auth.uid()) = owner_user_id OR private.is_admin());
 
 -- ----------------------------------------------------------------------------
 -- 3. DEMO BOOKINGS
@@ -151,27 +177,11 @@ CREATE POLICY "demo_bookings_owner_or_tutor_select"
     )
   );
 
-CREATE POLICY "demo_bookings_owner_insert"
+-- No direct owner INSERT or UPDATE policy.
+-- Bookings are created exclusively via create_demo_booking RPC and cancelled via cancel_demo_booking RPC.
+CREATE POLICY "demo_bookings_admin_manage"
   ON public.demo_bookings
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (
-    (select auth.uid()) = user_id
-    AND EXISTS (
-      SELECT 1 FROM public.student_profiles
-      WHERE id = student_profile_id
-        AND owner_user_id = (select auth.uid())
-    )
-    AND EXISTS (
-      SELECT 1 FROM public.public_tutor_catalog
-      WHERE slug = tutor_slug
-        AND is_approved = true
-    )
-  );
-
-CREATE POLICY "demo_bookings_admin_update"
-  ON public.demo_bookings
-  FOR UPDATE
+  FOR ALL
   TO authenticated
   USING (private.is_admin())
   WITH CHECK (private.is_admin());
@@ -451,18 +461,150 @@ CREATE POLICY "class_ledger_owner_select"
   TO authenticated
   USING ((select auth.uid()) = user_id OR private.is_admin());
 
-CREATE POLICY "class_ledger_admin_manage"
-  ON public.class_ledger_entries
-  FOR ALL
-  TO authenticated
-  USING (private.is_admin())
-  WITH CHECK (private.is_admin());
+-- Ledger is immutable: no direct INSERT, UPDATE, or DELETE policies exist for any client role.
+-- Mutations occur exclusively through constrained SECURITY DEFINER RPCs (mark_session_completed).
 
 -- ----------------------------------------------------------------------------
 -- 11. TRANSACTIONAL SECURITY DEFINER RPCs
 -- ----------------------------------------------------------------------------
 
--- A. Cancel Demo Booking (Constrained cancellation RPC)
+-- A1. Create Demo Booking (Canonical validation & server-side integrity)
+CREATE OR REPLACE FUNCTION public.create_demo_booking(
+  p_student_profile_id uuid,
+  p_tutor_slug text,
+  p_subject text,
+  p_scheduled_start_at timestamptz,
+  p_learning_goal text DEFAULT NULL
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth, private
+AS $$
+DECLARE
+  v_user_id uuid;
+  v_student record;
+  v_tutor record;
+  v_booking_id uuid;
+  v_start_kolkata timestamp;
+  v_day_name text;
+  v_meeting_ref text;
+  v_end_at timestamptz;
+BEGIN
+  v_user_id := (select auth.uid());
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'Authentication required';
+  END IF;
+
+  -- 1. Require parent or student role (or admin)
+  IF NOT EXISTS (
+    SELECT 1 FROM public.account_roles
+    WHERE user_id = v_user_id AND role IN ('parent', 'student', 'admin')
+  ) THEN
+    RAISE EXCEPTION 'Only parent or student accounts can book demo sessions';
+  END IF;
+
+  -- 2. Verify student_profile belongs to caller
+  SELECT * INTO v_student
+  FROM public.student_profiles
+  WHERE id = p_student_profile_id AND owner_user_id = v_user_id;
+
+  IF NOT FOUND AND NOT private.is_admin() THEN
+    RAISE EXCEPTION 'Student profile not found or not owned by user';
+  END IF;
+
+  -- 3. Verify tutor exists and is approved
+  SELECT * INTO v_tutor
+  FROM public.public_tutor_catalog
+  WHERE slug = p_tutor_slug AND is_approved = true;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Approved tutor not found';
+  END IF;
+
+  -- 4. Verify selected subject exists in tutor.subjects
+  IF NOT (p_subject = ANY(v_tutor.subjects)) THEN
+    RAISE EXCEPTION 'Selected subject % is not taught by this tutor', p_subject;
+  END IF;
+
+  -- 5. Require scheduled_start_at > now()
+  IF p_scheduled_start_at <= timezone('utc'::text, now()) THEN
+    RAISE EXCEPTION 'Demo booking time must be in the future';
+  END IF;
+
+  -- 6. Compute end_at strictly 30 minutes later
+  v_end_at := p_scheduled_start_at + interval '30 minutes';
+
+  -- 7. Reject tutor/time active-slot conflicts
+  IF EXISTS (
+    SELECT 1 FROM public.demo_bookings
+    WHERE tutor_slug = p_tutor_slug
+      AND scheduled_start_at = p_scheduled_start_at
+      AND status IN ('requested', 'confirmed')
+  ) THEN
+    RAISE EXCEPTION 'This time slot is no longer available for tutor %', p_tutor_slug;
+  END IF;
+
+  -- 8. Validate against tutor available_days in Asia/Kolkata
+  v_start_kolkata := p_scheduled_start_at AT TIME ZONE 'Asia/Kolkata';
+  v_day_name := trim(to_char(v_start_kolkata, 'Day'));
+  IF v_tutor.available_days IS NOT NULL AND array_length(v_tutor.available_days, 1) > 0 THEN
+    IF NOT (v_day_name = ANY(v_tutor.available_days)) THEN
+      RAISE EXCEPTION 'Tutor does not accept bookings on %', v_day_name;
+    END IF;
+  END IF;
+
+  -- Generate server-side meeting reference
+  v_meeting_ref := 'demo-' || v_tutor.slug || '-' || substr(replace(gen_random_uuid()::text, '-', ''), 1, 8);
+
+  -- 9. Insert forced canonical parameters (session_mode = 'online', duration_minutes = 30, price_inr = 0, status = 'confirmed')
+  INSERT INTO public.demo_bookings (
+    user_id,
+    student_profile_id,
+    tutor_slug,
+    tutor_name,
+    subject,
+    session_mode,
+    duration_minutes,
+    price_inr,
+    scheduled_start_at,
+    scheduled_end_at,
+    status,
+    meeting_reference,
+    learning_goal
+  ) VALUES (
+    v_user_id,
+    p_student_profile_id,
+    v_tutor.slug,
+    v_tutor.name,
+    p_subject,
+    'online',
+    30,
+    0,
+    p_scheduled_start_at,
+    v_end_at,
+    'confirmed',
+    v_meeting_ref,
+    p_learning_goal
+  ) RETURNING id INTO v_booking_id;
+
+  RETURN jsonb_build_object(
+    'booking_id', v_booking_id,
+    'tutor_slug', v_tutor.slug,
+    'tutor_name', v_tutor.name,
+    'subject', p_subject,
+    'scheduled_start_at', p_scheduled_start_at,
+    'scheduled_end_at', v_end_at,
+    'status', 'confirmed',
+    'meeting_reference', v_meeting_ref
+  );
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.create_demo_booking(uuid, text, text, timestamptz, text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.create_demo_booking(uuid, text, text, timestamptz, text) TO authenticated;
+
+-- A2. Cancel Demo Booking (Constrained cancellation RPC)
 CREATE OR REPLACE FUNCTION public.cancel_demo_booking(p_booking_id uuid)
 RETURNS boolean
 LANGUAGE plpgsql
@@ -522,13 +664,14 @@ RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, auth, private
-AS $
+AS $$
 DECLARE
   v_user_id uuid;
   v_student record;
   v_tutor record;
   v_pkg record;
   v_pref_id uuid;
+  v_pref_time time;
   v_day text;
   v_valid_days text[] := ARRAY['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 BEGIN
@@ -588,10 +731,16 @@ BEGIN
     END IF;
   END LOOP;
 
-  -- 6. Validate preferred_time
+  -- 6. Validate preferred_time parses cleanly to time without exception (no silent fallback)
   IF p_preferred_time IS NULL OR trim(p_preferred_time) = '' THEN
     RAISE EXCEPTION 'preferred_time must not be empty';
   END IF;
+
+  BEGIN
+    v_pref_time := p_preferred_time::time;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE EXCEPTION 'Invalid preferred_time format: %. Must be a valid time string.', p_preferred_time;
+  END;
 
   -- 7. Validate initial_subject if provided
   IF p_initial_subject IS NOT NULL AND trim(p_initial_subject) <> '' THEN
@@ -600,7 +749,7 @@ BEGIN
     END IF;
   END IF;
 
-  -- Insert preference
+  -- Insert preference with canonical Asia/Kolkata timezone
   INSERT INTO public.schedule_preferences (
     user_id,
     student_profile_id,
@@ -619,13 +768,13 @@ BEGIN
     p_tuition_mode,
     p_preferred_days,
     p_preferred_time,
-    COALESCE(p_timezone, 'Asia/Kolkata'),
+    'Asia/Kolkata',
     NULLIF(trim(p_initial_subject), '')
   ) RETURNING id INTO v_pref_id;
 
   RETURN v_pref_id;
 END;
-$;
+$$;
 
 REVOKE ALL ON FUNCTION public.save_schedule_preference(uuid, text, text, text, text[], text, text, text) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.save_schedule_preference(uuid, text, text, text, text[], text, text, text) TO authenticated;
@@ -643,7 +792,7 @@ RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, auth, private
-AS $
+AS $$
 DECLARE
   v_user_id uuid;
   v_student record;
@@ -764,7 +913,7 @@ BEGIN
     'tutor_slug', v_tutor.slug
   );
 END;
-$;
+$$;
 
 REVOKE ALL ON FUNCTION public.create_demo_purchase(uuid, text, text, text, uuid, text) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.create_demo_purchase(uuid, text, text, text, uuid, text) TO authenticated;
@@ -775,7 +924,7 @@ RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, auth, private
-AS $
+AS $$
 DECLARE
   v_user_id uuid;
   v_purchase record;
@@ -869,7 +1018,9 @@ BEGIN
     RAISE EXCEPTION 'Online tuition is not offered by this tutor';
   END IF;
 
-  -- Check and defensively verify schedule preference if linked
+  v_locality := CASE WHEN v_purchase.tuition_mode = 'home' THEN v_tutor.locality ELSE NULL END;
+
+  -- Explicit branching for schedule preference: NEVER access uninitialized v_pref if NULL
   IF v_purchase.schedule_preference_id IS NOT NULL THEN
     SELECT * INTO v_pref
     FROM public.schedule_preferences
@@ -898,104 +1049,139 @@ BEGIN
     IF v_pref.tuition_mode <> v_purchase.tuition_mode THEN
       RAISE EXCEPTION 'Schedule preference tuition mode mismatch';
     END IF;
-  END IF;
 
-  -- Determine initial subject: initial_subject if valid, otherwise 'To be confirmed'
-  IF v_pref.initial_subject IS NOT NULL AND v_pref.initial_subject = ANY(v_tutor.subjects) THEN
-    v_initial_subject := v_pref.initial_subject;
-  ELSE
-    v_initial_subject := 'To be confirmed';
-  END IF;
+    -- Determine initial subject from preference if valid
+    IF v_pref.initial_subject IS NOT NULL AND v_pref.initial_subject = ANY(v_tutor.subjects) THEN
+      v_initial_subject := v_pref.initial_subject;
+    ELSE
+      v_initial_subject := 'To be confirmed';
+    END IF;
 
-  v_locality := CASE WHEN v_purchase.tuition_mode = 'home' THEN v_tutor.locality ELSE NULL END;
-
-  -- Create active enrollment
-  INSERT INTO public.student_tutor_enrollments (
-    user_id,
-    student_profile_id,
-    package_purchase_id,
-    schedule_preference_id,
-    tutor_slug,
-    tutor_name,
-    initial_subject,
-    tuition_mode,
-    total_classes,
-    remaining_classes,
-    status,
-    started_at,
-    valid_until
-  ) VALUES (
-    v_purchase.user_id,
-    v_purchase.student_profile_id,
-    v_purchase.id,
-    v_purchase.schedule_preference_id,
-    v_purchase.tutor_slug,
-    v_purchase.tutor_name,
-    v_initial_subject,
-    v_purchase.tuition_mode,
-    v_pkg.total_classes,
-    v_pkg.total_classes,
-    'active',
-    timezone('utc'::text, now()),
-    timezone('utc'::text, now()) + (v_pkg.validity_days || ' days')::interval
-  ) RETURNING id INTO v_enrollment_id;
-
-  -- Generate sessions ONLY if valid schedule preference exists (at most 3 upcoming sessions)
-  IF v_pref.id IS NOT NULL AND v_pref.preferred_days IS NOT NULL AND array_length(v_pref.preferred_days, 1) > 0 THEN
+    -- Validate preferred_time in preference (never fallback)
     BEGIN
       v_pref_time := v_pref.preferred_time::time;
     EXCEPTION WHEN OTHERS THEN
-      v_pref_time := '17:00:00'::time;
+      RAISE EXCEPTION 'Invalid preferred_time in schedule preference: %', v_pref.preferred_time;
     END;
 
-    v_curr_date := (timezone('utc'::text, now()) AT TIME ZONE 'Asia/Kolkata')::date;
+    -- Create active enrollment
+    INSERT INTO public.student_tutor_enrollments (
+      user_id,
+      student_profile_id,
+      package_purchase_id,
+      schedule_preference_id,
+      tutor_slug,
+      tutor_name,
+      initial_subject,
+      tuition_mode,
+      total_classes,
+      remaining_classes,
+      status,
+      started_at,
+      valid_until
+    ) VALUES (
+      v_purchase.user_id,
+      v_purchase.student_profile_id,
+      v_purchase.id,
+      v_purchase.schedule_preference_id,
+      v_purchase.tutor_slug,
+      v_purchase.tutor_name,
+      v_initial_subject,
+      v_purchase.tuition_mode,
+      v_pkg.total_classes,
+      v_pkg.total_classes,
+      'active',
+      timezone('utc'::text, now()),
+      timezone('utc'::text, now()) + (v_pkg.validity_days || ' days')::interval
+    ) RETURNING id INTO v_enrollment_id;
 
-    FOR v_day_offset IN 0..60 LOOP
-      v_candidate_date := v_curr_date + v_day_offset;
-      v_day_name := trim(to_char(v_candidate_date, 'Day'));
+    -- Generate sessions from preference
+    IF v_pref.preferred_days IS NOT NULL AND array_length(v_pref.preferred_days, 1) > 0 THEN
+      v_curr_date := (timezone('utc'::text, now()) AT TIME ZONE 'Asia/Kolkata')::date;
 
-      IF v_day_name = ANY(v_pref.preferred_days) THEN
-        v_session_time := (v_candidate_date + v_pref_time) AT TIME ZONE 'Asia/Kolkata';
+      FOR v_day_offset IN 0..60 LOOP
+        v_candidate_date := v_curr_date + v_day_offset;
+        v_day_name := trim(to_char(v_candidate_date, 'Day'));
 
-        IF v_session_time > timezone('utc'::text, now()) AND v_session_time <= (timezone('utc'::text, now()) + (v_pkg.validity_days || ' days')::interval) THEN
-          v_sessions_count := v_sessions_count + 1;
+        IF v_day_name = ANY(v_pref.preferred_days) THEN
+          v_session_time := (v_candidate_date + v_pref_time) AT TIME ZONE 'Asia/Kolkata';
 
-          INSERT INTO public.class_sessions (
-            enrollment_id,
-            student_profile_id,
-            user_id,
-            tutor_slug,
-            tutor_name,
-            subject,
-            session_mode,
-            scheduled_start_at,
-            duration_minutes,
-            status,
-            locality,
-            meeting_provider,
-            meeting_reference
-          ) VALUES (
-            v_enrollment_id,
-            v_purchase.student_profile_id,
-            v_purchase.user_id,
-            v_purchase.tutor_slug,
-            v_purchase.tutor_name,
-            v_initial_subject,
-            v_purchase.tuition_mode,
-            v_session_time,
-            60,
-            'scheduled',
-            v_locality,
-            CASE WHEN v_purchase.tuition_mode = 'online' THEN 'demo_room' ELSE NULL END,
-            CASE WHEN v_purchase.tuition_mode = 'online' THEN 'room-' || v_purchase.tutor_slug || '-' || v_sessions_count ELSE NULL END
-          );
+          IF v_session_time > timezone('utc'::text, now()) AND v_session_time <= (timezone('utc'::text, now()) + (v_pkg.validity_days || ' days')::interval) THEN
+            v_sessions_count := v_sessions_count + 1;
 
-          IF v_sessions_count >= 3 THEN
-            EXIT;
+            INSERT INTO public.class_sessions (
+              enrollment_id,
+              student_profile_id,
+              user_id,
+              tutor_slug,
+              tutor_name,
+              subject,
+              session_mode,
+              scheduled_start_at,
+              duration_minutes,
+              status,
+              locality,
+              meeting_provider,
+              meeting_reference
+            ) VALUES (
+              v_enrollment_id,
+              v_purchase.student_profile_id,
+              v_purchase.user_id,
+              v_purchase.tutor_slug,
+              v_purchase.tutor_name,
+              v_initial_subject,
+              v_purchase.tuition_mode,
+              v_session_time,
+              60,
+              'scheduled',
+              v_locality,
+              CASE WHEN v_purchase.tuition_mode = 'online' THEN 'demo_room' ELSE NULL END,
+              CASE WHEN v_purchase.tuition_mode = 'online' THEN 'room-' || v_purchase.tutor_slug || '-' || v_sessions_count ELSE NULL END
+            );
+
+            IF v_sessions_count >= 3 THEN
+              EXIT;
+            END IF;
           END IF;
         END IF;
-      END IF;
-    END LOOP;
+      END LOOP;
+    END IF;
+
+  ELSE
+    -- No schedule preference supplied: do NOT reference v_pref!
+    v_initial_subject := 'To be confirmed';
+
+    INSERT INTO public.student_tutor_enrollments (
+      user_id,
+      student_profile_id,
+      package_purchase_id,
+      schedule_preference_id,
+      tutor_slug,
+      tutor_name,
+      initial_subject,
+      tuition_mode,
+      total_classes,
+      remaining_classes,
+      status,
+      started_at,
+      valid_until
+    ) VALUES (
+      v_purchase.user_id,
+      v_purchase.student_profile_id,
+      v_purchase.id,
+      NULL,
+      v_purchase.tutor_slug,
+      v_purchase.tutor_name,
+      v_initial_subject,
+      v_purchase.tuition_mode,
+      v_pkg.total_classes,
+      v_pkg.total_classes,
+      'active',
+      timezone('utc'::text, now()),
+      timezone('utc'::text, now()) + (v_pkg.validity_days || ' days')::interval
+    ) RETURNING id INTO v_enrollment_id;
+
+    -- Zero sessions pre-generated (schedule confirmation required)
   END IF;
 
   -- Update purchase status
@@ -1260,7 +1446,7 @@ INSERT INTO public.public_tutor_catalog (
   'Hyderabad',
   5,
   3200,
-  ARRAY['Qualification reviewed', 'Teaching profile reviewed'],
+  ARRAY[]::text[],
   ARRAY['Monday', 'Wednesday', 'Friday', 'Saturday'],
   ARRAY['4:00 PM', '5:00 PM', '6:00 PM'],
   true
@@ -1285,7 +1471,7 @@ INSERT INTO public.public_tutor_catalog (
   'Hyderabad',
   7,
   3200,
-  ARRAY['Qualification reviewed', 'Teaching profile reviewed'],
+  ARRAY[]::text[],
   ARRAY['Tuesday', 'Thursday', 'Saturday', 'Sunday'],
   ARRAY['4:30 PM', '5:30 PM', '7:00 PM'],
   true
@@ -1310,7 +1496,7 @@ INSERT INTO public.public_tutor_catalog (
   'Hyderabad',
   0,
   3200,
-  ARRAY['Qualification reviewed', 'Teaching profile reviewed'],
+  ARRAY[]::text[],
   ARRAY['Monday', 'Tuesday', 'Thursday', 'Friday'],
   ARRAY['5:00 PM', '6:00 PM', '7:30 PM'],
   true
@@ -1335,7 +1521,7 @@ INSERT INTO public.public_tutor_catalog (
   'Hyderabad',
   6,
   3200,
-  ARRAY['Qualification reviewed', 'Teaching profile reviewed'],
+  ARRAY[]::text[],
   ARRAY['Monday', 'Wednesday', 'Friday', 'Sunday'],
   ARRAY['3:30 PM', '5:00 PM', '6:30 PM'],
   true

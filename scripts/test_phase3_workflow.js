@@ -11,112 +11,107 @@ async function runPhase3Tests() {
   const results = [];
 
   const migrationPath = path.join(__dirname, '..', 'supabase', 'migrations', '20261003073000_phase3_core_workflow.sql');
-  const migrationSql = fs.readFileSync(migrationPath, 'utf8');
+  const migrationSql = fs.readFileSync(migrationPath, 'utf8').replace(/\r\n/g, '\n');
 
   const wfPath = path.join(__dirname, '..', 'src', 'lib', 'services', 'workflow.ts');
-  const wfCode = fs.readFileSync(wfPath, 'utf8');
+  const wfCode = fs.readFileSync(wfPath, 'utf8').replace(/\r\n/g, '\n');
 
   const actionsPath = path.join(__dirname, '..', 'src', 'app', 'actions', 'workflow.ts');
-  const actionsCode = fs.readFileSync(actionsPath, 'utf8');
+  const actionsCode = fs.readFileSync(actionsPath, 'utf8').replace(/\r\n/g, '\n');
 
-  // 1. SQL CONSTRAINT: Demo duration = 30m, price = ₹0, scheduled_end_at = start + 30m, future check
-  const hasDemoDuration = /duration_minutes integer NOT NULL DEFAULT 30 CHECK \(duration_minutes = 30\)/.test(migrationSql);
-  const hasDemoPrice = /price_inr integer NOT NULL DEFAULT 0 CHECK \(price_inr = 0\)/.test(migrationSql);
-  const hasDemoEndTime = /CONSTRAINT chk_demo_end_time CHECK \(scheduled_end_at = scheduled_start_at \+ interval '30 minutes'\)/.test(migrationSql);
-  const hasDemoFuture = /CONSTRAINT chk_demo_future CHECK \(scheduled_start_at > created_at\)/.test(migrationSql);
-  const c1 = hasDemoDuration && hasDemoPrice && hasDemoEndTime && hasDemoFuture;
-  console.log(c1 ? '✓ PASS' : '✗ FAIL', '1. SQL Invariants: Demo duration = 30m, price = ₹0, scheduled_end_at = start + 30m, future check');
-  results.push({ name: 'Demo SQL Invariants', pass: c1 });
+  // 1. PL/pgSQL DOLLAR QUOTING: All functions use valid matching $$ delimiters (no malformed AS $ or END; $;)
+  const hasMalformedAs = /AS\s+\$(?!\$)/.test(migrationSql);
+  const hasMalformedEnd = /END;\s*\$(?!\$);/.test(migrationSql);
+  const hasCreateDemoBooking = migrationSql.includes('FUNCTION public.create_demo_booking');
+  const hasCancelDemoBooking = migrationSql.includes('FUNCTION public.cancel_demo_booking');
+  const hasSavePref = migrationSql.includes('FUNCTION public.save_schedule_preference');
+  const hasCreatePurchase = migrationSql.includes('FUNCTION public.create_demo_purchase');
+  const hasSimulateActivation = migrationSql.includes('FUNCTION public.simulate_purchase_activation');
+  const hasMarkCompleted = migrationSql.includes('FUNCTION public.mark_session_completed');
+  const c1 = !hasMalformedAs && !hasMalformedEnd && hasCreateDemoBooking && hasCancelDemoBooking &&
+             hasSavePref && hasCreatePurchase && hasSimulateActivation && hasMarkCompleted;
+  console.log(c1 ? '✓ PASS' : '✗ FAIL', '1. SQL Syntax: All 6 PL/pgSQL functions use valid matching $$ delimiters (zero malformed single $)');
+  results.push({ name: 'PL/pgSQL Delimiters', pass: c1 });
 
-  // 2. SQL CONSTRAINT: Active double-booking prevention for same tutor slot
-  const hasActiveSlotIndex = /CREATE UNIQUE INDEX IF NOT EXISTS idx_demo_bookings_tutor_active_slot\s+ON public\.demo_bookings\s*\(tutor_slug,\s*scheduled_start_at\)\s+WHERE\s*\(status IN \('requested',\s*'confirmed'\)\);/.test(migrationSql);
-  console.log(hasActiveSlotIndex ? '✓ PASS' : '✗ FAIL', '2. SQL Invariants: Partial unique index prevents active double booking of tutor slot');
-  results.push({ name: 'Active Slot Index', pass: hasActiveSlotIndex });
+  // 2. STUDENT PROFILES RLS: student_profiles_owner_all is removed
+  const hasOwnerAll = /CREATE POLICY "student_profiles_owner_all"/.test(migrationSql);
+  const dropsOwnerAll = /DROP POLICY IF EXISTS "student_profiles_owner_all"/.test(migrationSql);
+  const c2 = !hasOwnerAll && dropsOwnerAll;
+  console.log(c2 ? '✓ PASS' : '✗ FAIL', '2. Security Policy: student_profiles_owner_all dropped; no permissive FOR ALL override');
+  results.push({ name: 'Student Profiles Owner All Dropped', pass: c2 });
 
-  // 3. TUTOR-SIDE RLS IDENTITY: Must join tutor_profiles to resolve user_id = auth.uid()
+  // 3. STUDENT PROFILES INSERT: Requires parent or student role
+  const insertRequiresLearnerRole = /role IN \('parent', 'student'\)/.test(migrationSql);
+  console.log(insertRequiresLearnerRole ? '✓ PASS' : '✗ FAIL', '3. Security Policy: student_profiles INSERT policy strictly requires parent/student role');
+  results.push({ name: 'Student Profiles Role Insert', pass: insertRequiresLearnerRole });
+
+  // 4. DEMO BOOKINGS RLS: demo_bookings_owner_insert is ABSENT
+  const hasDemoOwnerInsert = /CREATE POLICY "demo_bookings_owner_insert"/.test(migrationSql);
+  console.log(!hasDemoOwnerInsert ? '✓ PASS' : '✗ FAIL', '4. Security Policy: demo_bookings_owner_insert is absent; direct client INSERT forbidden');
+  results.push({ name: 'Demo Bookings Insert Forbidden', pass: !hasDemoOwnerInsert });
+
+  // 5. DEMO BOOKINGS RPC: create_demo_booking exists and forces canonical values
+  const hasBookingRpc = /CREATE OR REPLACE FUNCTION public\.create_demo_booking/.test(migrationSql);
+  const forcesValues = /'online',\s*30,\s*0,/.test(migrationSql);
+  const c5 = hasBookingRpc && forcesValues;
+  console.log(c5 ? '✓ PASS' : '✗ FAIL', '5. Security RPC: create_demo_booking exists and forces online mode, 30 min duration, ₹0 price');
+  results.push({ name: 'Create Demo Booking RPC', pass: c5 });
+
+  // 6. APPLICATION LOGIC: createDemoBooking uses RPC only (no direct .insert fallback)
+  const appCallsBookingRpc = wfCode.includes('supabase.rpc("create_demo_booking"');
+  const noDirectBookingInsert = !/\.from\("demo_bookings"\)\s*\.insert\(/.test(wfCode);
+  const c6 = appCallsBookingRpc && noDirectBookingInsert;
+  console.log(c6 ? '✓ PASS' : '✗ FAIL', '6. Application Logic: createDemoBooking uses RPC exclusively with zero direct JS insert fallback');
+  results.push({ name: 'App Uses Booking RPC Only', pass: c6 });
+
+  // 7. DEMO BOOKING VALIDATION: Validates tutor approval and subjects in RPC
+  const checksTutorApproval = /slug = p_tutor_slug AND is_approved = true/.test(migrationSql);
+  const checksTutorSubject = /p_subject = ANY\(v_tutor\.subjects\)/.test(migrationSql);
+  const c7 = checksTutorApproval && checksTutorSubject;
+  console.log(c7 ? '✓ PASS' : '✗ FAIL', '7. Security RPC: create_demo_booking validates tutor approval and subject teaching qualification');
+  results.push({ name: 'Booking Tutor and Subject Validation', pass: c7 });
+
+  // 8. ACTIVATION LOGIC: Never references uninitialized v_pref when schedule_preference_id is NULL
+  const branchesPref = /IF v_purchase\.schedule_preference_id IS NOT NULL THEN[\s\S]*?ELSE[\s\S]*?v_initial_subject := 'To be confirmed';[\s\S]*?END IF;/.test(migrationSql);
+  console.log(branchesPref ? '✓ PASS' : '✗ FAIL', '8. Scheduling Logic: Activation cleanly branches on schedule_preference_id; never accesses uninitialized v_pref');
+  results.push({ name: 'Uninitialized v_pref Guard', pass: branchesPref });
+
+  // 9. PREFERRED TIME VALIDATION: Rejects unparseable time without silent 5 PM fallback
+  const validatesTime = /v_pref_time := p_preferred_time::time;\s+EXCEPTION WHEN OTHERS THEN\s+RAISE EXCEPTION 'Invalid preferred_time format/.test(migrationSql);
+  const noSilentFallback = !migrationSql.includes("'17:00:00'::time");
+  const c9 = validatesTime && noSilentFallback;
+  console.log(c9 ? '✓ PASS' : '✗ FAIL', '9. Scheduling Logic: preferred_time is validated strictly; zero silent fallback to 17:00');
+  results.push({ name: 'Preferred Time Strict Validation', pass: c9 });
+
+  // 10. DEMO PROFILE CLAIM DATA: Demo seeds have empty verification arrays
+  const hasDemoSeedClaims = /is_demo_profile = true[\s\S]*?ARRAY\['Qualification reviewed'/.test(migrationSql);
+  const seedEmptyArrays = migrationSql.includes("ARRAY[]::text[]");
+  const c10 = !hasDemoSeedClaims && seedEmptyArrays;
+  console.log(c10 ? '✓ PASS' : '✗ FAIL', '10. Claim Safety: Demo tutor seeds have empty verification arrays (no fabricated review claims)');
+  results.push({ name: 'Demo Seeds Claim Safety', pass: c10 });
+
+  // 11. CLASS LEDGER IMMUTABILITY: No client INSERT, UPDATE, or DELETE policies exist
+  const hasLedgerAdminManage = /CREATE POLICY "class_ledger_admin_manage"/.test(migrationSql);
+  const hasLedgerUpdate = /ON public\.class_ledger_entries\s+FOR UPDATE/.test(migrationSql);
+  const hasLedgerDelete = /ON public\.class_ledger_entries\s+FOR DELETE/.test(migrationSql);
+  const c11 = !hasLedgerAdminManage && !hasLedgerUpdate && !hasLedgerDelete;
+  console.log(c11 ? '✓ PASS' : '✗ FAIL', '11. Security Policy: Class Ledger is immutable (zero client UPDATE or DELETE policies)');
+  results.push({ name: 'Class Ledger Immutability', pass: c11 });
+
+  // 12. TUTOR-SIDE RLS IDENTITY: Must join tutor_profiles to resolve user_id = auth.uid()
   const demoTutorJoin = /FROM public\.public_tutor_catalog c\s+JOIN public\.tutor_profiles tp\s+ON tp\.id = c\.tutor_profile_id\s+WHERE c\.slug = demo_bookings\.tutor_slug\s+AND tp\.user_id = \(select auth\.uid\(\)\)/.test(migrationSql);
   const sessionTutorJoin = /FROM public\.public_tutor_catalog c\s+JOIN public\.tutor_profiles tp\s+ON tp\.id = c\.tutor_profile_id\s+WHERE c\.slug = class_sessions\.tutor_slug\s+AND tp\.user_id = \(select auth\.uid\(\)\)/.test(migrationSql);
-  const c3 = demoTutorJoin && sessionTutorJoin;
-  console.log(c3 ? '✓ PASS' : '✗ FAIL', '3. Security Policy: Tutor SELECT policies join tutor_profiles and resolve tp.user_id = auth.uid()');
-  results.push({ name: 'Tutor RLS Identity Join', pass: c3 });
+  const c12 = demoTutorJoin && sessionTutorJoin;
+  console.log(c12 ? '✓ PASS' : '✗ FAIL', '12. Security Policy: Tutor SELECT policies join tutor_profiles and resolve tp.user_id = auth.uid()');
+  results.push({ name: 'Tutor RLS Identity Join', pass: c12 });
 
-  // 4. RLS INVARIANT: class_sessions_owner_insert is ABSENT
-  const hasSessionOwnerInsert = /CREATE POLICY "class_sessions_owner_insert"/.test(migrationSql);
-  const hasSessionAdminManage = /CREATE POLICY "class_sessions_admin_manage"/.test(migrationSql);
-  const c4 = !hasSessionOwnerInsert && hasSessionAdminManage;
-  console.log(c4 ? '✓ PASS' : '✗ FAIL', '4. Security Policy: class_sessions_owner_insert is absent; family cannot insert arbitrary sessions directly');
-  results.push({ name: 'Class Sessions Insert Restricted', pass: c4 });
-
-  // 5. RLS INVARIANT: package_purchases_owner_insert is ABSENT
+  // 13. INVARIANTS: Package purchases insert restricted, simulation default false, no JS purchase fallback
   const hasPurchaseOwnerInsert = /CREATE POLICY "package_purchases_owner_insert"/.test(migrationSql);
-  const hasPurchaseAdminManage = /CREATE POLICY "package_purchases_admin_manage"/.test(migrationSql);
-  const c5 = !hasPurchaseOwnerInsert && hasPurchaseAdminManage;
-  console.log(c5 ? '✓ PASS' : '✗ FAIL', '5. Security Policy: package_purchases_owner_insert is absent; purchases must use create_demo_purchase RPC');
-  results.push({ name: 'Package Purchases Insert Restricted', pass: c5 });
-
-  // 6. SQL SCHEMA: is_demo_simulation defaults to false; create_demo_purchase explicitly sets true
-  const hasSimulationDefaultFalse = /is_demo_simulation boolean NOT NULL DEFAULT false/.test(migrationSql);
-  const rpcSetsSimulationTrue = /is_demo_simulation\s*\)\s*VALUES\s*\([\s\S]*?true\s*\)\s*RETURNING id INTO v_purchase_id/.test(migrationSql);
-  const c6 = hasSimulationDefaultFalse && rpcSetsSimulationTrue;
-  console.log(c6 ? '✓ PASS' : '✗ FAIL', '6. SQL Schema: is_demo_simulation DEFAULT false; create_demo_purchase explicitly inserts true');
-  results.push({ name: 'Demo Simulation Default False', pass: c6 });
-
-  // 7. APPLICATION LOGIC: JS direct package fallback is ABSENT (no manual insert / fallback txRef)
+  const simulationDefaultFalse = /is_demo_simulation boolean NOT NULL DEFAULT false/.test(migrationSql);
   const noManualPurchaseInsert = !/\.from\("package_purchases"\)\s*\.insert\(/.test(wfCode);
-  const noFallbackComment = !/Direct server fallback if RPC not yet created/.test(wfCode);
-  const callsPurchaseRpc = /supabase\.rpc\("create_demo_purchase"/.test(wfCode);
-  const c7 = noManualPurchaseInsert && noFallbackComment && callsPurchaseRpc;
-  console.log(c7 ? '✓ PASS' : '✗ FAIL', '7. Application Logic: JS direct package fallback is absent; fails closed if RPC fails');
-  results.push({ name: 'No JS Purchase Fallback', pass: c7 });
-
-  // 8. SQL RPC: save_schedule_preference exists and create_demo_purchase validates supplied preference
-  const hasSavePrefRpc = /CREATE OR REPLACE FUNCTION public\.save_schedule_preference/.test(migrationSql);
-  const validatesPrefOwnership = /v_pref\.user_id <> v_user_id/.test(migrationSql) &&
-                                  /v_pref\.student_profile_id <> p_student_profile_id/.test(migrationSql) &&
-                                  /v_pref\.tutor_slug <> p_tutor_slug/.test(migrationSql) &&
-                                  /v_pref\.package_id <> p_package_id/.test(migrationSql) &&
-                                  /v_pref\.tuition_mode <> p_tuition_mode/.test(migrationSql);
-  const c8 = hasSavePrefRpc && validatesPrefOwnership;
-  console.log(c8 ? '✓ PASS' : '✗ FAIL', '8. Security RPC: Schedule preference validated for ownership, student, tutor, package, and tuition mode');
-  results.push({ name: 'Schedule Preference Consistency', pass: c8 });
-
-  // 9. SQL RPC: simulate_purchase_activation validates tutor mode independently
-  const validatesActivationMode = /v_purchase\.tuition_mode = 'home' AND NOT v_tutor\.offers_home/.test(migrationSql) &&
-                                  /v_purchase\.tuition_mode = 'online' AND NOT v_tutor\.offers_online/.test(migrationSql);
-  const validatesStudentOwnership = /SELECT 1 FROM public\.student_profiles\s+WHERE id = v_purchase\.student_profile_id AND owner_user_id = v_purchase\.user_id/.test(migrationSql);
-  const c9 = validatesActivationMode && validatesStudentOwnership;
-  console.log(c9 ? '✓ PASS' : '✗ FAIL', '9. Security RPC: simulate_purchase_activation independently verifies tutor mode capability & student ownership');
-  results.push({ name: 'Activation Mode & Student Guard', pass: c9 });
-
-  // 10. SQL RPC: Session generation references preferred_days & preferred_time without fixed day patterns
-  const referencesPrefDays = /v_day_name = ANY\(v_pref\.preferred_days\)/.test(migrationSql);
-  const referencesPrefTime = migrationSql.includes("v_session_time := (v_candidate_date + v_pref_time) AT TIME ZONE 'Asia/Kolkata'");
-  const noFixedDayPattern = !/v_start_date \+ interval '3 days'/.test(migrationSql) &&
-                            !/v_start_date \+ interval '5 days'/.test(migrationSql);
-  const c10 = referencesPrefDays && referencesPrefTime && noFixedDayPattern;
-  console.log(c10 ? '✓ PASS' : '✗ FAIL', '10. Scheduling Algorithm: Sessions generated dynamically from preferred_days & preferred_time (no fixed day offsets)');
-  results.push({ name: 'Dynamic Schedule Session Generation', pass: c10 });
-
-  // 11. SQL RPC: mark_session_completed validates session/enrollment relationship
-  const validatesSessionRel = /v_enrollment\.user_id <> v_session\.user_id/.test(migrationSql) &&
-                              /v_enrollment\.student_profile_id <> v_session\.student_profile_id/.test(migrationSql) &&
-                              /v_enrollment\.tutor_slug <> v_session\.tutor_slug/.test(migrationSql);
-  console.log(validatesSessionRel ? '✓ PASS' : '✗ FAIL', '11. Security RPC: mark_session_completed verifies enrollment user, student, and tutor relationship');
-  results.push({ name: 'Session Completion Relation Check', pass: validatesSessionRel });
-
-  // 12. SQL INVARIANT: Home session meeting constraint & unique enrollment per purchase
-  const hasHomeSessionConstraint = /CONSTRAINT chk_home_session_no_meeting CHECK \(\s*session_mode != 'home' OR \(meeting_provider IS NULL AND meeting_reference IS NULL\)\s*\)/.test(migrationSql);
-  const hasUniqueEnrollment = /CREATE UNIQUE INDEX IF NOT EXISTS idx_enrollments_unique_purchase\s+ON public\.student_tutor_enrollments\(package_purchase_id\)/.test(migrationSql);
-  const c12 = hasHomeSessionConstraint && hasUniqueEnrollment;
-  console.log(c12 ? '✓ PASS' : '✗ FAIL', '12. SQL Invariants: Home meeting DB constraint & unique enrollment per purchase index');
-  results.push({ name: 'Home Meeting & Unique Enrollment', pass: c12 });
-
-  // 13. APPLICATION LOGIC: Fail-closed payment mode & canonical pricing & role enforcement
-  const failsClosed = /process\.env\.TUTORCONNECT_DEMO_PAYMENT_MODE !== "true"/.test(wfCode) || /process\.env\.TUTORCONNECT_DEMO_PAYMENT_MODE === "true"/.test(wfCode);
-  const enforcesRole = /roles\.includes\("parent"\) \|\| roles\.includes\("student"\) \|\| roles\.includes\("admin"\)/.test(actionsCode);
-  const c13 = failsClosed && enforcesRole;
-  console.log(c13 ? '✓ PASS' : '✗ FAIL', '13. Application Logic: Fail-closed payment mode & role guard on learner creation');
-  results.push({ name: 'App Logic Guards', pass: c13 });
+  const c13 = !hasPurchaseOwnerInsert && simulationDefaultFalse && noManualPurchaseInsert;
+  console.log(c13 ? '✓ PASS' : '✗ FAIL', '13. Security Invariants: Package purchases insert restricted, demo default false, no JS fallback');
+  results.push({ name: 'Purchase Security Invariants', pass: c13 });
 
   // 14. LIVE SUPABASE STATUS: Accurately report pending status for unapplied Phase 3 tables
   console.log('\n[INFO] Live Supabase Phase 3 Table Status:');

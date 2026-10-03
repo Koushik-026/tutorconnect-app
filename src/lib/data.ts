@@ -58,10 +58,7 @@ export const tutors: Tutor[] = [
     startingPackagePrice: 3200,
     startingMonthlyFee: 3200,
 
-    verification: [
-      "Qualification reviewed",
-      "Teaching profile reviewed",
-    ],
+    verification: [],
 
     availableDays: ["Monday", "Wednesday", "Friday", "Saturday"],
     availableTimes: ["4:00 PM", "5:00 PM", "6:00 PM"],
@@ -99,10 +96,7 @@ export const tutors: Tutor[] = [
     startingPackagePrice: 3200,
     startingMonthlyFee: 3200,
 
-    verification: [
-      "Qualification reviewed",
-      "Teaching profile reviewed",
-    ],
+    verification: [],
 
     availableDays: ["Tuesday", "Thursday", "Saturday", "Sunday"],
     availableTimes: ["4:30 PM", "5:30 PM", "7:00 PM"],
@@ -134,10 +128,7 @@ export const tutors: Tutor[] = [
     startingPackagePrice: 3200,
     startingMonthlyFee: 3200,
 
-    verification: [
-      "Qualification reviewed",
-      "Teaching profile reviewed",
-    ],
+    verification: [],
 
     availableDays: ["Monday", "Tuesday", "Thursday", "Friday"],
     availableTimes: ["5:00 PM", "6:00 PM", "7:30 PM"],
@@ -169,10 +160,7 @@ export const tutors: Tutor[] = [
     startingPackagePrice: 3200,
     startingMonthlyFee: 3200,
 
-    verification: [
-      "Qualification reviewed",
-      "Teaching profile reviewed",
-    ],
+    verification: [],
 
     availableDays: ["Monday", "Wednesday", "Friday", "Sunday"],
     availableTimes: ["3:30 PM", "5:00 PM", "6:30 PM"],
