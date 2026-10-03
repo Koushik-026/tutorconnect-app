@@ -32,11 +32,13 @@ function getInitials(name: string) {
 export function TutorCard({ tutor }: TutorCardProps) {
   const offersOnline = tutor.modes.includes("online");
   const offersHome = tutor.modes.includes("home");
+  const isDemo = tutor.isDemoProfile || !tutor.rating || tutor.reviewCount === 0;
+  const startingPrice = tutor.startingPackagePrice || tutor.startingMonthlyFee || 3200;
 
   return (
     <article className="group relative flex h-full flex-col justify-between rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 sm:p-7 shadow-[0_2px_12px_rgba(55,48,40,0.02)] transition-all duration-200 hover:-translate-y-1 hover:border-[#315F52]/30 hover:shadow-[0_8px_32px_rgba(55,48,40,0.05)]">
       <div>
-        {/* Header: Identity + Rating */}
+        {/* Header: Identity + Rating / Demo Badge */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <div
@@ -51,20 +53,28 @@ export function TutorCard({ tutor }: TutorCardProps) {
                 <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-[#25231F] group-hover:text-[#315F52] transition-colors">
                   <Link href={`/tutors/${tutor.id}`}>{tutor.name}</Link>
                 </h3>
-                <span title="Verified Profile" className="text-[#315F52]">
-                  <IconShieldCheck size={16} />
-                </span>
+                {!isDemo && (
+                  <span title="Qualification reviewed" className="text-[#315F52]">
+                    <IconShieldCheck size={16} />
+                  </span>
+                )}
               </div>
               <p className="text-xs font-semibold text-[#6F6A62]">{tutor.headline}</p>
             </div>
           </div>
 
-          {/* Rating */}
-          <div className="flex items-center gap-1 rounded-full bg-[#FFF7ED] px-2.5 py-1 text-xs font-bold text-[#25231F] border border-[rgba(55,48,40,0.08)] shadow-2xs">
-            <IconStar size={13} className="text-[#F1B777]" />
-            <span>{tutor.rating.toFixed(1)}</span>
-            <span className="text-[#9B958C] font-normal">({tutor.reviewCount})</span>
-          </div>
+          {/* Rating or Sample Profile Badge */}
+          {isDemo ? (
+            <span className="rounded-full bg-[#FFFBF5] px-2.5 py-1 text-[11px] font-semibold text-[#9B958C] border border-[rgba(55,48,40,0.08)]">
+              Sample profile
+            </span>
+          ) : (
+            <div className="flex items-center gap-1 rounded-full bg-[#FFF7ED] px-2.5 py-1 text-xs font-bold text-[#25231F] border border-[rgba(55,48,40,0.08)] shadow-2xs">
+              <IconStar size={13} className="text-[#F1B777]" />
+              <span>{tutor.rating?.toFixed(1)}</span>
+              <span className="text-[#9B958C] font-normal">({tutor.reviewCount})</span>
+            </div>
+          )}
         </div>
 
         {/* Subjects & Curriculum Tags */}
@@ -112,26 +122,26 @@ export function TutorCard({ tutor }: TutorCardProps) {
               Class Packages From
             </span>
             <div className="font-[family-name:var(--font-manrope)] text-lg font-extrabold text-[#25231F]">
-              {formatCurrency(tutor.startingMonthlyFee)}
+              {formatCurrency(startingPrice)}
               <span className="text-xs font-medium text-[#6F6A62]"> / 8 classes</span>
             </div>
           </div>
           <span className="rounded-full bg-[#E3EADD] px-2 py-0.5 text-[10px] font-bold text-[#2D4F42]">
-            Free 30m Trial
+            Free 30-Min Demo
           </span>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <Link
             href={`/tutors/${tutor.id}`}
-            className="btn btn-action btn-outline min-h-[42px] px-3 text-xs font-bold rounded-2xl justify-center"
+            className="btn btn-action btn-outline min-h-[44px] px-3 text-xs font-bold rounded-2xl justify-center"
           >
             <span>View Profile</span>
           </Link>
 
           <Link
             href={`/demo/book?tutor=${tutor.id}`}
-            className="btn btn-action btn-primary min-h-[42px] px-3 text-xs font-bold rounded-2xl justify-center shadow-xs"
+            className="btn btn-action btn-primary min-h-[44px] px-3 text-xs font-bold rounded-2xl justify-center shadow-xs"
           >
             <span>Book Demo</span>
             <IconArrowRight size={13} />

@@ -91,9 +91,11 @@ export default async function TutorProfilePage({
                         <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
                           {tutor.name}
                         </h1>
-                        <span title="Verified Profile" className="text-[#315F52]">
-                          <IconShieldCheck size={20} />
-                        </span>
+                        {!tutor.isDemoProfile && (
+                          <span title="Qualification reviewed" className="text-[#315F52]">
+                            <IconShieldCheck size={20} />
+                          </span>
+                        )}
                       </div>
                       <p className="mt-1 text-sm font-semibold text-[#315F52]">
                         {tutor.headline}
@@ -111,14 +113,20 @@ export default async function TutorProfilePage({
                     </div>
                   </div>
 
-                  {/* Rating Box */}
-                  <div className="flex sm:flex-col items-center sm:items-end justify-between gap-1 rounded-2xl bg-[#FFFBF5] border border-[rgba(55,48,40,0.08)] px-4 py-2.5 self-start">
-                    <div className="flex items-center gap-1 text-sm font-extrabold text-[#25231F]">
-                      <IconStar size={15} className="text-[#F1B777]" />
-                      <span>{tutor.rating.toFixed(1)}</span>
+                  {/* Rating or Sample Profile Badge */}
+                  {tutor.isDemoProfile || !tutor.rating || tutor.reviewCount === 0 ? (
+                    <div className="rounded-2xl bg-[#FFFBF5] border border-[rgba(55,48,40,0.08)] px-4 py-2.5 self-start">
+                      <span className="text-xs font-semibold text-[#9B958C]">Sample tutor profile</span>
                     </div>
-                    <span className="text-[11px] text-[#6F6A62]">{tutor.reviewCount} verified reviews</span>
-                  </div>
+                  ) : (
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between gap-1 rounded-2xl bg-[#FFFBF5] border border-[rgba(55,48,40,0.08)] px-4 py-2.5 self-start">
+                      <div className="flex items-center gap-1 text-sm font-extrabold text-[#25231F]">
+                        <IconStar size={15} className="text-[#F1B777]" />
+                        <span>{tutor.rating?.toFixed(1)}</span>
+                      </div>
+                      <span className="text-[11px] text-[#6F6A62]">{tutor.reviewCount} reviews</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Modes availability banner */}
@@ -308,7 +316,7 @@ export default async function TutorProfilePage({
                 <div className="mt-5 rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-4 text-xs text-[#6F6A62]">
                   <span className="font-bold text-[#25231F]">Class Packages:</span>
                   <div className="mt-1 font-bold text-[#25231F] text-sm">
-                    Starting from {formatCurrency(tutor.startingMonthlyFee)} (8 classes)
+                    Starting from {formatCurrency((tutor.startingPackagePrice || tutor.startingMonthlyFee || 3200))} (8 classes)
                   </div>
                   <p className="mt-0.5 text-[11px] text-[#6F6A62]">
                     Choose 8, 12, or 15 classes after your demo if satisfied.
@@ -324,7 +332,7 @@ export default async function TutorProfilePage({
           <div className="container-shell flex items-center justify-between gap-4">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#9B958C]">
-                Free 30-min Trial
+                Free 30-Min Demo
               </span>
               <div className="font-[family-name:var(--font-manrope)] text-sm font-extrabold text-[#25231F]">
                 Meet {tutor.name}

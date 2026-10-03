@@ -74,7 +74,7 @@ export function SiteHeader() {
 
             <Link
               href="/tutors"
-              className="btn btn-primary min-h-[42px] px-5 text-xs font-bold shadow-[0_4px_16px_rgba(49,95,82,0.20)] rounded-full gap-1.5"
+              className="btn btn-primary min-h-[44px] px-5 text-xs font-bold shadow-[0_4px_16px_rgba(49,95,82,0.20)] rounded-full gap-1.5"
             >
               <span>Explore Tutors</span>
               <IconArrowRight size={14} />

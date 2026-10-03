@@ -285,7 +285,7 @@ function StudentDashboardContent() {
                 {isModeActive
                   ? "Your active tuition rhythm is on track. Keep up the steady weekly momentum!"
                   : hasLiveDemo
-                  ? `Your free 30-minute diagnostic trial with ${tutorDisplayName} is scheduled.`
+                  ? `Your free 30-minute diagnostic demo with ${tutorDisplayName} is scheduled.`
                   : "Explore verified educators and book a free 30-minute demo to begin."}
               </p>
             </div>
@@ -293,7 +293,7 @@ function StudentDashboardContent() {
             <div className="flex items-center gap-2 self-start">
               <Link
                 href="/dashboard/student/sessions"
-                className="btn btn-outline min-h-[38px] px-4 rounded-full text-xs font-bold"
+                className="btn btn-outline min-h-[44px] px-4 rounded-full text-xs font-bold"
               >
                 <span>View All Sessions</span>
               </Link>
@@ -310,13 +310,13 @@ function StudentDashboardContent() {
                     {nextSession
                       ? "Next Scheduled Class"
                       : upcomingDemo
-                      ? "Upcoming Free Trial"
+                      ? "Upcoming Free Demo"
                       : "Tuition Overview"}
                   </span>
                   <span className="text-xs font-semibold text-[#6F6A62]">
                     {isModeActive
                       ? `Class ${completedClasses + 1} of ${totalClasses}`
-                      : "30-Minute Online Trial"}
+                      : "30-Minute Online Demo"}
                   </span>
                 </div>
 
@@ -324,7 +324,7 @@ function StudentDashboardContent() {
                   {nextSession
                     ? `${nextSession.subject} with ${nextSession.tutor_name}`
                     : upcomingDemo
-                    ? `Trial Session with ${upcomingDemo.tutor_name}`
+                    ? `Demo Session with ${upcomingDemo.tutor_name}`
                     : "No Upcoming Classes Scheduled"}
                 </h2>
 
@@ -332,7 +332,7 @@ function StudentDashboardContent() {
                   {nextSession
                     ? `Continuing syllabus coverage. Session mode: ${nextSession.session_mode === "home" ? "Home In-person" : "1-on-1 Online"}.`
                     : upcomingDemo
-                    ? `Diagnostic trial session. Purpose: ${upcomingDemo.learning_goal || "Evaluate teaching style and subject comfort."}`
+                    ? `Diagnostic demo session. Purpose: ${upcomingDemo.learning_goal || "Evaluate teaching style and subject comfort."}`
                     : "Schedule a free demo with any of our verified educators to explore concepts before selecting a routine."}
                 </p>
 

@@ -135,7 +135,7 @@ export default function HomePage() {
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E4EEE9] text-[#244A40]">
                   <IconVideo size={12} />
                 </span>
-                <span>Free 30-min Online Trial</span>
+                <span>Free 30-Min Online Demo</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE2D8] text-[#BA5945]">
@@ -217,7 +217,7 @@ export default function HomePage() {
                       3
                     </span>
                     <div>
-                      <h4 className="text-sm font-bold text-[#25231F]">Free 30-Minute Trial</h4>
+                      <h4 className="text-sm font-bold text-[#25231F]">Free 30-Minute Demo</h4>
                       <p className="mt-0.5 text-xs text-[#6F6A62]">
                         Attend an online demo to confirm teaching rapport before committing to any package.
                       </p>
@@ -300,7 +300,7 @@ export default function HomePage() {
                         href="/demo/book?tutor=ananya-sharma"
                         className="font-bold text-[#315F52] hover:underline"
                       >
-                        Book Free Trial &rarr;
+                        Book Free Demo &rarr;
                       </Link>
                     </div>
                   </div>
@@ -323,7 +323,7 @@ export default function HomePage() {
                   <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.08)] pb-4">
                     <div className="flex items-center gap-2">
                       <span className="h-3 w-3 rounded-full bg-[#315F52]" />
-                      <span className="text-xs font-bold text-[#25231F]">Free 30-Min Trial Session</span>
+                      <span className="text-xs font-bold text-[#25231F]">Free 30-Min Demo Session</span>
                     </div>
                     <span className="rounded-full bg-[#E3EADD] px-2.5 py-0.5 text-[11px] font-bold text-[#244A40]">
                       Zero Payment Required
@@ -641,7 +641,7 @@ export default function HomePage() {
                 {
                   step: "02",
                   title: "Free Demo",
-                  text: "Attend a 30-min online trial. Confirm rapport before committing.",
+                  text: "Attend a 30-min online demo. Confirm rapport before committing.",
                   bg: "bg-[#E3EADD]",
                   color: "text-[#244A40]",
                 },
@@ -717,7 +717,7 @@ export default function HomePage() {
                 </span>
                 <h4 className="mt-3 text-sm font-bold text-[#25231F]">Free 30-Min Demo</h4>
                 <p className="mt-1 text-xs text-[#6F6A62] leading-relaxed">
-                  Experience the tutor&apos;s teaching approach in a live 1-on-1 trial before any payment is discussed.
+                  Experience the tutor&apos;s teaching approach in a live 1-on-1 demo before any payment is discussed.
                 </p>
               </div>
 
@@ -757,7 +757,7 @@ export default function HomePage() {
                 Ready to give your child the right mentor?
               </h2>
               <p className="mt-4 mx-auto max-w-xl text-base sm:text-lg text-[#6F6A62] leading-relaxed">
-                Start with a free 30-minute online trial. Connect with verified Hyderabad educators without upfront payment.
+                Start with a free 30-minute online demo. Connect with verified Hyderabad educators without upfront payment.
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">

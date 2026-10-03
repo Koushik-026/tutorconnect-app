@@ -113,7 +113,7 @@ export default async function TutorDiscoveryPage({
               </h1>
 
               <p className="mt-3 text-base text-[#6F6A62] leading-relaxed">
-                Connect with verified 1-on-1 educators in Hyderabad across CBSE, ICSE, and State curricula. Experience teaching rapport first in a free 30-minute online trial.
+                Connect with verified 1-on-1 educators in Hyderabad across CBSE, ICSE, and State curricula. Experience teaching rapport first in a free 30-minute online demo.
               </p>
             </div>
           </div>
@@ -249,7 +249,7 @@ export default async function TutorDiscoveryPage({
                   <input type="hidden" name="mode" value={selectedMode} />
                   <button
                     type="submit"
-                    className="btn btn-primary w-full min-h-[38px] rounded-2xl text-xs font-bold justify-center"
+                    className="btn btn-primary w-full min-h-[44px] rounded-2xl text-xs font-bold justify-center"
                   >
                     Apply Filters
                   </button>

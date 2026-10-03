@@ -203,7 +203,7 @@ export default function MySessionsPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/tutors"
-              className="btn btn-outline min-h-[38px] px-4 rounded-full text-xs font-bold"
+              className="btn btn-outline min-h-[44px] px-4 rounded-full text-xs font-bold"
             >
               Explore Educators
             </Link>
@@ -271,13 +271,13 @@ export default function MySessionsPage() {
               <div className="pt-2 flex justify-center gap-3">
                 <Link
                   href="/tutors"
-                  className="btn btn-primary min-h-[40px] px-6 rounded-full text-xs font-bold"
+                  className="btn btn-primary min-h-[44px] px-6 rounded-full text-xs font-bold"
                 >
                   Find a Tutor
                 </Link>
                 <Link
                   href="/packages/select"
-                  className="btn btn-outline min-h-[40px] px-6 rounded-full text-xs font-bold"
+                  className="btn btn-outline min-h-[44px] px-6 rounded-full text-xs font-bold"
                 >
                   View Packages
                 </Link>
@@ -356,7 +356,7 @@ export default function MySessionsPage() {
                           <button
                             type="button"
                             disabled
-                            className="btn btn-primary min-h-[42px] px-6 rounded-full text-xs font-bold opacity-60 cursor-not-allowed justify-center"
+                            className="btn btn-primary min-h-[44px] px-6 rounded-full text-xs font-bold opacity-60 cursor-not-allowed justify-center"
                           >
                             Join Class
                           </button>
@@ -379,7 +379,7 @@ export default function MySessionsPage() {
                           type="button"
                           disabled={isPending}
                           onClick={() => handleCompleteSession(session.id)}
-                          className="btn btn-outline min-h-[42px] px-4 rounded-full text-xs font-bold justify-center hover:bg-[#E4EEE9] hover:border-[#315F52]"
+                          className="btn btn-outline min-h-[44px] px-4 rounded-full text-xs font-bold justify-center hover:bg-[#E4EEE9] hover:border-[#315F52]"
                         >
                           Mark Completed (Test Ledger)
                         </button>
