@@ -108,6 +108,11 @@ Alternatively, if using `{{ .ConfirmationURL }}`:
 ## 7. Quality & Verification Commands
 
 ```bash
+# Security & RLS verification suites
+node scripts/test_security_static.js
+node scripts/test_live_rls.js
+node scripts/test_authenticated_proof.js
+
 # Lint audit (0 errors, 0 warnings required)
 npm run lint -- --max-warnings=0
 
