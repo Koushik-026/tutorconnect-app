@@ -179,9 +179,9 @@ CREATE POLICY "demo_bookings_owner_or_tutor_select"
 
 -- No direct owner INSERT or UPDATE policy.
 -- Bookings are created exclusively via create_demo_booking RPC and cancelled via cancel_demo_booking RPC.
-CREATE POLICY "demo_bookings_admin_manage"
+CREATE POLICY "demo_bookings_admin_update"
   ON public.demo_bookings
-  FOR ALL
+  FOR UPDATE
   TO authenticated
   USING (private.is_admin())
   WITH CHECK (private.is_admin());
@@ -284,9 +284,9 @@ CREATE POLICY "schedule_preferences_owner_select"
   TO authenticated
   USING ((select auth.uid()) = user_id OR private.is_admin());
 
-CREATE POLICY "schedule_preferences_admin_manage"
+CREATE POLICY "schedule_preferences_admin_update"
   ON public.schedule_preferences
-  FOR ALL
+  FOR UPDATE
   TO authenticated
   USING (private.is_admin())
   WITH CHECK (private.is_admin());
@@ -324,9 +324,9 @@ CREATE POLICY "package_purchases_owner_select"
   TO authenticated
   USING ((select auth.uid()) = user_id OR private.is_admin());
 
-CREATE POLICY "package_purchases_admin_manage"
+CREATE POLICY "package_purchases_admin_update"
   ON public.package_purchases
-  FOR ALL
+  FOR UPDATE
   TO authenticated
   USING (private.is_admin())
   WITH CHECK (private.is_admin());
@@ -369,9 +369,9 @@ CREATE POLICY "enrollments_owner_select"
   TO authenticated
   USING ((select auth.uid()) = user_id OR private.is_admin());
 
-CREATE POLICY "enrollments_admin_manage"
+CREATE POLICY "enrollments_admin_update"
   ON public.student_tutor_enrollments
-  FOR ALL
+  FOR UPDATE
   TO authenticated
   USING (private.is_admin())
   WITH CHECK (private.is_admin());
@@ -426,9 +426,9 @@ CREATE POLICY "class_sessions_owner_or_tutor_select"
   );
 
 -- No direct owner INSERT or UPDATE policy. Sessions are created and updated via secure RPCs.
-CREATE POLICY "class_sessions_admin_manage"
+CREATE POLICY "class_sessions_admin_update"
   ON public.class_sessions
-  FOR ALL
+  FOR UPDATE
   TO authenticated
   USING (private.is_admin())
   WITH CHECK (private.is_admin());
@@ -438,8 +438,8 @@ CREATE POLICY "class_sessions_admin_manage"
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.class_ledger_entries (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  enrollment_id uuid NOT NULL REFERENCES public.student_tutor_enrollments(id) ON DELETE CASCADE,
-  class_session_id uuid REFERENCES public.class_sessions(id) ON DELETE SET NULL,
+  enrollment_id uuid NOT NULL REFERENCES public.student_tutor_enrollments(id) ON DELETE RESTRICT,
+  class_session_id uuid REFERENCES public.class_sessions(id) ON DELETE RESTRICT,
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   entry_type text NOT NULL CHECK (entry_type IN ('class_completed', 'class_credit', 'class_adjustment')),
   classes_delta integer NOT NULL,
@@ -488,6 +488,7 @@ DECLARE
   v_booking_id uuid;
   v_start_kolkata timestamp;
   v_day_name text;
+  v_time_str text;
   v_meeting_ref text;
   v_end_at timestamptz;
 BEGIN
@@ -551,6 +552,14 @@ BEGIN
   IF v_tutor.available_days IS NOT NULL AND array_length(v_tutor.available_days, 1) > 0 THEN
     IF NOT (v_day_name = ANY(v_tutor.available_days)) THEN
       RAISE EXCEPTION 'Tutor does not accept bookings on %', v_day_name;
+    END IF;
+  END IF;
+
+  -- 8b. Validate against tutor available_times in Asia/Kolkata
+  v_time_str := trim(to_char(v_start_kolkata, 'FMHH12:MI AM'));
+  IF v_tutor.available_times IS NOT NULL AND array_length(v_tutor.available_times, 1) > 0 THEN
+    IF NOT (v_time_str = ANY(v_tutor.available_times)) THEN
+      RAISE EXCEPTION 'Requested time % is not an advertised available time for tutor %', v_time_str, p_tutor_slug;
     END IF;
   END IF;
 
