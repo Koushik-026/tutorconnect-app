@@ -79,7 +79,7 @@ In your **Supabase Project Dashboard -> Authentication -> Email Templates -> Mag
 <h2>Log in to TutorConnect</h2>
 <p>Click the link below to securely sign in to your TutorConnect account:</p>
 <p>
-  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">
+  <a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email">
     Sign in to TutorConnect
   </a>
 </p>

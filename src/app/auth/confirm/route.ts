@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const next = searchParams.get("next");
+  const intent = searchParams.get("intent") || searchParams.get("role");
 
   const safeNext = sanitizeInternalRedirect(next, "/dashboard/student");
 
@@ -35,8 +36,13 @@ export async function GET(request: NextRequest) {
             .eq("user_id", userId);
 
           if (!roles || roles.length === 0) {
+            const onboardingParams = new URLSearchParams();
+            if (intent === "tutor" || intent === "student" || intent === "parent") {
+              onboardingParams.set("intent", intent);
+            }
+            onboardingParams.set("next", safeNext);
             return NextResponse.redirect(
-              `${origin}/auth/onboarding?next=${encodeURIComponent(safeNext)}`
+              `${origin}/auth/onboarding?${onboardingParams.toString()}`
             );
           }
         }

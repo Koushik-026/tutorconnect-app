@@ -16,7 +16,10 @@ function OnboardingInner() {
   const searchParams = useSearchParams();
   const nextParam = searchParams.get("next") || "/dashboard/student";
 
-  const [selectedRole, setSelectedRole] = useState<ChosenRole>("parent");
+  const intentParam = searchParams.get("intent") || searchParams.get("role");
+  const initialRole: ChosenRole =
+    intentParam === "tutor" ? "tutor" : intentParam === "student" ? "student" : "parent";
+  const [selectedRole, setSelectedRole] = useState<ChosenRole>(initialRole);
   const [displayName, setDisplayName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
