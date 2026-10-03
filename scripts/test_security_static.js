@@ -67,7 +67,7 @@ const mig1Path = path.join(__dirname, '..', 'supabase', 'migrations', '202610030
 const mig2Path = path.join(__dirname, '..', 'supabase', 'migrations', '20261003063051_harden_security_definer_functions.sql');
 const mig3Path = path.join(__dirname, '..', 'supabase', 'migrations', '20261003071008_phase2_runtime_alignment.sql');
 const mig4Path = path.join(__dirname, '..', 'supabase', 'migrations', '20261003071059_phase2_policy_cleanup.sql');
-const mig5Path = path.join(__dirname, '..', 'supabase', 'migrations', '20261003073000_phase3_core_workflow.sql');
+const mig5Path = path.join(__dirname, '..', 'supabase', 'migrations', '20261003110529_phase3_core_workflow.sql');
 
 assert(fs.existsSync(mig1Path), 'Migration 1 must exist');
 assert(fs.existsSync(mig2Path), 'Migration 2 must exist');

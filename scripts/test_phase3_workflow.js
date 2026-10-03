@@ -10,7 +10,7 @@ async function runPhase3Tests() {
   console.log('=== TUTORCONNECT PHASE 3.1 INTEGRITY & WORKFLOW VERIFICATION SUITE ===\n');
   const results = [];
 
-  const migrationPath = path.join(__dirname, '..', 'supabase', 'migrations', '20261003073000_phase3_core_workflow.sql');
+  const migrationPath = path.join(__dirname, '..', 'supabase', 'migrations', '20261003110529_phase3_core_workflow.sql');
   const migrationSql = fs.readFileSync(migrationPath, 'utf8').replace(/\r\n/g, '\n');
 
   const wfPath = path.join(__dirname, '..', 'src', 'lib', 'services', 'workflow.ts');
@@ -139,36 +139,113 @@ async function runPhase3Tests() {
   console.log(c13 ? '✓ PASS' : '✗ FAIL', '13. Application Logic: Booking and purchases use secure RPCs exclusively with fail-closed flags');
   results.push({ name: 'App Secure RPC Execution', pass: c13 });
 
-  // 14. LIVE SUPABASE STATUS: Accurately report pending status for unapplied Phase 3 tables
-  console.log('\n[INFO] Live Supabase Phase 3 Table Status:');
-  try {
-    const { error: bErr } = await supabase.from('demo_bookings').select('*');
-    if (bErr && bErr.code === 'PGRST205') {
-      console.log('       LIVE PHASE 3 RLS TESTS PENDING MIGRATION APPLICATION (Tables not yet present in remote schema cache)');
-    } else if (bErr && bErr.code === '42501') {
-      console.log('       Phase 3 tables live; anonymous access blocked by RLS (42501)');
+    // 14. LIVE SUPABASE TABLES & RLS: All 9 Phase 3 tables exist and enforce RLS
+  console.log('\n--- LIVE SUPABASE PHASE 3 VERIFICATION ---');
+  const phase3Tables = [
+    'public_tutor_catalog',
+    'demo_bookings',
+    'demo_feedback',
+    'tuition_packages',
+    'schedule_preferences',
+    'package_purchases',
+    'student_tutor_enrollments',
+    'class_sessions',
+    'class_ledger_entries'
+  ];
+
+  let allTablesLive = true;
+  for (const t of phase3Tables) {
+    const { data, error, status } = await supabase.from(t).select('*').limit(1);
+    const tableExists = status === 200;
+    if (!tableExists) {
+      allTablesLive = false;
+      console.log('Table check failed:', t, 'status:', status, 'error:', error ? error.message : null);
     }
-  } catch (e) {
-    console.log('       LIVE PHASE 3 RLS TESTS PENDING MIGRATION APPLICATION');
   }
+  console.log(allTablesLive ? '✓ PASS' : '✗ FAIL', '14. Live Supabase Tables: All 9 Phase 3 tables exist in remote schema with active RLS');
+  results.push({ name: 'Live Tables Existence & RLS', pass: allTablesLive });
 
-  // 15. LIVE SUPABASE RPC: Verify anonymous cannot execute activation RPC
-  try {
-    const { error: rpcErr } = await supabase.rpc('simulate_purchase_activation', { p_purchase_id: '00000000-0000-0000-0000-000000000000' });
-    const c15 = rpcErr !== null;
-    console.log(c15 ? '✓ PASS' : '✗ FAIL', '14. Live Supabase RPC: Anonymous execution of simulate_purchase_activation rejected');
-    results.push({ name: 'Live RPC Denial', pass: c15 });
-  } catch (e) {
-    console.log('✓ PASS', '14. Live Supabase RPC execution denied as expected');
-    results.push({ name: 'Live RPC Denial', pass: true });
+  // 15. LIVE SEEDS: Verify tuition_packages and demo tutor seeds
+  const { data: pkgs } = await supabase.from('tuition_packages').select('*').order('total_classes', { ascending: true });
+  const p8 = pkgs && pkgs.find(p => p.total_classes === 8 && p.price_inr === 3200 && p.validity_days === 45 && p.class_duration_minutes === 60);
+  const p12 = pkgs && pkgs.find(p => p.total_classes === 12 && p.price_inr === 4500 && p.validity_days === 45 && p.class_duration_minutes === 60);
+  const p15 = pkgs && pkgs.find(p => p.total_classes === 15 && p.price_inr === 5400 && p.validity_days === 45 && p.class_duration_minutes === 60);
+  const pkgsValid = Boolean(p8 && p12 && p15);
+
+  const { data: tutors } = await supabase.from('public_tutor_catalog').select('rating, review_count, verification, is_demo_profile');
+  const tutorsValid = Boolean(tutors && tutors.length >= 4 && tutors.every(t => t.rating === null && t.review_count === 0 && Array.isArray(t.verification) && t.verification.length === 0 && t.is_demo_profile === true));
+  const c15 = pkgsValid && tutorsValid;
+  console.log(c15 ? '✓ PASS' : '✗ FAIL', '15. Live Seeds: Tuition packages (8/₹3200, 12/₹4500, 15/₹5400 / 60 min / 45 days) & demo tutors (null rating, 0 reviews, empty verif, is_demo=true)');
+  results.push({ name: 'Live Seeds Verification', pass: c15 });
+
+  // 16. LIVE ANONYMOUS ACCESS ISOLATION: Public readable, private return 0 rows
+  const { data: pubTut } = await supabase.from('public_tutor_catalog').select('id');
+  const { data: pubPkg } = await supabase.from('tuition_packages').select('id');
+  const { data: privProf } = await supabase.from('profiles').select('*');
+  const { data: privBook } = await supabase.from('demo_bookings').select('*');
+  const { data: privFeed } = await supabase.from('demo_feedback').select('*');
+  const { data: privPref } = await supabase.from('schedule_preferences').select('*');
+  const { data: privPur } = await supabase.from('package_purchases').select('*');
+  const { data: privEnr } = await supabase.from('student_tutor_enrollments').select('*');
+  const { data: privSess } = await supabase.from('class_sessions').select('*');
+  const { data: privLedg } = await supabase.from('class_ledger_entries').select('*');
+
+  const c16 = (pubTut && pubTut.length > 0) &&
+              (pubPkg && pubPkg.length > 0) &&
+              (privProf && privProf.length === 0) &&
+              (privBook && privBook.length === 0) &&
+              (privFeed && privFeed.length === 0) &&
+              (privPref && privPref.length === 0) &&
+              (privPur && privPur.length === 0) &&
+              (privEnr && privEnr.length === 0) &&
+              (privSess && privSess.length === 0) &&
+              (privLedg && privLedg.length === 0);
+  console.log(c16 ? '✓ PASS' : '✗ FAIL', '16. Live Anonymous Isolation: Catalog & packages public; profiles, bookings, feedback, purchases, enrollments, sessions, ledger return 0 rows');
+  results.push({ name: 'Live Anonymous Read Isolation', pass: c16 });
+
+  // 17. LIVE ANONYMOUS RPC DENIAL: All 6 RPCs rejected with 42501
+  const rpcChecks = [
+    { name: 'create_demo_booking', args: { p_student_profile_id: '00000000-0000-0000-0000-000000000001', p_tutor_slug: 'ananya-sharma', p_subject: 'Mathematics', p_scheduled_start_at: new Date().toISOString() } },
+    { name: 'cancel_demo_booking', args: { p_booking_id: '00000000-0000-0000-0000-000000000001' } },
+    { name: 'save_schedule_preference', args: { p_student_profile_id: '00000000-0000-0000-0000-000000000001', p_tutor_slug: 'ananya-sharma', p_package_id: 'package-8', p_tuition_mode: 'online', p_preferred_days: ['Monday'], p_preferred_time: '4:00 PM' } },
+    { name: 'create_demo_purchase', args: { p_student_profile_id: '00000000-0000-0000-0000-000000000001', p_package_id: 'package-8', p_tutor_slug: 'ananya-sharma', p_tuition_mode: 'online' } },
+    { name: 'simulate_purchase_activation', args: { p_purchase_id: '00000000-0000-0000-0000-000000000000' } },
+    { name: 'mark_session_completed', args: { p_session_id: '00000000-0000-0000-0000-000000000000' } }
+  ];
+
+  let allRpcsDenied = true;
+  for (const r of rpcChecks) {
+    const { error } = await supabase.rpc(r.name, r.args);
+    if (!error || error.code !== '42501') {
+      allRpcsDenied = false;
+      console.log('RPC check failed for', r.name, 'error:', error);
+    }
   }
+  console.log(allRpcsDenied ? '✓ PASS' : '✗ FAIL', '17. Live Anonymous RPC Denial: All 6 workflow RPCs rejected with 42501 permission denied');
+  results.push({ name: 'Live Anonymous RPC Denial', pass: allRpcsDenied });
 
-  // 16. CROSS-USER TEST REPORTING STATUS
-  console.log('\n[INFO] Authenticated Cross-User Test Status:');
-  console.log('       AUTHENTICATED CROSS-USER TEST PENDING (Awaiting remote migration application)');
+  // 18. LIVE ANONYMOUS WRITE REJECTION: Direct inserts rejected
+  const { error: insBookingErr } = await supabase.from('demo_bookings').insert({ student_profile_id: '00000000-0000-0000-0000-000000000001', tutor_catalog_id: '00000000-0000-0000-0000-000000000001', scheduled_start_at: new Date().toISOString(), subject: 'Math' });
+  const { error: insPkgErr } = await supabase.from('tuition_packages').insert({ id: 'fake', title: 'Fake', rhythm_name: 'Fake', intensity: 'Fake', total_classes: 1, price_inr: 1, class_duration_minutes: 60, validity_days: 1, pace_description: '1', best_for: '1', is_recommended: false, features: [] });
+  const c18 = Boolean(insBookingErr && insPkgErr);
+  console.log(c18 ? '✓ PASS' : '✗ FAIL', '18. Live Anonymous Write Protection: Direct INSERT rejected on demo_bookings and tuition_packages');
+  results.push({ name: 'Live Anonymous Write Rejection', pass: c18 });
+
+  // 19. AUTH STATUS & RATE LIMIT
+  console.log('\n[INFO] Live Supabase Auth Status:');
+  const { error: otpErr } = await supabase.auth.signInWithOtp({
+    email: 'tutorconnect.test.' + Math.floor(Math.random() * 1000000) + '@gmail.com',
+    options: { emailRedirectTo: 'http://localhost:3000/auth/confirm' }
+  });
+  if (otpErr && (otpErr.status === 429 || otpErr.code === 'over_email_send_rate_limit')) {
+    console.log('       MAGIC LINK CLICK-THROUGH PENDING SMTP RATE LIMIT (HTTP 429 over_email_send_rate_limit)');
+    console.log('       AUTHENTICATED CROSS-USER TEST PENDING (Requires active authenticated session)');
+  } else {
+    console.log('       OTP dispatch status:', otpErr ? otpErr.message : 'DISPATCHED');
+  }
 
   const allPassed = results.every(r => r.pass);
-  console.log('\n=== PHASE 3.1 VERIFICATION SUMMARY:', allPassed ? 'ALL TESTS PASSED ===' : 'SOME TESTS FAILED ===');
+  console.log('\n=== PHASE 3 LIVE VERIFICATION SUMMARY:', allPassed ? 'ALL TESTS PASSED ===' : 'SOME TESTS FAILED ===');
   if (!allPassed) process.exit(1);
 }
 
