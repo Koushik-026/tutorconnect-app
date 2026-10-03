@@ -1,7 +1,7 @@
-﻿"use server";
+"use server";
 
 import { revalidatePath } from "next/cache";
-import { getVerifiedAuth } from "@/lib/supabase/auth";
+import { getVerifiedAuth, getAccountRoles } from "@/lib/supabase/auth";
 import {
   createLearnerProfile,
   createDemoBooking,
@@ -9,15 +9,27 @@ import {
   createPackagePurchase,
   activatePurchaseSimulation,
   markClassSessionCompleted,
+  saveSchedulePreference,
 } from "@/lib/services/workflow";
 
 /**
  * Server Action: Create Learner Profile
+ * Enforces learner role: User must have 'parent', 'student', or 'admin' role.
+ * Tutor-only accounts are rejected.
  */
 export async function createLearnerProfileAction(formData: FormData) {
   const auth = await getVerifiedAuth();
   if (!auth.isAuthenticated || !auth.userId) {
     return { success: false, error: "Authentication required" };
+  }
+
+  const roles = await getAccountRoles(auth.userId);
+  const hasLearnerRole = roles.includes("parent") || roles.includes("student") || roles.includes("admin");
+  if (!hasLearnerRole) {
+    return {
+      success: false,
+      error: "Tutor accounts cannot create learner profiles. Please add a parent or student role to continue.",
+    };
   }
 
   const displayName = formData.get("display_name") as string;
@@ -49,7 +61,6 @@ export async function createLearnerProfileAction(formData: FormData) {
 export async function submitDemoBookingAction(params: {
   studentProfileId: string;
   tutorSlug: string;
-  tutorName: string;
   subject: string;
   scheduledStartAt: string;
   learningGoal?: string;
@@ -63,14 +74,13 @@ export async function submitDemoBookingAction(params: {
     userId: auth.userId,
     studentProfileId: params.studentProfileId,
     tutorSlug: params.tutorSlug,
-    tutorName: params.tutorName,
     subject: params.subject,
     scheduledStartAt: params.scheduledStartAt,
     learningGoal: params.learningGoal,
   });
 
   if (!booking) {
-    return { success: false, error: "Unable to complete demo booking." };
+    return { success: false, error: "Unable to complete demo booking. Please ensure the tutor and time slot are valid." };
   }
 
   revalidatePath("/dashboard/student");
@@ -105,15 +115,46 @@ export async function submitDemoFeedbackAction(params: {
 }
 
 /**
+ * Server Action: Save Schedule Preferences
+ */
+export async function saveSchedulePreferenceAction(params: {
+  studentProfileId: string;
+  tutorSlug: string;
+  packageId: string;
+  tuitionMode: "online" | "home";
+  preferredDays: string[];
+  preferredTime: string;
+  initialSubject?: string;
+}) {
+  const auth = await getVerifiedAuth();
+  if (!auth.isAuthenticated || !auth.userId) {
+    return { success: false, error: "Authentication required" };
+  }
+
+  const pref = await saveSchedulePreference({
+    userId: auth.userId,
+    ...params,
+  });
+
+  if (!pref) {
+    return { success: false, error: "Unable to save schedule preference." };
+  }
+
+  return { success: true, preferenceId: pref.id };
+}
+
+/**
  * Server Action: Create Package Purchase & Simulate Activation
  */
 export async function createAndActivatePurchaseAction(params: {
   studentProfileId: string;
   packageId: string;
   tutorSlug: string;
-  tutorName: string;
   tuitionMode: "online" | "home";
-  amountInr: number;
+  schedulePreferenceId?: string;
+  preferredDays?: string[];
+  preferredTime?: string;
+  initialSubject?: string;
   paymentMethod?: string;
   simulateFailure?: boolean;
 }) {
@@ -122,8 +163,31 @@ export async function createAndActivatePurchaseAction(params: {
     return { success: false, error: "Authentication required" };
   }
 
+  if (process.env.TUTORCONNECT_DEMO_PAYMENT_MODE !== "true") {
+    return { success: false, error: "Demo payment simulation is disabled." };
+  }
+
   if (params.simulateFailure) {
     return { success: false, error: "Bank payment simulation failed as requested." };
+  }
+
+  let schedulePreferenceId = params.schedulePreferenceId;
+
+  // Persist schedule preferences if provided inline
+  if (!schedulePreferenceId && params.preferredDays && params.preferredTime) {
+    const pref = await saveSchedulePreference({
+      userId: auth.userId,
+      studentProfileId: params.studentProfileId,
+      tutorSlug: params.tutorSlug,
+      packageId: params.packageId,
+      tuitionMode: params.tuitionMode,
+      preferredDays: params.preferredDays,
+      preferredTime: params.preferredTime,
+      initialSubject: params.initialSubject,
+    });
+    if (pref) {
+      schedulePreferenceId = pref.id;
+    }
   }
 
   // 1. Create Purchase row
@@ -131,10 +195,9 @@ export async function createAndActivatePurchaseAction(params: {
     userId: auth.userId,
     studentProfileId: params.studentProfileId,
     packageId: params.packageId,
+    schedulePreferenceId,
     tutorSlug: params.tutorSlug,
-    tutorName: params.tutorName,
     tuitionMode: params.tuitionMode,
-    amountInr: params.amountInr,
     paymentMethod: params.paymentMethod,
   });
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TutorConnect Core Workflow Service
  * Provides unified data access for:
  * - Public Tutor Catalog & Details
@@ -21,6 +21,7 @@ import type {
   StudentTutorEnrollmentRow,
   ClassSessionRow,
   TuitionPackageRow,
+  SchedulePreferenceRow,
 } from "@/lib/types/database";
 
 /**
@@ -31,6 +32,8 @@ function mapCatalogRowToTutor(row: PublicTutorCatalog): Tutor {
   if (row.offers_online) modes.push("online");
   if (row.offers_home) modes.push("home");
   if (modes.length === 0) modes.push("online");
+
+  const startingPrice = row.starting_package_price_inr || 3200;
 
   return {
     id: row.slug,
@@ -43,16 +46,18 @@ function mapCatalogRowToTutor(row: PublicTutorCatalog): Tutor {
     boards: row.boards || [],
     languages: row.languages || [],
     experienceYears: row.experience_years,
-    rating: Number(row.rating) || 5.0,
+    rating: row.rating ? Number(row.rating) : null,
     reviewCount: row.review_count || 0,
+    isDemoProfile: row.is_demo_profile ?? true,
     modes,
     locality: row.locality || "",
     city: row.city || "Hyderabad",
     travelRadiusKm: row.travel_radius_km || 0,
-    startingMonthlyFee: row.starting_monthly_fee || 3200,
+    startingPackagePrice: startingPrice,
+    startingMonthlyFee: startingPrice,
     verification: (row.verification || [
-      "Identity verified",
-      "Qualification verified",
+      "Qualification reviewed",
+      "Teaching profile reviewed",
     ]) as VerificationType[],
     availableDays: row.available_days || ["Monday", "Wednesday", "Friday"],
     availableTimes: row.available_times || ["4:00 PM", "5:00 PM", "6:00 PM"],
@@ -73,20 +78,24 @@ export async function getCatalogueTutors(): Promise<Tutor[]> {
       .from("public_tutor_catalog")
       .select("*")
       .eq("is_approved", true)
-      .order("rating", { ascending: false });
+      .order("created_at", { ascending: true });
 
-    if (error || !data || data.length === 0) {
-      return mockTutors;
+    if (error) {
+      // If table is pending migration (PGRST205), allow pre-live preview fallback
+      if (error.code === "PGRST205") return mockTutors;
+      return [];
     }
 
     return (data as unknown as PublicTutorCatalog[]).map(mapCatalogRowToTutor);
   } catch {
-    return mockTutors;
+    return [];
   }
 }
 
 /**
  * 2. Fetch Single Tutor by Slug
+ * Note: When Supabase is configured, database is canonical. Unknown slug returns null (404).
+ * Mock fallback is allowed only when Supabase is completely unconfigured.
  */
 export async function getTutorBySlug(slug: string): Promise<Tutor | null> {
   if (!slug) return null;
@@ -104,8 +113,15 @@ export async function getTutorBySlug(slug: string): Promise<Tutor | null> {
       if (!error && data) {
         return mapCatalogRowToTutor(data as unknown as PublicTutorCatalog);
       }
+      // If table does not exist yet in schema cache (pre-live migration), allow sample fallback
+      if (error?.code === "PGRST205") {
+        const preLiveFallback = mockTutors.find((t) => t.id === slug);
+        return preLiveFallback || null;
+      }
+      // Database is canonical: unknown slug returns null (404)
+      return null;
     } catch {
-      // Fallback below
+      return null;
     }
   }
 
@@ -142,18 +158,23 @@ export async function getTuitionPackages(): Promise<TuitionPackageRow[]> {
     price_inr: p.price,
     class_duration_minutes: p.classDurationMinutes,
     validity_days: p.validityDays,
-    pace_description: `${Math.round(p.numberOfClasses / 4)} classes / week`,
+    pace_description: String(Math.round(p.numberOfClasses / 4)) + " classes / week",
     best_for: p.description,
     is_recommended: p.id === "package-12",
     features: [
-      `${p.numberOfClasses} 1-on-1 personalized sessions (60 min each)`,
-      `${p.validityDays}-day validity from first session`,
+      String(p.numberOfClasses) + " 1-on-1 personalized sessions (60 min each)",
+      String(p.validityDays) + "-day validity from first session",
       "Digital lesson notes when shared by tutor",
       "Online or eligible Home tuition",
       "Flexible weekly learning rhythm",
     ],
     created_at: new Date().toISOString(),
   }));
+}
+
+export async function getPackageById(packageId: string): Promise<TuitionPackageRow | null> {
+  const all = await getTuitionPackages();
+  return all.find((p) => p.id === packageId) || null;
 }
 
 /**
@@ -216,7 +237,7 @@ export async function createDemoBooking(params: {
   userId: string;
   studentProfileId: string;
   tutorSlug: string;
-  tutorName: string;
+  tutorName?: string;
   subject: string;
   scheduledStartAt: string;
   learningGoal?: string;
@@ -225,7 +246,33 @@ export async function createDemoBooking(params: {
 
   try {
     const supabase = await createClient();
+
+    // 1. Verify tutor exists and is approved
+    const { data: tutor, error: tErr } = await supabase
+      .from("public_tutor_catalog")
+      .select("*")
+      .eq("slug", params.tutorSlug)
+      .eq("is_approved", true)
+      .single();
+
+    if (tErr || !tutor) {
+      console.error("Tutor not found or not approved:", params.tutorSlug);
+      return null;
+    }
+
+    // 2. Validate subject belongs to tutor
+    if (tutor.subjects && tutor.subjects.length > 0 && !tutor.subjects.includes(params.subject)) {
+      console.error("Subject not offered by tutor:", params.subject);
+      return null;
+    }
+
+    // 3. Validate scheduledStartAt is in future
     const startDate = new Date(params.scheduledStartAt);
+    if (startDate.getTime() <= Date.now()) {
+      console.error("Demo booking must be in the future");
+      return null;
+    }
+
     const endDate = new Date(startDate.getTime() + 30 * 60000);
 
     const { data, error } = await supabase
@@ -233,8 +280,8 @@ export async function createDemoBooking(params: {
       .insert({
         user_id: params.userId,
         student_profile_id: params.studentProfileId,
-        tutor_slug: params.tutorSlug,
-        tutor_name: params.tutorName,
+        tutor_slug: tutor.slug,
+        tutor_name: tutor.name,
         subject: params.subject,
         session_mode: "online",
         duration_minutes: 30,
@@ -243,7 +290,7 @@ export async function createDemoBooking(params: {
         scheduled_end_at: endDate.toISOString(),
         status: "confirmed",
         learning_goal: params.learningGoal || null,
-        meeting_reference: `demo-${params.tutorSlug}-${Date.now().toString().slice(-4)}`,
+        meeting_reference: "demo-" + tutor.slug + "-" + Date.now().toString().slice(-4),
       })
       .select()
       .single();
@@ -286,7 +333,7 @@ export async function getUserDemoBookings(userId: string): Promise<DemoBookingRo
       .from("demo_bookings")
       .select("*")
       .eq("user_id", userId)
-      .order("scheduled_start_at", { ascending: false });
+      .order("scheduled_start_at", { ascending: true });
 
     if (error || !data) return [];
     return data as DemoBookingRow[];
@@ -302,11 +349,11 @@ export async function submitDemoFeedback(params: {
   bookingId: string;
   userId: string;
   rating: number;
-  tags: string[];
+  tags?: string[];
   feedbackText?: string;
   interestedInTuition?: boolean;
 }): Promise<boolean> {
-  if (!isSupabaseConfigured() || !params.userId) return true;
+  if (!isSupabaseConfigured() || !params.userId || !params.bookingId) return false;
 
   try {
     const supabase = await createClient();
@@ -314,7 +361,7 @@ export async function submitDemoFeedback(params: {
       demo_booking_id: params.bookingId,
       user_id: params.userId,
       rating: params.rating,
-      tags: params.tags,
+      tags: params.tags || [],
       feedback_text: params.feedbackText || null,
       interested_in_tuition: params.interestedInTuition ?? true,
     });
@@ -326,34 +373,123 @@ export async function submitDemoFeedback(params: {
 }
 
 /**
- * 7. Package Purchase & Activation Simulation
+ * 7. Schedule Preferences
+ */
+export async function saveSchedulePreference(params: {
+  userId: string;
+  studentProfileId: string;
+  tutorSlug: string;
+  packageId: string;
+  tuitionMode: "online" | "home";
+  preferredDays: string[];
+  preferredTime: string;
+  initialSubject?: string;
+}): Promise<SchedulePreferenceRow | null> {
+  if (!isSupabaseConfigured() || !params.userId) return null;
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("schedule_preferences")
+      .insert({
+        user_id: params.userId,
+        student_profile_id: params.studentProfileId,
+        tutor_slug: params.tutorSlug,
+        package_id: params.packageId,
+        tuition_mode: params.tuitionMode,
+        preferred_days: params.preferredDays,
+        preferred_time: params.preferredTime,
+        timezone: "Asia/Kolkata",
+        initial_subject: params.initialSubject || null,
+      })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.error("Failed to save schedule preference:", error);
+      return null;
+    }
+    return data as SchedulePreferenceRow;
+  } catch (e) {
+    console.error("saveSchedulePreference error:", e);
+    return null;
+  }
+}
+
+/**
+ * 8. Package Purchases & Simulation
  */
 export async function createPackagePurchase(params: {
   userId: string;
   studentProfileId: string;
   packageId: string;
+  schedulePreferenceId?: string | null;
   tutorSlug: string;
-  tutorName: string;
   tuitionMode: "online" | "home";
-  amountInr: number;
   paymentMethod?: string;
 }): Promise<PackagePurchaseRow | null> {
   if (!isSupabaseConfigured() || !params.userId) return null;
 
+  // Fail closed: simulation must be strictly enabled
+  if (process.env.TUTORCONNECT_DEMO_PAYMENT_MODE !== "true") {
+    console.error("Demo payment mode is disabled.");
+    return null;
+  }
+
   try {
     const supabase = await createClient();
-    const txRef = `TC-DEMO-${Date.now().toString().slice(-6)}`;
+
+    // 1. Try secure RPC
+    const { data: rpcRes, error: rpcErr } = await supabase.rpc("create_demo_purchase", {
+      p_student_profile_id: params.studentProfileId,
+      p_package_id: params.packageId,
+      p_tutor_slug: params.tutorSlug,
+      p_tuition_mode: params.tuitionMode,
+      p_schedule_preference_id: params.schedulePreferenceId || null,
+      p_payment_method: params.paymentMethod || "UPI",
+    });
+
+    if (!rpcErr && rpcRes) {
+      const { data: purchase } = await supabase
+        .from("package_purchases")
+        .select("*")
+        .eq("id", rpcRes.purchase_id)
+        .single();
+
+      if (purchase) return purchase as PackagePurchaseRow;
+    }
+
+    // 2. Direct server fallback if RPC not yet created
+    const pkg = await getPackageById(params.packageId);
+    if (!pkg) {
+      console.error("Package not found:", params.packageId);
+      return null;
+    }
+
+    const tutor = await getTutorBySlug(params.tutorSlug);
+    if (!tutor) {
+      console.error("Tutor not found:", params.tutorSlug);
+      return null;
+    }
+
+    if (params.tuitionMode === "home" && !tutor.modes.includes("home")) {
+      console.error("Home tuition not offered by tutor");
+      return null;
+    }
+
+    const txRef = "TC-SIM-" + Math.random().toString(36).substring(2, 10).toUpperCase() + Date.now().toString(36).toUpperCase();
 
     const { data, error } = await supabase
       .from("package_purchases")
       .insert({
         user_id: params.userId,
         student_profile_id: params.studentProfileId,
-        package_id: params.packageId,
-        tutor_slug: params.tutorSlug,
-        tutor_name: params.tutorName,
+        package_id: pkg.id,
+        schedule_preference_id: params.schedulePreferenceId || null,
+        tutor_slug: tutor.id,
+        tutor_name: tutor.name,
         tuition_mode: params.tuitionMode,
-        amount_inr: params.amountInr,
+        amount_inr: pkg.price_inr,
         status: "pending",
         payment_method: params.paymentMethod || "UPI",
         transaction_reference: txRef,
@@ -363,7 +499,7 @@ export async function createPackagePurchase(params: {
       .single();
 
     if (error || !data) {
-      console.error("createPackagePurchase error:", error);
+      console.error("Failed to create package purchase:", error);
       return null;
     }
     return data as PackagePurchaseRow;
@@ -380,86 +516,25 @@ export async function activatePurchaseSimulation(
     return { success: false, error: "Database not configured" };
   }
 
-  const isDemoAllowed =
-    process.env.TUTORCONNECT_DEMO_PAYMENT_MODE !== "false";
-
-  if (!isDemoAllowed) {
-    return {
-      success: false,
-      error: "Development payment simulation is disabled outside demo mode.",
-    };
+  // Fail closed check
+  if (process.env.TUTORCONNECT_DEMO_PAYMENT_MODE !== "true") {
+    return { success: false, error: "Simulated activation is disabled in this environment." };
   }
 
   try {
     const supabase = await createClient();
 
-    // 1. Attempt RPC first if migration is live
-    const { data: rpcEnrollmentId, error: rpcError } = await supabase.rpc(
+    // Secure RPC execution
+    const { data, error } = await supabase.rpc(
       "simulate_purchase_activation",
       { p_purchase_id: purchaseId }
     );
 
-    if (!rpcError && rpcEnrollmentId) {
-      // Seed upcoming class sessions for the activated enrollment
-      await seedEnrollmentSessions(supabase, purchaseId, rpcEnrollmentId);
-      return { success: true, enrollmentId: rpcEnrollmentId };
+    if (!error && data) {
+      return { success: true, enrollmentId: data as string };
     }
 
-    // 2. Resilient fallback if RPC is pending external migration
-    const { data: purchase, error: pError } = await supabase
-      .from("package_purchases")
-      .select("*")
-      .eq("id", purchaseId)
-      .single();
-
-    if (pError || !purchase) {
-      return { success: false, error: "Purchase record not found" };
-    }
-
-    const totalClasses =
-      purchase.package_id === "package-8"
-        ? 8
-        : purchase.package_id === "package-15"
-        ? 15
-        : 12;
-
-    const validUntil = new Date(Date.now() + 45 * 86400000).toISOString();
-
-    const { data: enrollment, error: eError } = await supabase
-      .from("student_tutor_enrollments")
-      .insert({
-        user_id: purchase.user_id,
-        student_profile_id: purchase.student_profile_id,
-        package_purchase_id: purchase.id,
-        tutor_slug: purchase.tutor_slug,
-        tutor_name: purchase.tutor_name,
-        tuition_mode: purchase.tuition_mode,
-        total_classes: totalClasses,
-        remaining_classes: totalClasses,
-        status: "active",
-        valid_until: validUntil,
-      })
-      .select()
-      .single();
-
-    if (eError || !enrollment) {
-      console.error("Failed to create enrollment:", eError);
-      return { success: false, error: "Enrollment creation failed" };
-    }
-
-    // Update purchase status
-    await supabase
-      .from("package_purchases")
-      .update({
-        status: "activated",
-        activated_at: new Date().toISOString(),
-      })
-      .eq("id", purchaseId);
-
-    // Seed upcoming sessions
-    await seedEnrollmentSessions(supabase, purchaseId, enrollment.id);
-
-    return { success: true, enrollmentId: enrollment.id };
+    return { success: false, error: error?.message || "Activation RPC failed." };
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Unknown error";
     return { success: false, error: message };
@@ -467,87 +542,7 @@ export async function activatePurchaseSimulation(
 }
 
 /**
- * Helper: Seeds initial upcoming sessions for a newly activated enrollment
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function seedEnrollmentSessions(supabase: any, purchaseId: string, enrollmentId: string) {
-  try {
-    const { data: enrollment } = await supabase
-      .from("student_tutor_enrollments")
-      .select("*")
-      .eq("id", enrollmentId)
-      .single();
-
-    if (!enrollment) return;
-
-    // Check if sessions already exist
-    const { data: existing } = await supabase
-      .from("class_sessions")
-      .select("id")
-      .eq("enrollment_id", enrollmentId);
-
-    if (existing && existing.length > 0) return;
-
-    const baseDate = new Date();
-    baseDate.setDate(baseDate.getDate() + 2); // Start 2 days in future
-    baseDate.setHours(17, 0, 0, 0); // 5:00 PM
-
-    const initialSessions = [
-      {
-        enrollment_id: enrollmentId,
-        student_profile_id: enrollment.student_profile_id,
-        user_id: enrollment.user_id,
-        tutor_slug: enrollment.tutor_slug,
-        tutor_name: enrollment.tutor_name,
-        subject: "Mathematics",
-        session_mode: enrollment.tuition_mode,
-        scheduled_start_at: baseDate.toISOString(),
-        duration_minutes: 60,
-        status: "scheduled",
-        locality: enrollment.tuition_mode === "home" ? "B.N. Reddy Nagar" : null,
-        meeting_provider: enrollment.tuition_mode === "online" ? "demo_room" : null,
-        meeting_reference: enrollment.tuition_mode === "online" ? `room-${enrollment.tutor_slug}-1` : null,
-      },
-      {
-        enrollment_id: enrollmentId,
-        student_profile_id: enrollment.student_profile_id,
-        user_id: enrollment.user_id,
-        tutor_slug: enrollment.tutor_slug,
-        tutor_name: enrollment.tutor_name,
-        subject: "Science",
-        session_mode: enrollment.tuition_mode,
-        scheduled_start_at: new Date(baseDate.getTime() + 2 * 86400000).toISOString(),
-        duration_minutes: 60,
-        status: "scheduled",
-        locality: enrollment.tuition_mode === "home" ? "B.N. Reddy Nagar" : null,
-        meeting_provider: enrollment.tuition_mode === "online" ? "demo_room" : null,
-        meeting_reference: enrollment.tuition_mode === "online" ? `room-${enrollment.tutor_slug}-2` : null,
-      },
-      {
-        enrollment_id: enrollmentId,
-        student_profile_id: enrollment.student_profile_id,
-        user_id: enrollment.user_id,
-        tutor_slug: enrollment.tutor_slug,
-        tutor_name: enrollment.tutor_name,
-        subject: "Mathematics",
-        session_mode: enrollment.tuition_mode,
-        scheduled_start_at: new Date(baseDate.getTime() + 4 * 86400000).toISOString(),
-        duration_minutes: 60,
-        status: "scheduled",
-        locality: enrollment.tuition_mode === "home" ? "B.N. Reddy Nagar" : null,
-        meeting_provider: enrollment.tuition_mode === "online" ? "demo_room" : null,
-        meeting_reference: enrollment.tuition_mode === "online" ? `room-${enrollment.tutor_slug}-3` : null,
-      },
-    ];
-
-    await supabase.from("class_sessions").insert(initialSessions);
-  } catch (e) {
-    console.error("seedEnrollmentSessions error:", e);
-  }
-}
-
-/**
- * 8. User Enrollments & Sessions
+ * 9. User Enrollments & Sessions
  */
 export async function getUserEnrollments(userId: string): Promise<StudentTutorEnrollmentRow[]> {
   if (!isSupabaseConfigured() || !userId) return [];
@@ -586,7 +581,7 @@ export async function getUserClassSessions(userId: string): Promise<ClassSession
 }
 
 /**
- * 9. Mark Session Completed & Decrement Ledger
+ * 10. Mark Session Completed & Decrement Ledger
  */
 export async function markClassSessionCompleted(
   sessionId: string,
@@ -599,7 +594,6 @@ export async function markClassSessionCompleted(
   try {
     const supabase = await createClient();
 
-    // 1. Try RPC
     const { data: rpcRes, error: rpcErr } = await supabase.rpc(
       "mark_session_completed",
       {
@@ -615,60 +609,10 @@ export async function markClassSessionCompleted(
       };
     }
 
-    // 2. Resilient fallback
-    const { data: session, error: sErr } = await supabase
-      .from("class_sessions")
-      .select("*")
-      .eq("id", sessionId)
-      .single();
-
-    if (sErr || !session) {
-      return { success: false, error: "Session not found" };
-    }
-
-    if (session.status === "completed") {
-      return { success: true };
-    }
-
-    const { data: enrollment } = await supabase
-      .from("student_tutor_enrollments")
-      .select("*")
-      .eq("id", session.enrollment_id)
-      .single();
-
-    if (!enrollment || enrollment.remaining_classes <= 0) {
-      return { success: false, error: "No remaining classes" };
-    }
-
-    const newBalance = enrollment.remaining_classes - 1;
-
-    // Record ledger entry
-    await supabase.from("class_ledger_entries").insert({
-      enrollment_id: enrollment.id,
-      class_session_id: session.id,
-      user_id: session.user_id,
-      entry_type: "class_completed",
-      classes_delta: -1,
-      balance_after: newBalance,
-      notes: notes || "Class completed via workspace",
-    });
-
-    // Decrement enrollment
-    await supabase
-      .from("student_tutor_enrollments")
-      .update({
-        remaining_classes: newBalance,
-        status: newBalance === 0 ? "completed" : enrollment.status,
-      })
-      .eq("id", enrollment.id);
-
-    // Update session
-    await supabase
-      .from("class_sessions")
-      .update({ status: "completed" })
-      .eq("id", sessionId);
-
-    return { success: true, remainingClasses: newBalance };
+    return {
+      success: false,
+      error: rpcErr?.message || "Session completion RPC failed.",
+    };
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Unknown error";
     return { success: false, error: message };
