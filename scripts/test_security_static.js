@@ -1,6 +1,6 @@
 /* eslint-disable */
 /**
- * TutorConnect Phase 2.1 Static Security Verification Suite
+ * TutorConnect Phase 2.3 Static Security Verification Suite
  * Tests redirect sanitization, signout POST constraints, and configuration boundaries.
  */
 
@@ -61,17 +61,28 @@ assert(hasPost, 'Signout must export POST');
 assert(hasGet405, 'Signout must export GET returning 405 Method Not Allowed');
 console.log('✓ Sign-out route strictly requires POST and returns HTTP 405 for GET.');
 
-// 3. Verify atomic onboarding RPC in migration SQL
-const migrationPath = path.join(__dirname, '..', 'supabase', 'migrations', '20261002000000_phase2_backend_foundation.sql');
-const migrationContent = fs.readFileSync(migrationPath, 'utf8');
-assert(migrationContent.includes('FUNCTION public.complete_onboarding'), 'complete_onboarding function must exist');
-assert(migrationContent.includes("chosen_role NOT IN ('parent', 'student', 'tutor')"), 'complete_onboarding must reject admin');
-assert(migrationContent.includes('FUNCTION public.is_tutor_approved'), 'is_tutor_approved function must exist');
-assert(migrationContent.includes('travel_radius_km >= 0 AND travel_radius_km <= 50'), 'travel_radius_km constraint must exist');
-console.log('✓ SQL migration contains complete_onboarding RPC, is_tutor_approved helper, and travel radius constraint.');
+// 3. Verify reconciled migrations in supabase/migrations/
+const mig1Path = path.join(__dirname, '..', 'supabase', 'migrations', '20261003062937_phase2_backend_foundation.sql');
+const mig2Path = path.join(__dirname, '..', 'supabase', 'migrations', '20261003063051_harden_security_definer_functions.sql');
+assert(fs.existsSync(mig1Path), 'Migration 1 must exist');
+assert(fs.existsSync(mig2Path), 'Migration 2 must exist');
+
+const mig1Content = fs.readFileSync(mig1Path, 'utf8');
+const mig2Content = fs.readFileSync(mig2Path, 'utf8');
+
+assert(mig1Content.includes('FUNCTION public.complete_onboarding'), 'complete_onboarding must exist in migration 1');
+assert(mig1Content.includes("chosen_role NOT IN ('parent', 'student', 'tutor')"), 'complete_onboarding must reject admin');
+assert(mig1Content.includes('travel_radius_km >= 0 AND travel_radius_km <= 50'), 'travel_radius_km constraint must exist');
+
+assert(mig2Content.includes('CREATE SCHEMA IF NOT EXISTS private;'), 'private schema must be created in migration 2');
+assert(mig2Content.includes('FUNCTION private.is_admin()'), 'private.is_admin must exist');
+assert(mig2Content.includes('FUNCTION private.is_tutor_approved(profile_id uuid)'), 'private.is_tutor_approved must exist');
+assert(mig2Content.includes('DROP FUNCTION IF EXISTS public.is_admin();'), 'public.is_admin must be dropped');
+console.log('✓ SQL migrations match live history: complete_onboarding RPC, private schema helpers, and travel radius constraint.');
 
 // 4. Verify no fake credentials in codebase
-assert(!migrationContent.includes('unconfigured.supabase.co'), 'No fake URLs in migration');
+assert(!mig1Content.includes('unconfigured.supabase.co'), 'No fake URLs in migration 1');
+assert(!mig2Content.includes('unconfigured.supabase.co'), 'No fake URLs in migration 2');
 const clientContent = fs.readFileSync(path.join(__dirname, '..', 'src', 'lib', 'supabase', 'client.ts'), 'utf8');
 assert(!clientContent.includes('unconfigured.supabase.co'), 'No fake URLs in client.ts');
 console.log('✓ Zero fake URL/key placeholders in client & server configs.');
