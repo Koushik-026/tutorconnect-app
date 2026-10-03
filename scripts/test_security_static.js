@@ -1,6 +1,6 @@
-/* eslint-disable */
+﻿/* eslint-disable */
 /**
- * TutorConnect Phase 2.3 Static Security Verification Suite
+ * TutorConnect Phase 2.4 Static Security Verification Suite
  * Tests redirect sanitization, signout POST constraints, and configuration boundaries.
  */
 
@@ -64,11 +64,14 @@ console.log('✓ Sign-out route strictly requires POST and returns HTTP 405 for 
 // 3. Verify reconciled migrations in supabase/migrations/
 const mig1Path = path.join(__dirname, '..', 'supabase', 'migrations', '20261003062937_phase2_backend_foundation.sql');
 const mig2Path = path.join(__dirname, '..', 'supabase', 'migrations', '20261003063051_harden_security_definer_functions.sql');
+const mig3Path = path.join(__dirname, '..', 'supabase', 'migrations', '20261003064500_phase2_runtime_alignment.sql');
 assert(fs.existsSync(mig1Path), 'Migration 1 must exist');
 assert(fs.existsSync(mig2Path), 'Migration 2 must exist');
+assert(fs.existsSync(mig3Path), 'Migration 3 must exist');
 
 const mig1Content = fs.readFileSync(mig1Path, 'utf8');
 const mig2Content = fs.readFileSync(mig2Path, 'utf8');
+const mig3Content = fs.readFileSync(mig3Path, 'utf8');
 
 assert(mig1Content.includes('FUNCTION public.complete_onboarding'), 'complete_onboarding must exist in migration 1');
 assert(mig1Content.includes("chosen_role NOT IN ('parent', 'student', 'tutor')"), 'complete_onboarding must reject admin');
@@ -78,11 +81,17 @@ assert(mig2Content.includes('CREATE SCHEMA IF NOT EXISTS private;'), 'private sc
 assert(mig2Content.includes('FUNCTION private.is_admin()'), 'private.is_admin must exist');
 assert(mig2Content.includes('FUNCTION private.is_tutor_approved(profile_id uuid)'), 'private.is_tutor_approved must exist');
 assert(mig2Content.includes('DROP FUNCTION IF EXISTS public.is_admin();'), 'public.is_admin must be dropped');
-console.log('✓ SQL migrations match live history: complete_onboarding RPC, private schema helpers, and travel radius constraint.');
+
+assert(mig3Content.includes('idx_tutor_app_states_reviewed_by'), 'idx_tutor_app_states_reviewed_by must exist in migration 3');
+assert(mig3Content.includes('(select auth.uid()) = id'), 'Profiles must optimize auth.uid() in migration 3');
+assert(mig3Content.includes('account_roles_admin_insert'), 'Permissive policy consolidation must exist in migration 3');
+
+console.log('✓ SQL migrations match repository forward history: migrations 1, 2, and 3 validated.');
 
 // 4. Verify no fake credentials in codebase
 assert(!mig1Content.includes('unconfigured.supabase.co'), 'No fake URLs in migration 1');
 assert(!mig2Content.includes('unconfigured.supabase.co'), 'No fake URLs in migration 2');
+assert(!mig3Content.includes('unconfigured.supabase.co'), 'No fake URLs in migration 3');
 const clientContent = fs.readFileSync(path.join(__dirname, '..', 'src', 'lib', 'supabase', 'client.ts'), 'utf8');
 assert(!clientContent.includes('unconfigured.supabase.co'), 'No fake URLs in client.ts');
 console.log('✓ Zero fake URL/key placeholders in client & server configs.');
