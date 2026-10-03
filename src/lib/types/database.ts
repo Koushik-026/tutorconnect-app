@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TutorConnect Database Types & Application Model Aliases
  * Contains authoritative schema types and Phase 3 core workflow models.
  */
@@ -18,7 +18,13 @@ export type TutorApplicationState = Database["public"]["Tables"]["tutor_applicat
 export type Subject = Database["public"]["Tables"]["subjects"]["Row"];
 export type TutorSubject = Database["public"]["Tables"]["tutor_subjects"]["Row"];
 
-// Phase 3 Core Workflow Types
+// ============================================================================
+// PHASE 3 DRAFT APPLICATION INTERFACES (Pre-live migration definitions)
+// Note: These interfaces define the pending Phase 3 migration schema and will
+// be superseded by auto-generated Database['public']['Tables'] types once
+// the migration is applied live to Supabase.
+// ============================================================================
+
 export interface PublicTutorCatalog {
   id: string;
   slug: string;
@@ -31,14 +37,15 @@ export interface PublicTutorCatalog {
   boards: string[];
   languages: string[];
   experience_years: number;
-  rating: number;
+  rating: number | null;
   review_count: number;
+  is_demo_profile: boolean;
   offers_online: boolean;
   offers_home: boolean;
   locality: string;
   city: string;
   travel_radius_km: number;
-  starting_monthly_fee: number;
+  starting_package_price_inr: number;
   verification: string[];
   available_days: string[];
   available_times: string[];
@@ -101,6 +108,21 @@ export interface TuitionPackageRow {
   created_at: string;
 }
 
+export interface SchedulePreferenceRow {
+  id: string;
+  user_id: string;
+  student_profile_id: string;
+  tutor_slug: string;
+  package_id: string;
+  tuition_mode: "online" | "home";
+  preferred_days: string[];
+  preferred_time: string;
+  timezone: string;
+  initial_subject?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export type PackagePurchaseStatus =
   | "pending"
   | "activated"
@@ -113,6 +135,7 @@ export interface PackagePurchaseRow {
   user_id: string;
   student_profile_id: string;
   package_id: string;
+  schedule_preference_id?: string | null;
   tutor_slug: string;
   tutor_name: string;
   tuition_mode: "online" | "home";
@@ -133,8 +156,10 @@ export interface StudentTutorEnrollmentRow {
   user_id: string;
   student_profile_id: string;
   package_purchase_id?: string | null;
+  schedule_preference_id?: string | null;
   tutor_slug: string;
   tutor_name: string;
+  initial_subject?: string | null;
   tuition_mode: "online" | "home";
   total_classes: number;
   remaining_classes: number;

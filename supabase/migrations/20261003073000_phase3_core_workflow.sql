@@ -2,16 +2,21 @@
 -- Migration: 20261003073000_phase3_core_workflow.sql
 -- Description: Phase 3 Core Marketplace, Demo Booking, Sessions & Class Ledger
 --   1. Public Tutor Catalog (Prototype catalogue without fake auth users)
---   2. Demo Bookings & Demo Feedback
---   3. Tuition Packages
---   4. Package Purchases
---   5. Student Tutor Enrollments
---   6. Class Sessions
---   7. Class Ledger Entries (Immutable Audit Log)
---   8. Transactional RPCs:
---      - simulate_purchase_activation
---      - mark_session_completed
---   9. Strict RLS Policies for all Phase 3 tables
+--   2. Student Profiles Role-Based Insert Hardening
+--   3. Demo Bookings & Demo Feedback
+--   4. Tuition Packages
+--   5. Schedule Preferences
+--   6. Package Purchases
+--   7. Student Tutor Enrollments
+--   8. Class Sessions
+--   9. Class Ledger Entries (Immutable Audit Log)
+--   10. Transactional RPCs:
+--       - cancel_demo_booking
+--       - create_demo_purchase
+--       - simulate_purchase_activation
+--       - mark_session_completed
+--   11. Strict RLS Policies for all Phase 3 tables
+--   12. Canonical Seed Data (Packages & Sample Demo Tutors)
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -29,22 +34,26 @@ CREATE TABLE IF NOT EXISTS public.public_tutor_catalog (
   boards text[] NOT NULL DEFAULT '{}',
   languages text[] NOT NULL DEFAULT '{}',
   experience_years integer NOT NULL DEFAULT 0,
-  rating numeric(3,2) NOT NULL DEFAULT 5.0,
+  rating numeric(3,2),
   review_count integer NOT NULL DEFAULT 0,
+  is_demo_profile boolean NOT NULL DEFAULT false,
   offers_online boolean NOT NULL DEFAULT true,
   offers_home boolean NOT NULL DEFAULT false,
   locality text NOT NULL DEFAULT '',
   city text NOT NULL DEFAULT 'Hyderabad',
   travel_radius_km integer NOT NULL DEFAULT 0,
-  starting_monthly_fee integer NOT NULL DEFAULT 3200,
-  verification text[] NOT NULL DEFAULT ARRAY['Identity verified', 'Qualification verified'],
+  starting_package_price_inr integer NOT NULL DEFAULT 3200,
+  verification text[] NOT NULL DEFAULT ARRAY['Qualification reviewed', 'Teaching profile reviewed'],
   available_days text[] NOT NULL DEFAULT ARRAY['Monday', 'Wednesday', 'Friday', 'Saturday'],
   available_times text[] NOT NULL DEFAULT ARRAY['4:00 PM', '5:00 PM', '6:00 PM'],
-  is_approved boolean NOT NULL DEFAULT true,
+  is_approved boolean NOT NULL DEFAULT false,
   tutor_profile_id uuid REFERENCES public.tutor_profiles(id) ON DELETE SET NULL,
   created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_public_tutor_catalog_slug ON public.public_tutor_catalog(slug);
+CREATE INDEX IF NOT EXISTS idx_public_tutor_catalog_approved ON public.public_tutor_catalog(is_approved);
 
 ALTER TABLE public.public_tutor_catalog ENABLE ROW LEVEL SECURITY;
 
@@ -74,13 +83,30 @@ CREATE POLICY "public_tutor_catalog_admin_delete"
   USING (private.is_admin());
 
 -- ----------------------------------------------------------------------------
--- 2. DEMO BOOKINGS
+-- 2. STUDENT PROFILES ROLE-BASED INSERT HARDENING
+-- ----------------------------------------------------------------------------
+DROP POLICY IF EXISTS "student_profiles_owner_insert" ON public.student_profiles;
+CREATE POLICY "student_profiles_owner_insert"
+  ON public.student_profiles
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    (select auth.uid()) = owner_user_id
+    AND EXISTS (
+      SELECT 1 FROM public.account_roles
+      WHERE user_id = (select auth.uid())
+        AND role IN ('parent', 'student', 'admin')
+    )
+  );
+
+-- ----------------------------------------------------------------------------
+-- 3. DEMO BOOKINGS
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.demo_bookings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   student_profile_id uuid NOT NULL REFERENCES public.student_profiles(id) ON DELETE CASCADE,
-  tutor_slug text NOT NULL,
+  tutor_slug text NOT NULL REFERENCES public.public_tutor_catalog(slug) ON DELETE RESTRICT,
   tutor_name text NOT NULL,
   subject text NOT NULL,
   session_mode text NOT NULL DEFAULT 'online' CHECK (session_mode = 'online'),
@@ -92,20 +118,35 @@ CREATE TABLE IF NOT EXISTS public.demo_bookings (
   meeting_reference text,
   learning_goal text,
   created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-  updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
+  updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT chk_demo_end_time CHECK (scheduled_end_at = scheduled_start_at + interval '30 minutes'),
+  CONSTRAINT chk_demo_future CHECK (scheduled_start_at > created_at)
 );
 
 CREATE INDEX IF NOT EXISTS idx_demo_bookings_user ON public.demo_bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_demo_bookings_student ON public.demo_bookings(student_profile_id);
 CREATE INDEX IF NOT EXISTS idx_demo_bookings_tutor_slug ON public.demo_bookings(tutor_slug);
 
+-- Prevent active double-booking for the same tutor slot
+CREATE UNIQUE INDEX IF NOT EXISTS idx_demo_bookings_tutor_active_slot
+  ON public.demo_bookings (tutor_slug, scheduled_start_at)
+  WHERE (status IN ('requested', 'confirmed'));
+
 ALTER TABLE public.demo_bookings ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "demo_bookings_owner_select"
+CREATE POLICY "demo_bookings_owner_or_tutor_select"
   ON public.demo_bookings
   FOR SELECT
   TO authenticated
-  USING ((select auth.uid()) = user_id OR private.is_admin());
+  USING (
+    (select auth.uid()) = user_id
+    OR private.is_admin()
+    OR EXISTS (
+      SELECT 1 FROM public.public_tutor_catalog c
+      WHERE c.slug = demo_bookings.tutor_slug
+        AND c.tutor_profile_id = (select auth.uid())
+    )
+  );
 
 CREATE POLICY "demo_bookings_owner_insert"
   ON public.demo_bookings
@@ -118,17 +159,22 @@ CREATE POLICY "demo_bookings_owner_insert"
       WHERE id = student_profile_id
         AND owner_user_id = (select auth.uid())
     )
+    AND EXISTS (
+      SELECT 1 FROM public.public_tutor_catalog
+      WHERE slug = tutor_slug
+        AND is_approved = true
+    )
   );
 
-CREATE POLICY "demo_bookings_owner_update"
+CREATE POLICY "demo_bookings_admin_update"
   ON public.demo_bookings
   FOR UPDATE
   TO authenticated
-  USING ((select auth.uid()) = user_id OR private.is_admin())
-  WITH CHECK ((select auth.uid()) = user_id OR private.is_admin());
+  USING (private.is_admin())
+  WITH CHECK (private.is_admin());
 
 -- ----------------------------------------------------------------------------
--- 3. DEMO FEEDBACK
+-- 4. DEMO FEEDBACK
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.demo_feedback (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -163,7 +209,7 @@ CREATE POLICY "demo_feedback_owner_insert"
   );
 
 -- ----------------------------------------------------------------------------
--- 4. TUITION PACKAGES
+-- 5. TUITION PACKAGES
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.tuition_packages (
   id text PRIMARY KEY,
@@ -189,41 +235,79 @@ CREATE POLICY "tuition_packages_select"
   TO public
   USING (true);
 
-CREATE POLICY "tuition_packages_admin_insert"
+CREATE POLICY "tuition_packages_admin_manage"
   ON public.tuition_packages
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (private.is_admin());
-
-CREATE POLICY "tuition_packages_admin_update"
-  ON public.tuition_packages
-  FOR UPDATE
+  FOR ALL
   TO authenticated
   USING (private.is_admin())
   WITH CHECK (private.is_admin());
 
-CREATE POLICY "tuition_packages_admin_delete"
-  ON public.tuition_packages
-  FOR DELETE
+-- ----------------------------------------------------------------------------
+-- 6. SCHEDULE PREFERENCES
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.schedule_preferences (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  student_profile_id uuid NOT NULL REFERENCES public.student_profiles(id) ON DELETE CASCADE,
+  tutor_slug text NOT NULL REFERENCES public.public_tutor_catalog(slug) ON DELETE RESTRICT,
+  package_id text NOT NULL REFERENCES public.tuition_packages(id) ON DELETE RESTRICT,
+  tuition_mode text NOT NULL CHECK (tuition_mode IN ('online', 'home')),
+  preferred_days text[] NOT NULL DEFAULT '{}',
+  preferred_time text NOT NULL,
+  timezone text NOT NULL DEFAULT 'Asia/Kolkata',
+  initial_subject text,
+  created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_schedule_pref_user ON public.schedule_preferences(user_id);
+CREATE INDEX IF NOT EXISTS idx_schedule_pref_student ON public.schedule_preferences(student_profile_id);
+
+ALTER TABLE public.schedule_preferences ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "schedule_preferences_owner_select"
+  ON public.schedule_preferences
+  FOR SELECT
   TO authenticated
-  USING (private.is_admin());
+  USING ((select auth.uid()) = user_id OR private.is_admin());
+
+CREATE POLICY "schedule_preferences_owner_insert"
+  ON public.schedule_preferences
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    (select auth.uid()) = user_id
+    AND EXISTS (
+      SELECT 1 FROM public.student_profiles
+      WHERE id = student_profile_id
+        AND owner_user_id = (select auth.uid())
+    )
+  );
+
+CREATE POLICY "schedule_preferences_owner_update"
+  ON public.schedule_preferences
+  FOR UPDATE
+  TO authenticated
+  USING ((select auth.uid()) = user_id OR private.is_admin())
+  WITH CHECK ((select auth.uid()) = user_id OR private.is_admin());
 
 -- ----------------------------------------------------------------------------
--- 5. PACKAGE PURCHASES
+-- 7. PACKAGE PURCHASES
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.package_purchases (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   student_profile_id uuid NOT NULL REFERENCES public.student_profiles(id) ON DELETE RESTRICT,
   package_id text NOT NULL REFERENCES public.tuition_packages(id) ON DELETE RESTRICT,
-  tutor_slug text NOT NULL,
+  schedule_preference_id uuid REFERENCES public.schedule_preferences(id) ON DELETE SET NULL,
+  tutor_slug text NOT NULL REFERENCES public.public_tutor_catalog(slug) ON DELETE RESTRICT,
   tutor_name text NOT NULL,
   tuition_mode text NOT NULL DEFAULT 'online' CHECK (tuition_mode IN ('online', 'home')),
   amount_inr integer NOT NULL CHECK (amount_inr >= 0),
   status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'activated', 'failed', 'cancelled', 'refunded')),
   payment_method text DEFAULT 'UPI',
   transaction_reference text NOT NULL UNIQUE,
-  is_demo_simulation boolean DEFAULT true,
+  is_demo_simulation boolean NOT NULL DEFAULT true,
   activated_at timestamptz,
   created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -261,15 +345,17 @@ CREATE POLICY "package_purchases_admin_update"
   WITH CHECK (private.is_admin());
 
 -- ----------------------------------------------------------------------------
--- 6. STUDENT TUTOR ENROLLMENTS
+-- 8. STUDENT TUTOR ENROLLMENTS
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.student_tutor_enrollments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   student_profile_id uuid NOT NULL REFERENCES public.student_profiles(id) ON DELETE CASCADE,
   package_purchase_id uuid REFERENCES public.package_purchases(id) ON DELETE SET NULL,
-  tutor_slug text NOT NULL,
+  schedule_preference_id uuid REFERENCES public.schedule_preferences(id) ON DELETE SET NULL,
+  tutor_slug text NOT NULL REFERENCES public.public_tutor_catalog(slug) ON DELETE RESTRICT,
   tutor_name text NOT NULL,
+  initial_subject text,
   tuition_mode text NOT NULL DEFAULT 'online' CHECK (tuition_mode IN ('online', 'home')),
   total_classes integer NOT NULL CHECK (total_classes >= 0),
   remaining_classes integer NOT NULL CHECK (remaining_classes >= 0 AND remaining_classes <= total_classes),
@@ -282,6 +368,11 @@ CREATE TABLE IF NOT EXISTS public.student_tutor_enrollments (
 
 CREATE INDEX IF NOT EXISTS idx_enrollments_user ON public.student_tutor_enrollments(user_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_student ON public.student_tutor_enrollments(student_profile_id);
+
+-- Enforce: One package purchase activates at most one enrollment
+CREATE UNIQUE INDEX IF NOT EXISTS idx_enrollments_unique_purchase
+  ON public.student_tutor_enrollments(package_purchase_id)
+  WHERE package_purchase_id IS NOT NULL;
 
 ALTER TABLE public.student_tutor_enrollments ENABLE ROW LEVEL SECURITY;
 
@@ -299,14 +390,14 @@ CREATE POLICY "enrollments_admin_manage"
   WITH CHECK (private.is_admin());
 
 -- ----------------------------------------------------------------------------
--- 7. CLASS SESSIONS
+-- 9. CLASS SESSIONS
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.class_sessions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   enrollment_id uuid NOT NULL REFERENCES public.student_tutor_enrollments(id) ON DELETE CASCADE,
   student_profile_id uuid NOT NULL REFERENCES public.student_profiles(id) ON DELETE CASCADE,
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  tutor_slug text NOT NULL,
+  tutor_slug text NOT NULL REFERENCES public.public_tutor_catalog(slug) ON DELETE RESTRICT,
   tutor_name text NOT NULL,
   subject text NOT NULL,
   session_mode text NOT NULL CHECK (session_mode IN ('online', 'home')),
@@ -318,7 +409,10 @@ CREATE TABLE IF NOT EXISTS public.class_sessions (
   locality text,
   notes text,
   created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-  updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
+  updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT chk_home_session_no_meeting CHECK (
+    session_mode != 'home' OR (meeting_provider IS NULL AND meeting_reference IS NULL)
+  )
 );
 
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON public.class_sessions(user_id);
@@ -327,11 +421,19 @@ CREATE INDEX IF NOT EXISTS idx_sessions_scheduled ON public.class_sessions(sched
 
 ALTER TABLE public.class_sessions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "class_sessions_owner_select"
+CREATE POLICY "class_sessions_owner_or_tutor_select"
   ON public.class_sessions
   FOR SELECT
   TO authenticated
-  USING ((select auth.uid()) = user_id OR private.is_admin());
+  USING (
+    (select auth.uid()) = user_id
+    OR private.is_admin()
+    OR EXISTS (
+      SELECT 1 FROM public.public_tutor_catalog c
+      WHERE c.slug = class_sessions.tutor_slug
+        AND c.tutor_profile_id = (select auth.uid())
+    )
+  );
 
 CREATE POLICY "class_sessions_owner_insert"
   ON public.class_sessions
@@ -348,15 +450,16 @@ CREATE POLICY "class_sessions_owner_insert"
     )
   );
 
-CREATE POLICY "class_sessions_owner_update"
+-- No broad owner UPDATE policy. Mutations must pass through secure RPCs.
+CREATE POLICY "class_sessions_admin_update"
   ON public.class_sessions
   FOR UPDATE
   TO authenticated
-  USING ((select auth.uid()) = user_id OR private.is_admin())
-  WITH CHECK ((select auth.uid()) = user_id OR private.is_admin());
+  USING (private.is_admin())
+  WITH CHECK (private.is_admin());
 
 -- ----------------------------------------------------------------------------
--- 8. CLASS LEDGER ENTRIES (Immutable Audit Log)
+-- 10. CLASS LEDGER ENTRIES (Immutable Audit Log)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.class_ledger_entries (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -383,7 +486,6 @@ CREATE POLICY "class_ledger_owner_select"
   TO authenticated
   USING ((select auth.uid()) = user_id OR private.is_admin());
 
--- Normal clients CANNOT insert or update the ledger directly
 CREATE POLICY "class_ledger_admin_manage"
   ON public.class_ledger_entries
   FOR ALL
@@ -392,10 +494,162 @@ CREATE POLICY "class_ledger_admin_manage"
   WITH CHECK (private.is_admin());
 
 -- ----------------------------------------------------------------------------
--- 9. TRANSACTIONAL SECURITY DEFINER RPCs
+-- 11. TRANSACTIONAL SECURITY DEFINER RPCs
 -- ----------------------------------------------------------------------------
 
--- A. Simulate Development Purchase Activation
+-- A. Cancel Demo Booking (Constrained cancellation RPC)
+CREATE OR REPLACE FUNCTION public.cancel_demo_booking(p_booking_id uuid)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth, private
+AS $$
+DECLARE
+  v_user_id uuid;
+  v_booking record;
+BEGIN
+  v_user_id := (select auth.uid());
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'Authentication required';
+  END IF;
+
+  SELECT * INTO v_booking
+  FROM public.demo_bookings
+  WHERE id = p_booking_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Demo booking not found';
+  END IF;
+
+  IF v_booking.user_id <> v_user_id AND NOT private.is_admin() THEN
+    RAISE EXCEPTION 'Unauthorized to cancel this booking';
+  END IF;
+
+  IF v_booking.status NOT IN ('requested', 'confirmed') THEN
+    RAISE EXCEPTION 'Cannot cancel demo booking in status %', v_booking.status;
+  END IF;
+
+  UPDATE public.demo_bookings
+  SET status = 'cancelled',
+      updated_at = timezone('utc'::text, now())
+  WHERE id = p_booking_id;
+
+  RETURN true;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.cancel_demo_booking(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.cancel_demo_booking(uuid) TO authenticated;
+
+-- B. Create Pending Demo Purchase (Canonical pricing & validation)
+CREATE OR REPLACE FUNCTION public.create_demo_purchase(
+  p_student_profile_id uuid,
+  p_package_id text,
+  p_tutor_slug text,
+  p_tuition_mode text,
+  p_schedule_preference_id uuid DEFAULT NULL,
+  p_payment_method text DEFAULT 'UPI'
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth, private
+AS $$
+DECLARE
+  v_user_id uuid;
+  v_student record;
+  v_pkg record;
+  v_tutor record;
+  v_purchase_id uuid;
+  v_tx_ref text;
+BEGIN
+  v_user_id := (select auth.uid());
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'Authentication required';
+  END IF;
+
+  -- Verify student profile belongs to user
+  SELECT * INTO v_student
+  FROM public.student_profiles
+  WHERE id = p_student_profile_id AND owner_user_id = v_user_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Invalid student profile';
+  END IF;
+
+  -- Verify package and fetch canonical price
+  SELECT * INTO v_pkg
+  FROM public.tuition_packages
+  WHERE id = p_package_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Tuition package not found';
+  END IF;
+
+  -- Verify tutor exists and is approved
+  SELECT * INTO v_tutor
+  FROM public.public_tutor_catalog
+  WHERE slug = p_tutor_slug AND is_approved = true;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Approved tutor not found';
+  END IF;
+
+  -- Verify tuition mode is offered by tutor
+  IF p_tuition_mode = 'home' AND NOT v_tutor.offers_home THEN
+    RAISE EXCEPTION 'Home tuition is not offered by this tutor';
+  END IF;
+
+  IF p_tuition_mode = 'online' AND NOT v_tutor.offers_online THEN
+    RAISE EXCEPTION 'Online tuition is not offered by this tutor';
+  END IF;
+
+  -- Generate high-entropy transaction reference
+  v_tx_ref := 'TC-SIM-' || upper(replace(gen_random_uuid()::text, '-', ''));
+
+  INSERT INTO public.package_purchases (
+    user_id,
+    student_profile_id,
+    package_id,
+    schedule_preference_id,
+    tutor_slug,
+    tutor_name,
+    tuition_mode,
+    amount_inr,
+    status,
+    payment_method,
+    transaction_reference,
+    is_demo_simulation
+  ) VALUES (
+    v_user_id,
+    p_student_profile_id,
+    v_pkg.id,
+    p_schedule_preference_id,
+    v_tutor.slug,
+    v_tutor.name,
+    p_tuition_mode,
+    v_pkg.price_inr,
+    'pending',
+    COALESCE(p_payment_method, 'UPI'),
+    v_tx_ref,
+    true
+  ) RETURNING id INTO v_purchase_id;
+
+  RETURN jsonb_build_object(
+    'purchase_id', v_purchase_id,
+    'transaction_reference', v_tx_ref,
+    'amount_inr', v_pkg.price_inr,
+    'package_id', v_pkg.id,
+    'tutor_slug', v_tutor.slug
+  );
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.create_demo_purchase(uuid, text, text, text, uuid, text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.create_demo_purchase(uuid, text, text, text, uuid, text) TO authenticated;
+
+-- C. Simulate Development Purchase Activation
 CREATE OR REPLACE FUNCTION public.simulate_purchase_activation(p_purchase_id uuid)
 RETURNS uuid
 LANGUAGE plpgsql
@@ -406,7 +660,12 @@ DECLARE
   v_user_id uuid;
   v_purchase record;
   v_pkg record;
+  v_tutor record;
+  v_pref record;
   v_enrollment_id uuid;
+  v_initial_subject text;
+  v_locality text;
+  v_start_date timestamptz;
 BEGIN
   v_user_id := (select auth.uid());
   IF v_user_id IS NULL THEN
@@ -428,6 +687,11 @@ BEGIN
     RAISE EXCEPTION 'Unauthorized purchase activation';
   END IF;
 
+  -- Must be demo simulation
+  IF NOT v_purchase.is_demo_simulation THEN
+    RAISE EXCEPTION 'Live gateway purchases cannot be activated via simulation RPC';
+  END IF;
+
   -- Idempotent check
   IF v_purchase.status = 'activated' THEN
     SELECT id INTO v_enrollment_id
@@ -440,7 +704,7 @@ BEGIN
     RAISE EXCEPTION 'Purchase cannot be activated from status %', v_purchase.status;
   END IF;
 
-  -- Fetch package specs
+  -- Fetch package specs and verify canonical price
   SELECT * INTO v_pkg
   FROM public.tuition_packages
   WHERE id = v_purchase.package_id;
@@ -449,13 +713,38 @@ BEGIN
     RAISE EXCEPTION 'Tuition package % not found', v_purchase.package_id;
   END IF;
 
+  IF v_purchase.amount_inr <> v_pkg.price_inr THEN
+    RAISE EXCEPTION 'Purchase amount mismatch against canonical package price';
+  END IF;
+
+  -- Fetch tutor
+  SELECT * INTO v_tutor
+  FROM public.public_tutor_catalog
+  WHERE slug = v_purchase.tutor_slug AND is_approved = true;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Approved tutor not found';
+  END IF;
+
+  -- Check schedule preference if linked
+  IF v_purchase.schedule_preference_id IS NOT NULL THEN
+    SELECT * INTO v_pref
+    FROM public.schedule_preferences
+    WHERE id = v_purchase.schedule_preference_id;
+  END IF;
+
+  v_initial_subject := COALESCE(v_pref.initial_subject, v_tutor.subjects[1], 'General Tuition');
+  v_locality := CASE WHEN v_purchase.tuition_mode = 'home' THEN v_tutor.locality ELSE NULL END;
+
   -- Create active enrollment
   INSERT INTO public.student_tutor_enrollments (
     user_id,
     student_profile_id,
     package_purchase_id,
+    schedule_preference_id,
     tutor_slug,
     tutor_name,
+    initial_subject,
     tuition_mode,
     total_classes,
     remaining_classes,
@@ -466,8 +755,10 @@ BEGIN
     v_purchase.user_id,
     v_purchase.student_profile_id,
     v_purchase.id,
+    v_purchase.schedule_preference_id,
     v_purchase.tutor_slug,
     v_purchase.tutor_name,
+    v_initial_subject,
     v_purchase.tuition_mode,
     v_pkg.total_classes,
     v_pkg.total_classes,
@@ -475,6 +766,70 @@ BEGIN
     timezone('utc'::text, now()),
     timezone('utc'::text, now()) + (v_pkg.validity_days || ' days')::interval
   ) RETURNING id INTO v_enrollment_id;
+
+  -- Seed initial 3 upcoming sessions based on schedule
+  v_start_date := timezone('utc'::text, now()) + interval '2 days';
+  
+  INSERT INTO public.class_sessions (
+    enrollment_id,
+    student_profile_id,
+    user_id,
+    tutor_slug,
+    tutor_name,
+    subject,
+    session_mode,
+    scheduled_start_at,
+    duration_minutes,
+    status,
+    locality,
+    meeting_provider,
+    meeting_reference
+  ) VALUES
+  (
+    v_enrollment_id,
+    v_purchase.student_profile_id,
+    v_purchase.user_id,
+    v_purchase.tutor_slug,
+    v_purchase.tutor_name,
+    v_initial_subject,
+    v_purchase.tuition_mode,
+    v_start_date,
+    60,
+    'scheduled',
+    v_locality,
+    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'demo_room' ELSE NULL END,
+    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'room-' || v_purchase.tutor_slug || '-1' ELSE NULL END
+  ),
+  (
+    v_enrollment_id,
+    v_purchase.student_profile_id,
+    v_purchase.user_id,
+    v_purchase.tutor_slug,
+    v_purchase.tutor_name,
+    v_initial_subject,
+    v_purchase.tuition_mode,
+    v_start_date + interval '3 days',
+    60,
+    'scheduled',
+    v_locality,
+    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'demo_room' ELSE NULL END,
+    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'room-' || v_purchase.tutor_slug || '-2' ELSE NULL END
+  ),
+  (
+    v_enrollment_id,
+    v_purchase.student_profile_id,
+    v_purchase.user_id,
+    v_purchase.tutor_slug,
+    v_purchase.tutor_name,
+    v_initial_subject,
+    v_purchase.tuition_mode,
+    v_start_date + interval '5 days',
+    60,
+    'scheduled',
+    v_locality,
+    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'demo_room' ELSE NULL END,
+    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'room-' || v_purchase.tutor_slug || '-3' ELSE NULL END
+  );
 
   -- Update purchase status
   UPDATE public.package_purchases
@@ -490,7 +845,7 @@ $$;
 REVOKE ALL ON FUNCTION public.simulate_purchase_activation(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.simulate_purchase_activation(uuid) TO authenticated;
 
--- B. Mark Session Completed & Decrement Class Ledger
+-- D. Mark Session Completed & Decrement Class Ledger
 CREATE OR REPLACE FUNCTION public.mark_session_completed(
   p_session_id uuid,
   p_notes text DEFAULT NULL
@@ -512,7 +867,7 @@ BEGIN
     RAISE EXCEPTION 'Authentication required';
   END IF;
 
-  -- Lock session
+  -- Lock session row
   SELECT * INTO v_session
   FROM public.class_sessions
   WHERE id = p_session_id
@@ -537,6 +892,15 @@ BEGIN
     RAISE EXCEPTION 'Enrollment not found for session';
   END IF;
 
+  -- Verify enrollment is active and not expired
+  IF v_enrollment.status <> 'active' THEN
+    RAISE EXCEPTION 'Enrollment is not active (status: %)', v_enrollment.status;
+  END IF;
+
+  IF v_enrollment.valid_until < timezone('utc'::text, now()) THEN
+    RAISE EXCEPTION 'Enrollment validity period has expired';
+  END IF;
+
   -- Idempotency check: if session already completed and ledger exists, return current state
   IF v_session.status = 'completed' THEN
     SELECT id INTO v_ledger_id
@@ -550,6 +914,11 @@ BEGIN
         'remaining_classes', v_enrollment.remaining_classes
       );
     END IF;
+  END IF;
+
+  -- Only transition scheduled or in_progress sessions to completed
+  IF v_session.status NOT IN ('scheduled', 'in_progress') THEN
+    RAISE EXCEPTION 'Cannot complete session in status %', v_session.status;
   END IF;
 
   -- Balance check
@@ -604,7 +973,7 @@ REVOKE ALL ON FUNCTION public.mark_session_completed(uuid, text) FROM PUBLIC, an
 GRANT EXECUTE ON FUNCTION public.mark_session_completed(uuid, text) TO authenticated;
 
 -- ----------------------------------------------------------------------------
--- 10. CANONICAL SEED DATA (Packages & Public Tutor Catalog)
+-- 12. CANONICAL SEED DATA (Packages & Public Tutor Catalog)
 -- ----------------------------------------------------------------------------
 INSERT INTO public.tuition_packages (
   id, title, rhythm_name, intensity, total_classes, price_inr,
@@ -684,33 +1053,34 @@ ON CONFLICT (id) DO UPDATE SET
   is_recommended = EXCLUDED.is_recommended,
   features = EXCLUDED.features;
 
--- Public Tutor Catalog Seeds
+-- Public Tutor Catalog Seeds (Fictional Sample Personas - Not real KYC verified professionals)
 INSERT INTO public.public_tutor_catalog (
   slug, name, profile_image, headline, bio, subjects, classes, boards,
-  languages, experience_years, rating, review_count, offers_online,
-  offers_home, locality, city, travel_radius_km, starting_monthly_fee,
-  verification, available_days, available_times, is_approved
+  languages, experience_years, rating, review_count, is_demo_profile,
+  offers_online, offers_home, locality, city, travel_radius_km,
+  starting_package_price_inr, verification, available_days, available_times, is_approved
 ) VALUES
 (
   'ananya-sharma',
   'Ananya Sharma',
   '',
-  'Mathematics & Science Specialist',
-  'Patient, concept-first educator who builds intuitive understanding rather than rote memorisation. 8+ years guiding CBSE & ICSE students to academic excellence across Classes 6 to 12.',
+  'Mathematics & Science Educator',
+  'Concept-first educator who focuses on intuitive reasoning. Guiding CBSE & ICSE learners across Classes 6 to 12 in foundation and exam preparation.',
   ARRAY['Mathematics', 'Science'],
   ARRAY['Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'],
   ARRAY['CBSE', 'ICSE'],
   ARRAY['English', 'Hindi', 'Telugu'],
   8,
-  4.9,
-  124,
+  NULL,
+  0,
+  true,
   true,
   true,
   'B.N. Reddy Nagar',
   'Hyderabad',
   5,
   3200,
-  ARRAY['Identity verified', 'Qualification verified', 'Teaching profile reviewed'],
+  ARRAY['Qualification reviewed', 'Teaching profile reviewed'],
   ARRAY['Monday', 'Wednesday', 'Friday', 'Saturday'],
   ARRAY['4:00 PM', '5:00 PM', '6:00 PM'],
   true
@@ -719,72 +1089,75 @@ INSERT INTO public.public_tutor_catalog (
   'rahul-verma',
   'Rahul Verma',
   '',
-  'English & Social Studies Mentor',
-  'Engaging educator specialising in English fluency, grammar, literature analysis, and Social Studies for middle and secondary school learners.',
-  ARRAY['English', 'Social Studies'],
-  ARRAY['Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'],
-  ARRAY['CBSE', 'ICSE', 'State Board'],
-  ARRAY['English', 'Hindi'],
-  5,
-  4.7,
-  86,
-  true,
-  false,
-  'Dilsukhnagar',
-  'Hyderabad',
-  0,
-  2800,
-  ARRAY['Identity verified', 'Qualification verified'],
-  ARRAY['Tuesday', 'Thursday', 'Saturday'],
-  ARRAY['5:00 PM', '6:00 PM', '7:00 PM'],
-  true
-),
-(
-  'meera-reddy',
-  'Meera Reddy',
-  '',
-  'Physics & Chemistry Instructor',
-  'Structured, concept-oriented mentor helping students master numerical problem-solving, equation balancing, and competitive board preparation.',
-  ARRAY['Physics', 'Chemistry'],
-  ARRAY['Class 9', 'Class 10', 'Class 11', 'Class 12'],
+  'Physics & Mathematics Specialist',
+  'Engaging problem-solver who breaks down numerical difficulties into structured analytical steps. Specializes in secondary school Physics and Higher Mathematics.',
+  ARRAY['Physics', 'Mathematics'],
+  ARRAY['Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'],
   ARRAY['CBSE', 'State Board'],
-  ARRAY['English', 'Telugu'],
-  7,
-  4.8,
-  103,
-  true,
-  true,
-  'Vanasthalipuram',
-  'Hyderabad',
+  ARRAY['English', 'Hindi'],
   6,
-  4000,
-  ARRAY['Identity verified', 'Qualification verified', 'Teaching profile reviewed'],
-  ARRAY['Monday', 'Tuesday', 'Thursday', 'Saturday'],
+  NULL,
+  0,
+  true,
+  true,
+  true,
+  'Madhapur',
+  'Hyderabad',
+  7,
+  3200,
+  ARRAY['Qualification reviewed', 'Teaching profile reviewed'],
+  ARRAY['Tuesday', 'Thursday', 'Saturday', 'Sunday'],
   ARRAY['4:30 PM', '5:30 PM', '7:00 PM'],
   true
 ),
 (
-  'arjun-nair',
-  'Arjun Nair',
+  'priya-nair',
+  'Priya Nair',
   '',
-  'Computer Science & Coding Coach',
-  'Practical technology educator teaching computational thinking, Python fundamentals, algorithms, and web development through live coding.',
-  ARRAY['Computer Science', 'Python'],
-  ARRAY['Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'],
-  ARRAY['CBSE', 'ICSE'],
-  ARRAY['English', 'Hindi'],
-  4,
-  4.6,
-  58,
+  'Chemistry & Biology Mentor',
+  'Dedicated science educator specializing in organic mechanisms, cell biology, and diagrammatic clarity for ICSE & CBSE boards.',
+  ARRAY['Chemistry', 'Biology', 'Science'],
+  ARRAY['Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'],
+  ARRAY['ICSE', 'CBSE'],
+  ARRAY['English', 'Telugu'],
+  5,
+  NULL,
+  0,
+  true,
   true,
   false,
-  'Madhapur',
+  'Gachibowli',
   'Hyderabad',
   0,
-  3500,
-  ARRAY['Identity verified', 'Qualification verified'],
-  ARRAY['Wednesday', 'Friday', 'Saturday', 'Sunday'],
-  ARRAY['5:00 PM', '6:30 PM', '8:00 PM'],
+  3200,
+  ARRAY['Qualification reviewed', 'Teaching profile reviewed'],
+  ARRAY['Monday', 'Tuesday', 'Thursday', 'Friday'],
+  ARRAY['5:00 PM', '6:00 PM', '7:30 PM'],
+  true
+),
+(
+  'vikram-reddy',
+  'Vikram Reddy',
+  '',
+  'Computer Science & English Instructor',
+  'Focuses on systematic coding fundamentals in Python/Java and precise communicative English for middle and high school students.',
+  ARRAY['Computer Science', 'English'],
+  ARRAY['Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'],
+  ARRAY['CBSE', 'ICSE', 'State Board'],
+  ARRAY['English', 'Telugu'],
+  4,
+  NULL,
+  0,
+  true,
+  true,
+  true,
+  'Kukatpally',
+  'Hyderabad',
+  6,
+  3200,
+  ARRAY['Qualification reviewed', 'Teaching profile reviewed'],
+  ARRAY['Monday', 'Wednesday', 'Friday', 'Sunday'],
+  ARRAY['3:30 PM', '5:00 PM', '6:30 PM'],
   true
 )
 ON CONFLICT (slug) DO UPDATE SET
@@ -798,12 +1171,13 @@ ON CONFLICT (slug) DO UPDATE SET
   experience_years = EXCLUDED.experience_years,
   rating = EXCLUDED.rating,
   review_count = EXCLUDED.review_count,
+  is_demo_profile = EXCLUDED.is_demo_profile,
   offers_online = EXCLUDED.offers_online,
   offers_home = EXCLUDED.offers_home,
   locality = EXCLUDED.locality,
   city = EXCLUDED.city,
   travel_radius_km = EXCLUDED.travel_radius_km,
-  starting_monthly_fee = EXCLUDED.starting_monthly_fee,
+  starting_package_price_inr = EXCLUDED.starting_package_price_inr,
   verification = EXCLUDED.verification,
   available_days = EXCLUDED.available_days,
   available_times = EXCLUDED.available_times,
