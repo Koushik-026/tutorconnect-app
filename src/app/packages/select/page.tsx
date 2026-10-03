@@ -154,7 +154,7 @@ function PackagesContent() {
                 >
                   {pkg.highlight && (
                     <span className="absolute -top-3 left-8 rounded-full bg-[#315F52] px-3.5 py-0.5 text-[11px] font-extrabold text-white shadow-xs">
-                      Most Popular Rhythm
+                      Balanced Choice
                     </span>
                   )}
 
@@ -231,7 +231,7 @@ function PackagesContent() {
           {/* Bottom Trust Note */}
           <div className="mt-12 rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFF7ED] p-5 text-center text-xs text-[#6F6A62] space-y-1">
             <p className="font-bold text-[#25231F]">
-              Direct 1-on-1 Tuition &bull; No Auto-Renewal &bull; 45-Day Validity
+              Direct 1-on-1 Tuition &bull; One-Time Class Package &bull; 45-Day Validity
             </p>
             <p>
               Your schedule and preferred dates will be selected on the next screen before proceeding to simulated checkout.

@@ -1,14 +1,19 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
 import { tutors } from "@/lib/data";
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import type { StudentProfile } from "@/lib/types/database";
+import { createAndActivatePurchaseAction } from "@/app/actions/workflow";
 import {
   IconLock,
   IconArrowRight,
   IconArrowLeft,
+  IconShieldCheck,
 } from "@/components/ui/icons";
 
 type PaymentMethod = "upi" | "card" | "netbanking";
@@ -30,25 +35,93 @@ function CheckoutContent() {
 
   const classes = Number(searchParams.get("classes")) || 12;
   const price = Number(searchParams.get("price")) || 4500;
-  const mode = searchParams.get("mode") ?? "online";
+  const mode = (searchParams.get("mode") ?? "online") as "online" | "home";
   const days = searchParams.get("days") ?? "Monday, Wednesday, Friday";
   const time = searchParams.get("time") ?? "5:00 PM";
+
+  const packageId =
+    classes === 8 ? "package-8" : classes === 15 ? "package-15" : "package-12";
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi");
   const [upiId, setUpiId] = useState("student@oksbi");
   const [simulateOutcome, setSimulateOutcome] = useState<"success" | "failed">("success");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [profiles, setProfiles] = useState<StudentProfile[]>([]);
+  const [selectedProfileId, setSelectedProfileId] = useState<string>("");
 
-  function handleProcessPayment() {
-    const query = new URLSearchParams({
-      status: simulateOutcome,
-      tutor: tutor.id,
-      classes: String(classes),
-      amount: String(price),
-      method: paymentMethod.toUpperCase(),
-      transaction: `TC-${Date.now().toString().slice(-6)}`,
-      mode,
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        supabase
+          .from("student_profiles")
+          .select("*")
+          .eq("owner_user_id", data.user.id)
+          .then(({ data: profs }) => {
+            if (profs && profs.length > 0) {
+              setProfiles(profs as StudentProfile[]);
+              setSelectedProfileId(profs[0].id);
+            }
+          });
+      }
     });
-    router.push(`/payment/result?${query.toString()}`);
+  }, []);
+
+  async function handleProcessPayment() {
+    setErrorMessage("");
+    setIsProcessing(true);
+
+    if (!isSupabaseConfigured()) {
+      // Offline fallback
+      const query = new URLSearchParams({
+        status: simulateOutcome,
+        tutor: tutor.id,
+        classes: String(classes),
+        amount: String(price),
+        method: paymentMethod.toUpperCase(),
+        transaction: `TC-OFFLINE-${Date.now().toString().slice(-4)}`,
+        mode,
+      });
+      router.push(`/payment/result?${query.toString()}`);
+      return;
+    }
+
+    // Call server-side development action
+    try {
+      const res = await createAndActivatePurchaseAction({
+        studentProfileId: selectedProfileId || "00000000-0000-0000-0000-000000000000",
+        packageId,
+        tutorSlug: tutor.id,
+        tutorName: tutor.name,
+        tuitionMode: mode,
+        amountInr: price,
+        paymentMethod: paymentMethod.toUpperCase(),
+        simulateFailure: simulateOutcome === "failed",
+      });
+
+      setIsProcessing(false);
+
+      if (res.success && res.purchaseId) {
+        router.push(
+          `/payment/result?purchase_id=${res.purchaseId}&status=success&transaction=${encodeURIComponent(
+            res.transactionReference || ""
+          )}&tutor=${tutor.id}&classes=${classes}&amount=${price}&mode=${mode}`
+        );
+      } else {
+        router.push(
+          `/payment/result?status=failed&tutor=${tutor.id}&classes=${classes}&amount=${price}&reason=${encodeURIComponent(
+            res.error || "Simulation failed"
+          )}`
+        );
+      }
+    } catch (e: unknown) {
+      setIsProcessing(false);
+      const msg = e instanceof Error ? e.message : "Payment simulation error";
+      setErrorMessage(msg);
+    }
   }
 
   return (
@@ -59,15 +132,23 @@ function CheckoutContent() {
           <Link href="/">
             <Logo />
           </Link>
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#315F52]">
-            <IconLock size={13} />
-            <span>Simulated Prototype Checkout</span>
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#6F6A62]">
+            <IconLock size={14} className="text-[#315F52]" />
+            <span>Development Sandbox Checkout</span>
           </div>
         </div>
       </header>
 
       <main className="flex-1 py-10 md:py-16">
         <div className="container-shell max-w-4xl mx-auto">
+          {/* Development Sandbox Notice Banner */}
+          <div className="mb-6 rounded-2xl border border-[#315F52]/20 bg-[#E4EEE9]/50 p-4 text-xs font-semibold text-[#244A40] flex items-center gap-3">
+            <IconShieldCheck size={18} className="shrink-0" />
+            <div>
+              <span className="font-extrabold">Development Sandbox Mode:</span> No real financial transaction will occur. This simulator activates database records and provisions tuition sessions.
+            </div>
+          </div>
+
           <div className="mb-8">
             <Link
               href={`/schedule/confirm?tutor=${tutor.id}`}
@@ -81,13 +162,39 @@ function CheckoutContent() {
             </h1>
           </div>
 
+          {errorMessage && (
+            <div className="mb-6 rounded-2xl bg-[#FEE2E2] p-4 text-xs font-bold text-[#DC2626]">
+              {errorMessage}
+            </div>
+          )}
+
           <div className="grid gap-8 lg:grid-cols-12 items-start">
-            {/* Left: Quiet Payment Method & Simulation Controls */}
+            {/* Left: Payment Method & Simulation Controls */}
             <div className="lg:col-span-7 space-y-6">
+              {/* Learner Profile Selector if multiple */}
+              {profiles.length > 1 && (
+                <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-3">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62] block">
+                    Learner Profile
+                  </span>
+                  <select
+                    value={selectedProfileId}
+                    onChange={(e) => setSelectedProfileId(e.target.value)}
+                    className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-4 py-2.5 text-xs font-bold text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
+                  >
+                    {profiles.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.display_name} ({p.class_level})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {/* Payment Method Selector */}
               <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-6">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62] block">
-                  Select Payment Method
+                  Select Simulated Payment Method
                 </span>
 
                 <div className="grid grid-cols-3 gap-2">
@@ -124,15 +231,15 @@ function CheckoutContent() {
                       className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-4 py-2.5 text-xs font-semibold text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
                     />
                     <p className="text-[11px] text-[#9B958C]">
-                      Google Pay, PhonePe, Paytm, or BHIM supported
+                      Google Pay, PhonePe, Paytm, or BHIM simulation
                     </p>
                   </div>
                 )}
 
-                {/* Prototype Simulation Selector */}
+                {/* Simulation Selector */}
                 <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-4 space-y-2">
                   <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6F6A62] block">
-                    Prototype Simulation Control:
+                    Sandbox Outcome Control:
                   </span>
                   <div className="flex gap-2">
                     <button
@@ -163,10 +270,15 @@ function CheckoutContent() {
 
                 <button
                   type="button"
+                  disabled={isProcessing}
                   onClick={handleProcessPayment}
-                  className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
+                  className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2 disabled:opacity-50"
                 >
-                  <span>Pay {formatCurrency(price)} &amp; Confirm Routine</span>
+                  <span>
+                    {isProcessing
+                      ? "Authorizing Simulation..."
+                      : `Authorize Development Payment (${formatCurrency(price)})`}
+                  </span>
                   <IconArrowRight size={15} />
                 </button>
               </div>
@@ -181,7 +293,11 @@ function CheckoutContent() {
 
                 <div className="flex items-center gap-3 border-b border-[rgba(55,48,40,0.06)] pb-4">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E4EEE9] text-sm font-bold text-[#244A40]">
-                    AS
+                    {tutor.name
+                      .split(" ")
+                      .map((w) => w[0])
+                      .join("")
+                      .slice(0, 2)}
                   </div>
                   <div>
                     <p className="text-sm font-bold text-[#25231F]">{tutor.name}</p>

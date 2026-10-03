@@ -146,7 +146,7 @@ function ScheduleContent() {
                       {mode === "home" && <IconCheck size={14} className="text-[#315F52]" />}
                     </div>
                     <p className="text-xs text-[#6F6A62] mt-0.5">
-                      In-person visits in Hyderabad ({tutor.locality} radius).
+                      In-person visits &bull; Home tuition availability confirmed during scheduling.
                     </p>
                   </div>
                 </button>
