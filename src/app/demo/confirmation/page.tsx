@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -10,195 +10,210 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { DemoBookingRow } from "@/lib/types/database";
 import {
   IconCheck,
-  IconShieldCheck,
   IconArrowRight,
 } from "@/components/ui/icons";
 
-function getEndTime(time: string) {
-  if (time.includes("10:00")) return "10:30 AM";
-  if (time.includes("02:00")) return "02:30 PM";
-  if (time.includes("04:30")) return "05:00 PM";
-  if (time.includes("06:00")) return "06:30 PM";
-  if (time.includes("11:30")) return "12:00 PM";
-  if (time.includes("03:00")) return "03:30 PM";
-  if (time.includes("05:00")) return "05:30 PM";
-  if (time.includes("07:00")) return "07:30 PM";
-  return "30 mins after start";
+function formatKolkataTime(isoString: string) {
+  try {
+    const d = new Date(isoString);
+    return d.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata",
+    });
+  } catch {
+    return "Scheduled Time";
+  }
+}
+
+function formatKolkataDate(isoString: string) {
+  try {
+    const d = new Date(isoString);
+    return d.toLocaleDateString("en-IN", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      timeZone: "Asia/Kolkata",
+    });
+  } catch {
+    return "Scheduled Date";
+  }
 }
 
 function DemoConfirmationInner() {
   const searchParams = useSearchParams();
   const bookingId = searchParams.get("booking_id");
-  const tutorId = searchParams.get("tutor") || "ananya-sharma";
-  const queryDate = searchParams.get("date") || "2026-10-05";
-  const queryTime = searchParams.get("time") || "04:30 PM";
-  const queryStudent = searchParams.get("student") || "Aarav Mehta";
 
   const [booking, setBooking] = useState<DemoBookingRow | null>(null);
-  const tutor = tutors.find((t) => t.id === (booking?.tutor_slug || tutorId)) || tutors[0];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!bookingId || !isSupabaseConfigured()) return;
+    async function loadConfirmation() {
+      if (!isSupabaseConfigured()) {
+        setLoading(false);
+        return;
+      }
 
-    const supabase = createClient();
-    supabase
-      .from("demo_bookings")
-      .select("*")
-      .eq("id", bookingId)
-      .single()
-      .then(({ data }) => {
-        if (data) {
+      if (!bookingId) {
+        setError("No demo booking identifier provided.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const supabase = createClient();
+        const { data, error: bErr } = await supabase
+          .from("demo_bookings")
+          .select("*")
+          .eq("id", bookingId)
+          .single();
+
+        setLoading(false);
+        if (bErr || !data) {
+          setError("Demo booking not found or unauthorized. Please verify your reservation.");
+        } else {
           setBooking(data as DemoBookingRow);
         }
-      });
+      } catch {
+        setLoading(false);
+        setError("Unable to load booking details.");
+      }
+    }
+
+    loadConfirmation();
   }, [bookingId]);
 
-  let displayDate = queryDate;
-  let displayTime = queryTime;
-  let displayEndTime = getEndTime(queryTime);
-  const displayStudent = queryStudent;
-
-  if (booking) {
-    const start = new Date(booking.scheduled_start_at);
-    const end = new Date(booking.scheduled_end_at);
-    displayDate = start.toLocaleDateString("en-IN", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-    displayTime = start.toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-    displayEndTime = end.toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+  if (loading) {
+    return (
+      <div className="text-center py-20">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-[#315F52] border-t-transparent mb-3" />
+        <p className="text-xs text-[#6F6A62]">Verifying reservation details...</p>
+      </div>
+    );
   }
 
-  return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
-        <div className="container-shell flex items-center justify-between">
-          <Link href="/">
-            <Logo />
-          </Link>
-          <Link
-            href="/dashboard/student"
-            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
-          >
-            Go to Student Workspace &rarr;
+  // When Supabase is configured, reject missing/unauthorized booking
+  if (isSupabaseConfigured() && (error || !booking)) {
+    return (
+      <div className="max-w-md mx-auto text-center py-16 bg-white rounded-3xl border border-[rgba(55,48,40,0.10)] p-8 shadow-xs">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FDE8E4] text-[#BA5945] mb-4 text-xl font-bold">
+          !
+        </div>
+        <h2 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[#25231F]">
+          Reservation Not Found
+        </h2>
+        <p className="mt-2 text-xs text-[#6F6A62] leading-relaxed">
+          {error || "We could not find an authorized demo booking matching this link."}
+        </p>
+        <div className="mt-6">
+          <Link href="/tutors" className="btn btn-primary min-h-[44px] px-6 text-xs font-bold rounded-full">
+            Browse Educators &amp; Book Demo
           </Link>
         </div>
-      </header>
+      </div>
+    );
+  }
 
-      <main className="flex-1 py-12 md:py-20 flex items-center">
-        <div className="container-shell max-w-2xl mx-auto">
-          {/* Dominant Appointment Card */}
-          <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.03)] text-center">
-            {/* Status Pill */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#E3EADD] px-4 py-1.5 text-xs font-bold text-[#244A40] mb-6">
-              <IconCheck size={14} />
-              <span>Demo Session Confirmed &bull; ₹0 Paid</span>
-            </div>
+  // Display fields
+  const displayTutor = booking?.tutor_name || tutors[0].name;
+  const displaySubject = booking?.subject || "Mathematics";
+  const displayDate = booking ? formatKolkataDate(booking.scheduled_start_at) : "Mon, Oct 6, 2026";
+  const displayTime = booking ? formatKolkataTime(booking.scheduled_start_at) : "04:30 PM";
 
-            <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#25231F]">
-              You&apos;re Scheduled with {booking?.tutor_name || tutor.name}
-            </h1>
-            <p className="mt-2 text-sm text-[#6F6A62]">
-              We have reserved your free 30-minute 1-on-1 online trial.
-            </p>
+  return (
+    <div className="container-shell max-w-2xl mx-auto py-10 md:py-16">
+      <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-7 sm:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.03)] text-center space-y-6">
+        {/* Success Icon */}
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E4EEE9] text-[#244A40] shadow-2xs">
+          <IconCheck size={32} />
+        </div>
 
-            {/* Appointment Details Highlight */}
-            <div className="mt-8 rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-6 text-left space-y-4">
-              <div className="flex items-start justify-between border-b border-[rgba(55,48,40,0.06)] pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E4EEE9] text-sm font-extrabold text-[#244A40]">
-                    {(booking?.tutor_name || tutor.name)
-                      .split(" ")
-                      .map((w) => w[0])
-                      .join("")
-                      .slice(0, 2)}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-bold text-[#25231F]">{booking?.tutor_name || tutor.name}</p>
-                      <span className="text-[#315F52]"><IconShieldCheck size={15} /></span>
-                    </div>
-                    <p className="text-xs text-[#6F6A62]">{tutor.headline}</p>
-                  </div>
-                </div>
-                <span className="rounded-full bg-[#E4EEE9] px-2.5 py-0.5 text-xs font-bold text-[#244A40]">
-                  1-on-1 Online
-                </span>
-              </div>
+        <div>
+          <span className="rounded-full bg-[#E3EADD] px-3.5 py-1 text-xs font-bold text-[#244A40]">
+            Free 30-Min Demo Confirmed
+          </span>
+          <h1 className="mt-3 font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+            Your 1-on-1 Demo is Scheduled
+          </h1>
+          <p className="mt-2 text-xs sm:text-sm text-[#6F6A62]">
+            We have reserved your introductory evaluation session with{" "}
+            <strong className="text-[#25231F]">{displayTutor}</strong>.
+          </p>
+        </div>
 
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div>
-                  <span className="text-[#9B958C] font-bold block mb-0.5">DATE &amp; TIME</span>
-                  <p className="font-bold text-[#25231F] text-sm">{displayDate}</p>
-                  <p className="text-[#6F6A62]">{displayTime} &ndash; {displayEndTime}</p>
-                </div>
-                <div>
-                  <span className="text-[#9B958C] font-bold block mb-0.5">STUDENT &amp; SUBJECT</span>
-                  <p className="font-bold text-[#25231F] text-sm">
-                    {displayStudent} &bull; {booking?.subject || "Mathematics & Science"}
-                  </p>
-                  <p className="text-[#6F6A62]">Interactive Digital Classroom</p>
-                </div>
-              </div>
-            </div>
+        {/* Schedule Dossier */}
+        <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-5 text-left text-xs space-y-3">
+          <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-2.5">
+            <span className="text-[#9B958C]">Educator:</span>
+            <span className="font-bold text-[#25231F]">{displayTutor}</span>
+          </div>
 
-            {/* Preparation Checklist */}
-            <div className="mt-8 text-left space-y-2.5 border-t border-[rgba(55,48,40,0.08)] pt-6">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62] block mb-2">
-                Quick Preparation Checklist
-              </span>
-              <div className="flex items-center gap-2.5 text-xs text-[#25231F]">
-                <IconCheck size={14} className="text-[#315F52] shrink-0" />
-                <span>Test your device microphone and camera 5 minutes prior to session.</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-xs text-[#25231F]">
-                <IconCheck size={14} className="text-[#315F52] shrink-0" />
-                <span>Keep notebook and recent syllabus questions ready for discussion.</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-xs text-[#25231F]">
-                <IconCheck size={14} className="text-[#315F52] shrink-0" />
-                <span>Join the waiting room directly using the button below at scheduled time.</span>
-              </div>
-            </div>
+          <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-2.5">
+            <span className="text-[#9B958C]">Subject Focus:</span>
+            <span className="font-bold text-[#25231F]">{displaySubject}</span>
+          </div>
 
-            {/* Actions */}
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href={`/demo/waiting-room?tutor=${tutor.id}&date=${displayDate}&time=${encodeURIComponent(displayTime)}`}
-                className="btn btn-primary min-h-[48px] px-8 rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
-              >
-                <span>Enter Demo Waiting Room</span>
-                <IconArrowRight size={15} />
-              </Link>
+          <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-2.5">
+            <span className="text-[#9B958C]">Date &amp; Time:</span>
+            <span className="font-bold text-[#25231F]">{displayDate} &bull; {displayTime}</span>
+          </div>
 
-              <Link
-                href="/dashboard/student"
-                className="btn btn-outline min-h-[48px] px-6 rounded-full text-xs font-bold justify-center"
-              >
-                <span>View Workspace</span>
-              </Link>
-            </div>
+          <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-2.5">
+            <span className="text-[#9B958C]">Duration &amp; Format:</span>
+            <span className="font-bold text-[#25231F]">30 Minutes &bull; Online Room</span>
+          </div>
+
+          <div className="flex items-center justify-between pt-0.5">
+            <span className="text-[#9B958C]">Amount:</span>
+            <span className="font-extrabold text-[#315F52]">₹0 Demo</span>
           </div>
         </div>
-      </main>
+
+        {/* Action CTAs */}
+        <div className="grid gap-3 sm:grid-cols-2 pt-2">
+          <Link
+            href={bookingId ? "/demo/waiting-room?booking_id=" + bookingId : "/demo/waiting-room"}
+            className="btn btn-primary min-h-[48px] rounded-full text-xs font-bold justify-center shadow-xs"
+          >
+            <span>Test Audio &amp; Video (Waiting Room)</span>
+            <IconArrowRight size={14} />
+          </Link>
+
+          <Link
+            href="/dashboard/student"
+            className="btn btn-outline min-h-[48px] rounded-full text-xs font-bold justify-center border-[rgba(55,48,40,0.15)] hover:border-[#25231F]"
+          >
+            <span>Go to Student Dashboard</span>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function DemoConfirmationPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FFFBF5]" />}>
-      <DemoConfirmationInner />
-    </Suspense>
+    <div className="flex min-h-screen flex-col bg-[#FFFBF5]">
+      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+        <div className="container-shell flex items-center justify-between">
+          <Logo />
+          <Link
+            href="/dashboard/student"
+            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition-colors min-h-[44px] flex items-center"
+          >
+            Student Workspace &rarr;
+          </Link>
+        </div>
+      </header>
+
+      <main className="flex-1 flex items-center">
+        <Suspense fallback={<div className="text-center py-20 text-xs text-[#6F6A62]">Loading confirmation...</div>}>
+          <DemoConfirmationInner />
+        </Suspense>
+      </main>
+    </div>
   );
 }

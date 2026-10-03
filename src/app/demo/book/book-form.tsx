@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Logo } from "@/components/logo";
 import type { Tutor } from "@/lib/types";
 import type { StudentProfile } from "@/lib/types/database";
@@ -11,8 +11,7 @@ import {
   createLearnerProfileAction,
 } from "@/app/actions/workflow";
 import {
-  IconClock,
-  IconVideo,
+    IconVideo,
   IconArrowRight,
   IconCheck,
   IconUser,
@@ -24,28 +23,47 @@ interface DemoBookFormProps {
   isAuthenticated: boolean;
 }
 
-const availableSlots: Record<string, string[]> = {
-  "2026-10-05": ["10:00 AM", "02:00 PM", "04:30 PM", "06:00 PM"],
-  "2026-10-06": ["11:30 AM", "03:00 PM", "05:00 PM", "07:00 PM"],
-  "2026-10-07": ["09:30 AM", "01:00 PM", "04:00 PM", "06:30 PM"],
-  "2026-10-08": ["10:00 AM", "02:30 PM", "05:00 PM"],
-  "2026-10-09": ["11:00 AM", "03:30 PM", "06:00 PM", "07:30 PM"],
-};
+function generateDynamicDemoOptions(availableDays: string[], availableTimes: string[]) {
+  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const options: { date: string; label: string; slots: string[] }[] = [];
+  const now = new Date();
 
-const dateOptions = [
-  { date: "2026-10-05", label: "Mon, Oct 5", note: "4 slots" },
-  { date: "2026-10-06", label: "Tue, Oct 6", note: "4 slots" },
-  { date: "2026-10-07", label: "Wed, Oct 7", note: "4 slots" },
-  { date: "2026-10-08", label: "Thu, Oct 8", note: "3 slots" },
-  { date: "2026-10-09", label: "Fri, Oct 9", note: "4 slots" },
-];
+  // Look ahead over next 14 days, pick up to 5 matching tutor available days starting tomorrow
+  for (let i = 1; i <= 14 && options.length < 5; i++) {
+    const d = new Date(now.getTime() + i * 86400000);
+    const dayName = daysOfWeek[d.getDay()];
+
+    if (availableDays.length === 0 || availableDays.includes(dayName)) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const dateStr = String(year) + "-" + month + "-" + day;
+
+      const dayAbbr = dayName.slice(0, 3);
+      const monthAbbr = d.toLocaleString("en-US", { month: "short" });
+      const label = dayAbbr + ", " + monthAbbr + " " + d.getDate();
+
+      options.push({
+        date: dateStr,
+        label,
+        slots: availableTimes.length > 0 ? availableTimes : ["4:00 PM", "5:00 PM", "6:00 PM"],
+      });
+    }
+  }
+
+  return options;
+}
 
 export function DemoBookForm({
   tutor,
   initialProfiles,
-  isAuthenticated,
 }: DemoBookFormProps) {
   const router = useRouter();
+
+  const dynamicDates = useMemo(
+    () => generateDynamicDemoOptions(tutor.availableDays, tutor.availableTimes),
+    [tutor.availableDays, tutor.availableTimes]
+  );
 
   const [profiles, setProfiles] = useState<StudentProfile[]>(initialProfiles);
   const [selectedProfileId, setSelectedProfileId] = useState<string>(
@@ -63,8 +81,17 @@ export function DemoBookForm({
   const [profileError, setProfileError] = useState("");
 
   // Booking fields
-  const [selectedDate, setSelectedDate] = useState("2026-10-05");
-  const [selectedSlot, setSelectedSlot] = useState("04:30 PM");
+  const [selectedDate, setSelectedDate] = useState<string>(
+    dynamicDates[0]?.date || ""
+  );
+  const currentSlots = useMemo(() => {
+    const found = dynamicDates.find((d) => d.date === selectedDate);
+    return found?.slots || tutor.availableTimes;
+  }, [dynamicDates, selectedDate, tutor.availableTimes]);
+
+  const [selectedSlot, setSelectedSlot] = useState<string>(
+    currentSlots[0] || "04:30 PM"
+  );
   const [selectedSubject, setSelectedSubject] = useState(
     tutor.subjects[0] || "Mathematics"
   );
@@ -75,79 +102,72 @@ export function DemoBookForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState("");
 
-  const currentSlots = availableSlots[selectedDate] || [
-    "10:00 AM",
-    "02:00 PM",
-    "05:00 PM",
-  ];
-
+  // Handler for creating a new learner profile inline
   async function handleCreateProfile(e: React.FormEvent) {
     e.preventDefault();
+    setProfileError("");
+
     if (!newDisplayName.trim()) {
-      setProfileError("Please provide learner's name.");
+      setProfileError("Please enter the student's name.");
       return;
     }
 
     setIsCreatingProfile(true);
-    setProfileError("");
+    const fd = new FormData();
+    fd.append("display_name", newDisplayName.trim());
+    fd.append("class_level", newClassLevel);
+    fd.append("board", newBoard);
 
-    const formData = new FormData();
-    formData.append("display_name", newDisplayName);
-    formData.append("class_level", newClassLevel);
-    formData.append("board", newBoard);
-
-    const res = await createLearnerProfileAction(formData);
+    const res = await createLearnerProfileAction(fd);
     setIsCreatingProfile(false);
 
     if (res.success && res.profile) {
-      const created = res.profile as StudentProfile;
-      setProfiles((prev) => [...prev, created]);
-      setSelectedProfileId(created.id);
+      setProfiles((prev) => [...prev, res.profile as StudentProfile]);
+      setSelectedProfileId(res.profile.id);
       setShowCreateProfile(false);
+      setNewDisplayName("");
     } else {
-      setProfileError(res.error || "Failed to create learner profile.");
+      setProfileError(res.error || "Unable to create profile.");
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  // Handler for submitting the demo booking
+  async function handleSubmitBooking(e: React.FormEvent) {
     e.preventDefault();
     setBookingError("");
 
-    if (!selectedProfileId && profiles.length > 0) {
-      setBookingError("Please select a student profile.");
+    if (!selectedProfileId) {
+      setBookingError("Please select or create a student profile first.");
       return;
     }
 
-    // Convert date + slot to ISO start string
-    // e.g. "2026-10-05" + "04:30 PM"
-    const [time, period] = selectedSlot.split(" ");
-    const [hourStr, minStr] = time.split(":");
-    let hour = parseInt(hourStr, 10);
-    if (period === "PM" && hour !== 12) hour += 12;
-    if (period === "AM" && hour === 12) hour = 0;
+    if (!selectedDate || !selectedSlot) {
+      setBookingError("Please select an available date and time slot.");
+      return;
+    }
 
-    const scheduledDate = new Date(`${selectedDate}T00:00:00`);
-    scheduledDate.setHours(hour, parseInt(minStr, 10), 0, 0);
+    // Convert slot (e.g. '04:30 PM' or '4:00 PM') into scheduledStartAt ISO string
+    let hours = 16;
+    let minutes = 30;
+    const parts = selectedSlot.split(" ");
+    if (parts.length === 2) {
+      const [hStr, mStr] = parts[0].split(":");
+      let h = parseInt(hStr, 10);
+      const m = parseInt(mStr, 10);
+      if (parts[1] === "PM" && h < 12) h += 12;
+      if (parts[1] === "AM" && h === 12) h = 0;
+      hours = h;
+      minutes = m;
+    }
+
+    const scheduledDate = new Date(selectedDate);
+    scheduledDate.setHours(hours, minutes, 0, 0);
 
     setIsSubmitting(true);
-
-    if (!isAuthenticated) {
-      // Offline / unauthenticated demo fallback
-      const query = new URLSearchParams({
-        tutor: tutor.id,
-        date: selectedDate,
-        time: selectedSlot,
-        student: "Demo Learner",
-        subject: selectedSubject,
-      });
-      router.push(`/demo/confirmation?${query.toString()}`);
-      return;
-    }
 
     const res = await submitDemoBookingAction({
       studentProfileId: selectedProfileId,
       tutorSlug: tutor.id,
-      tutorName: tutor.name,
       subject: selectedSubject,
       scheduledStartAt: scheduledDate.toISOString(),
       learningGoal,
@@ -156,316 +176,310 @@ export function DemoBookForm({
     setIsSubmitting(false);
 
     if (res.success && res.bookingId) {
-      router.push(`/demo/confirmation?booking_id=${res.bookingId}&tutor=${tutor.id}`);
+      router.push("/demo/confirmation?booking_id=" + res.bookingId);
     } else {
-      setBookingError(res.error || "Failed to confirm demo booking.");
+      setBookingError(res.error || "Failed to schedule free demo. Please try again.");
     }
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5]">
+    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
       <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
-          <Link href="/">
-            <Logo />
-          </Link>
+          <Logo />
           <Link
-            href={`/tutors/${tutor.id}`}
-            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
+            href={"/tutors/" + tutor.id}
+            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition-colors"
           >
-            &larr; Back to Tutor
+            &larr; Back to profile
           </Link>
         </div>
       </header>
 
       <main className="flex-1 py-10 md:py-16">
-        <div className="container-shell max-w-4xl">
+        <div className="container-shell max-w-4xl mx-auto">
           {/* Header */}
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-3.5 py-1 text-xs font-bold text-[#244A40]">
+          <div className="text-center max-w-xl mx-auto mb-10">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-3.5 py-1 text-xs font-bold text-[#244A40] mb-3">
               <IconVideo size={13} />
-              <span>Free 30-Minute Online Trial &bull; ₹0 Payment</span>
-            </div>
-            <h1 className="mt-4 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#25231F]">
-              Schedule Your Free Demo
+              <span>1-on-1 Free Online Demo</span>
+            </span>
+            <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#25231F]">
+              Book Your Free 30-Min Demo
             </h1>
-            <p className="mt-2 text-sm text-[#6F6A62]">
-              Connect 1-on-1 with <strong className="text-[#25231F]">{tutor.name}</strong> to evaluate teaching rapport before choosing any package.
+            <p className="mt-2 text-xs sm:text-sm text-[#6F6A62]">
+              Experience concept explanations and pedagogical tempo with{" "}
+              <strong className="text-[#25231F]">{tutor.name}</strong> before choosing any package.
             </p>
           </div>
 
-          <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-6 sm:p-9 shadow-[0_12px_40px_rgba(0,0,0,0.03)] space-y-8">
-            {/* 1. Student Profile Selection / Inline Creation */}
-            <div className="border-b border-[rgba(55,48,40,0.08)] pb-8">
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62]">
-                  1. Learner Profile
-                </label>
-                {profiles.length > 0 && !showCreateProfile && (
-                  <button
-                    type="button"
-                    onClick={() => setShowCreateProfile(true)}
-                    className="text-xs font-bold text-[#315F52] hover:underline"
-                  >
-                    + Add Another Learner
-                  </button>
-                )}
-              </div>
-
-              {showCreateProfile ? (
-                <form
-                  onSubmit={handleCreateProfile}
-                  className="rounded-2xl border border-[#315F52]/30 bg-[#F4F8F6] p-5 space-y-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-extrabold text-[#244A40]">
-                      Create Learner Profile
-                    </span>
-                    {profiles.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setShowCreateProfile(false)}
-                        className="text-[11px] font-semibold text-[#6F6A62]"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
-
-                  {profileError && (
-                    <div className="rounded-xl bg-[#FEE2E2] p-2.5 text-xs text-[#DC2626] font-semibold">
-                      {profileError}
-                    </div>
+          <div className="grid gap-8 lg:grid-cols-12 items-start">
+            {/* Left: Booking Form */}
+            <div className="lg:col-span-8 bg-white rounded-3xl border border-[rgba(55,48,40,0.10)] p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-6">
+              {/* Section 1: Learner Selection */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#9B958C]">
+                    1. Learner Profile
+                  </label>
+                  {profiles.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateProfile((p) => !p)}
+                      className="text-xs font-bold text-[#315F52] hover:underline min-h-[44px] flex items-center"
+                    >
+                      {showCreateProfile ? "Select Existing" : "+ Add Learner"}
+                    </button>
                   )}
+                </div>
 
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    <div>
-                      <label className="text-[11px] font-bold text-[#6F6A62] block mb-1">
-                        Learner Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Aarav Mehta"
-                        value={newDisplayName}
-                        onChange={(e) => setNewDisplayName(e.target.value)}
-                        className="w-full rounded-xl border border-[rgba(55,48,40,0.12)] bg-white px-3 py-2 text-xs font-semibold text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
-                      />
+                {showCreateProfile ? (
+                  <div className="rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFFBF5] p-5 space-y-4">
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#244A40]">
+                      <IconUser size={14} />
+                      <span>Create Learner Profile</span>
                     </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-[#6F6A62] block mb-1">
-                        Class / Grade *
-                      </label>
-                      <select
-                        value={newClassLevel}
-                        onChange={(e) => setNewClassLevel(e.target.value)}
-                        className="w-full rounded-xl border border-[rgba(55,48,40,0.12)] bg-white px-3 py-2 text-xs font-semibold text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
-                      >
-                        {[
-                          "Class 6",
-                          "Class 7",
-                          "Class 8",
-                          "Class 9",
-                          "Class 10",
-                          "Class 11",
-                          "Class 12",
-                        ].map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
-                      </select>
+
+                    {profileError && (
+                      <div className="rounded-xl bg-[#FDE8E4] px-3 py-2 text-xs text-[#BA5945]">
+                        {profileError}
+                      </div>
+                    )}
+
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="sm:col-span-1">
+                        <label className="block text-[11px] font-bold text-[#6F6A62] mb-1">
+                          Student Name
+                        </label>
+                        <input
+                          type="text"
+                          value={newDisplayName}
+                          onChange={(e) => setNewDisplayName(e.target.value)}
+                          placeholder="e.g. Aarav"
+                          className="w-full min-h-[44px] rounded-xl border border-[rgba(55,48,40,0.15)] bg-white px-3 py-2 text-xs text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#6F6A62] mb-1">
+                          Class Level
+                        </label>
+                        <select
+                          value={newClassLevel}
+                          onChange={(e) => setNewClassLevel(e.target.value)}
+                          className="w-full min-h-[44px] rounded-xl border border-[rgba(55,48,40,0.15)] bg-white px-3 py-2 text-xs text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
+                        >
+                          {["Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#6F6A62] mb-1">
+                          Board
+                        </label>
+                        <select
+                          value={newBoard}
+                          onChange={(e) => setNewBoard(e.target.value)}
+                          className="w-full min-h-[44px] rounded-xl border border-[rgba(55,48,40,0.15)] bg-white px-3 py-2 text-xs text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
+                        >
+                          {["CBSE", "ICSE", "State Board", "IGCSE / IB"].map((b) => (
+                            <option key={b} value={b}>{b}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-[#6F6A62] block mb-1">
-                        Board *
-                      </label>
-                      <select
-                        value={newBoard}
-                        onChange={(e) => setNewBoard(e.target.value)}
-                        className="w-full rounded-xl border border-[rgba(55,48,40,0.12)] bg-white px-3 py-2 text-xs font-semibold text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
-                      >
-                        {["CBSE", "ICSE", "State Board", "IB / IGCSE"].map((b) => (
-                          <option key={b} value={b}>
-                            {b}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleCreateProfile}
+                      disabled={isCreatingProfile}
+                      className="btn btn-primary min-h-[44px] px-4 py-2 text-xs font-bold rounded-xl"
+                    >
+                      {isCreatingProfile ? "Saving Profile..." : "Save Profile"}
+                    </button>
                   </div>
-
-                  <button
-                    type="submit"
-                    disabled={isCreatingProfile}
-                    className="btn btn-primary min-h-[40px] px-5 rounded-full text-xs font-bold"
-                  >
-                    {isCreatingProfile ? "Saving Profile..." : "Save Learner Profile"}
-                  </button>
-                </form>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {profiles.map((p) => {
-                    const isSelected = selectedProfileId === p.id;
-                    return (
+                ) : (
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    {profiles.map((p) => (
                       <button
                         key={p.id}
                         type="button"
                         onClick={() => setSelectedProfileId(p.id)}
-                        className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-all ${
-                          isSelected
-                            ? "border-[#315F52] bg-[#E4EEE9]/40 shadow-xs"
-                            : "border-[rgba(55,48,40,0.10)] bg-[#FFF7ED] hover:border-[#315F52]/40"
-                        }`}
+                        className={"min-h-[48px] text-left p-3.5 rounded-2xl border transition-all flex items-center justify-between " + (
+                          selectedProfileId === p.id
+                            ? "border-[#315F52] bg-[#E4EEE9] text-[#244A40] shadow-xs font-bold"
+                            : "border-[rgba(55,48,40,0.10)] bg-[#FFFBF5] text-[#25231F] hover:border-[rgba(55,48,40,0.20)]"
+                        )}
                       >
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-xl font-bold text-sm ${
-                            isSelected
-                              ? "bg-[#315F52] text-white"
-                              : "bg-white text-[#6F6A62]"
-                          }`}
-                        >
-                          <IconUser size={18} />
-                        </div>
                         <div>
-                          <p className="text-xs font-bold text-[#25231F]">
-                            {p.display_name}
-                          </p>
-                          <p className="text-[11px] text-[#6F6A62]">
+                          <div className="text-xs font-bold">{p.display_name}</div>
+                          <div className="text-[11px] text-[#6F6A62]">
                             {p.class_level} &bull; {p.board}
-                          </p>
+                          </div>
                         </div>
+                        {selectedProfileId === p.id && <IconCheck size={16} className="text-[#315F52]" />}
                       </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-            {/* Primary Booking Form */}
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {bookingError && (
-                <div className="rounded-xl bg-[#FEE2E2] p-3 text-xs text-[#DC2626] font-semibold">
-                  {bookingError}
-                </div>
-              )}
-
-              {/* 2. Date Selection Pills */}
-              <div>
-                <label className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62] block mb-3">
-                  2. Select Preferred Date
+              {/* Section 2: Subject & Goal */}
+              <div className="border-t border-[rgba(55,48,40,0.08)] pt-5">
+                <label className="text-xs font-bold uppercase tracking-wider text-[#9B958C] block mb-3">
+                  2. Select Focus Subject
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                  {dateOptions.map((opt) => (
+                <div className="flex flex-wrap gap-2">
+                  {tutor.subjects.map((sub) => (
                     <button
-                      key={opt.date}
+                      key={sub}
                       type="button"
-                      onClick={() => {
-                        setSelectedDate(opt.date);
-                        setSelectedSlot(availableSlots[opt.date]?.[0] || "10:00 AM");
-                      }}
-                      className={`rounded-2xl border p-3.5 text-center transition-all ${
-                        selectedDate === opt.date
-                          ? "border-[#315F52] bg-[#E4EEE9]/50 shadow-xs"
-                          : "border-[rgba(55,48,40,0.10)] bg-[#FFF7ED] hover:border-[#315F52]/40"
-                      }`}
+                      onClick={() => setSelectedSubject(sub)}
+                      className={"min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold border transition-all " + (
+                        selectedSubject === sub
+                          ? "bg-[#25231F] text-white border-[#25231F]"
+                          : "bg-white text-[#25231F] border-[rgba(55,48,40,0.15)] hover:border-[#315F52]"
+                      )}
                     >
-                      <p
-                        className={`text-xs font-bold ${
-                          selectedDate === opt.date ? "text-[#244A40]" : "text-[#25231F]"
-                        }`}
-                      >
-                        {opt.label}
-                      </p>
-                      <span className="text-[10px] font-semibold text-[#6F6A62] mt-0.5 block">
-                        {opt.note}
-                      </span>
+                      {sub}
                     </button>
                   ))}
                 </div>
+
+                <div className="mt-4">
+                  <label className="block text-[11px] font-bold text-[#6F6A62] mb-1">
+                    Learning Goal / Hesitation Topic (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={learningGoal}
+                    onChange={(e) => setLearningGoal(e.target.value)}
+                    placeholder="e.g. Quadratic equations, sound waves, or essay writing"
+                    className="w-full min-h-[44px] rounded-xl border border-[rgba(55,48,40,0.15)] bg-white px-3 py-2 text-xs text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
+                  />
+                </div>
               </div>
 
-              {/* 3. Time Slot Selection */}
-              <div>
-                <label className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62] block mb-3">
-                  3. Select 30-Minute Online Slot
+              {/* Section 3: Dynamic Date & Slot Selection */}
+              <div className="border-t border-[rgba(55,48,40,0.08)] pt-5">
+                <label className="text-xs font-bold uppercase tracking-wider text-[#9B958C] block mb-3">
+                  3. Select Preferred Date &amp; Time (Asia/Kolkata)
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+
+                {/* Dynamic Dates */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4">
+                  {dynamicDates.map((item) => (
+                    <button
+                      key={item.date}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDate(item.date);
+                        if (item.slots.length > 0) {
+                          setSelectedSlot(item.slots[0]);
+                        }
+                      }}
+                      className={"min-h-[48px] p-2.5 rounded-xl border text-center transition-all " + (
+                        selectedDate === item.date
+                          ? "border-[#315F52] bg-[#E4EEE9] text-[#244A40] font-bold shadow-2xs"
+                          : "border-[rgba(55,48,40,0.10)] bg-white text-[#25231F] hover:border-[rgba(55,48,40,0.20)]"
+                      )}
+                    >
+                      <div className="text-xs font-bold">{item.label}</div>
+                      <div className="text-[10px] text-[#6F6A62]">{item.slots.length} slots</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Slots */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {currentSlots.map((slot) => (
                     <button
                       key={slot}
                       type="button"
                       onClick={() => setSelectedSlot(slot)}
-                      className={`flex items-center justify-center gap-1.5 rounded-2xl border py-3 px-4 text-xs font-bold transition-all ${
+                      className={"min-h-[44px] p-2 rounded-xl border text-xs font-bold transition-all " + (
                         selectedSlot === slot
-                          ? "border-[#315F52] bg-[#315F52] text-white shadow-xs"
-                          : "border-[rgba(55,48,40,0.10)] bg-[#FFF7ED] text-[#25231F] hover:border-[#315F52]/40"
-                      }`}
+                          ? "bg-[#315F52] text-white border-[#315F52]"
+                          : "bg-[#FFFBF5] text-[#25231F] border-[rgba(55,48,40,0.10)] hover:border-[#315F52]"
+                      )}
                     >
-                      <IconClock size={13} />
-                      <span>{slot}</span>
+                      {slot}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* 4. Subject Selection & Goal */}
-              <div className="border-t border-[rgba(55,48,40,0.08)] pt-6 space-y-4">
-                <label className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62] block">
-                  4. Tuition Focus
-                </label>
+              {/* Submit Error */}
+              {bookingError && (
+                <div className="rounded-2xl bg-[#FDE8E4] p-4 text-xs font-semibold text-[#BA5945] border border-[#BA5945]/20">
+                  {bookingError}
+                </div>
+              )}
 
-                <div>
-                  <label className="text-xs font-bold text-[#6F6A62] block mb-1">
-                    Subject for Demo
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {tutor.subjects.map((s) => (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => setSelectedSubject(s)}
-                        className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${
-                          selectedSubject === s
-                            ? "bg-[#315F52] text-white shadow-xs"
-                            : "bg-[#FFF7ED] border border-[rgba(55,48,40,0.12)] text-[#25231F] hover:border-[#315F52]"
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    ))}
+              {/* Submit CTA */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleSubmitBooking}
+                  disabled={isSubmitting || profiles.length === 0}
+                  className="btn btn-primary w-full min-h-[50px] rounded-full text-sm font-extrabold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
+                >
+                  <span>{isSubmitting ? "Confirming Booking..." : "Confirm Free Demo Booking"}</span>
+                  <IconArrowRight size={15} />
+                </button>
+                <p className="mt-2 text-center text-[11px] text-[#9B958C]">
+                  Duration: Exactly 30 minutes &bull; Free evaluation (₹0) &bull; No card required
+                </p>
+              </div>
+            </div>
+
+            {/* Right: Tutor Summary Card */}
+            <div className="lg:col-span-4 space-y-6">
+              <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-[#E4EEE9] text-base font-extrabold text-[#244A40]">
+                    {tutor.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                  </div>
+                  <div>
+                    <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#25231F]">
+                      {tutor.name}
+                    </h3>
+                    <p className="text-xs text-[#6F6A62]">{tutor.headline}</p>
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-xs font-bold text-[#6F6A62] block mb-1">
-                    Focus Topics / Specific Concept Questions (Optional)
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={learningGoal}
-                    onChange={(e) => setLearningGoal(e.target.value)}
-                    className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] p-3 text-xs font-semibold text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
-                  />
+                <div className="space-y-2 border-t border-[rgba(55,48,40,0.08)] pt-4 text-xs text-[#6F6A62]">
+                  <div className="flex items-center justify-between">
+                    <span>Format:</span>
+                    <span className="font-bold text-[#25231F]">Online Classroom</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Duration:</span>
+                    <span className="font-bold text-[#25231F]">30 Minutes</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Fee:</span>
+                    <span className="font-bold text-[#315F52]">₹0 Free Demo</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>City:</span>
+                    <span className="font-bold text-[#25231F]">{tutor.city}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Submit CTA */}
-              <div className="border-t border-[rgba(55,48,40,0.08)] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-xs text-[#315F52] font-semibold">
-                  <IconCheck size={16} />
-                  <span>Free demo &bull; Exactly 30 minutes &bull; Online 1-on-1</span>
+              <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFF7ED] p-4 text-xs text-[#6F6A62] space-y-2">
+                <div className="flex items-center gap-1.5 font-bold text-[#25231F]">
+                  <IconCheck size={14} className="text-[#315F52]" />
+                  <span>How the demo works</span>
                 </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting || (profiles.length === 0 && !selectedProfileId)}
-                  className="btn btn-primary w-full sm:w-auto min-h-[48px] px-8 rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2 disabled:opacity-50"
-                >
-                  <span>{isSubmitting ? "Confirming..." : "Confirm Free Demo"}</span>
-                  <IconArrowRight size={15} />
-                </button>
+                <p className="text-[11px] leading-relaxed">
+                  Join the interactive digital room at your chosen time. The educator will walk through fundamental concepts, address doubts, and recommend a weekly learning rhythm.
+                </p>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </main>

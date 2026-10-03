@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { Logo } from "@/components/logo";
-import { tutors } from "@/lib/data";
+import { tutors as mockTutors, tuitionPackages as mockPackages } from "@/lib/data";
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import type { Tutor } from "@/lib/types";
+import type { TuitionPackageRow } from "@/lib/types/database";
 import {
-  IconClock,
-  IconVideo,
+    IconVideo,
   IconHomeTuition,
   IconArrowRight,
   IconCalendar,
@@ -32,15 +35,93 @@ function ScheduleContent() {
   const searchParams = useSearchParams();
 
   const tutorId = searchParams.get("tutor") || "ananya-sharma";
-  const tutor = tutors.find((t) => t.id === tutorId) || tutors[0];
-
   const packageId = searchParams.get("package") || "package-12";
-  const classesCount = Number(searchParams.get("classes")) || 12;
-  const packagePrice = Number(searchParams.get("amount")) || 4500;
 
+  const [tutor, setTutor] = useState<Tutor>(
+    () => mockTutors.find((t) => t.id === tutorId) || mockTutors[0]
+  );
+  const [pkg, setPkg] = useState<TuitionPackageRow>(() => {
+    const found = mockPackages.find((p) => p.id === packageId) || mockPackages[1];
+    return {
+      id: found.id,
+      title: found.title,
+      rhythm_name: found.id === "package-8" ? "Steady Start" : found.id === "package-12" ? "Consistent Momentum" : "Complete Mastery",
+      intensity: "Balanced",
+      total_classes: found.numberOfClasses,
+      price_inr: found.price,
+      class_duration_minutes: 60,
+      validity_days: 45,
+      pace_description: "3 classes / week",
+      best_for: found.description,
+      is_recommended: found.id === "package-12",
+      features: [],
+      created_at: new Date().toISOString(),
+    };
+  });
+
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    const supabase = createClient();
+
+    // Fetch tutor
+    supabase
+      .from("public_tutor_catalog")
+      .select("*")
+      .eq("slug", tutorId)
+      .eq("is_approved", true)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          const modes: ("online" | "home")[] = [];
+          if (data.offers_online) modes.push("online");
+          if (data.offers_home) modes.push("home");
+          setTutor({
+            id: data.slug,
+            name: data.name,
+            profileImage: data.profile_image || "",
+            headline: data.headline,
+            bio: data.bio,
+            subjects: data.subjects || [],
+            classes: data.classes || [],
+            boards: data.boards || [],
+            languages: data.languages || [],
+            experienceYears: data.experience_years,
+            rating: data.rating ? Number(data.rating) : null,
+            reviewCount: data.review_count || 0,
+            isDemoProfile: data.is_demo_profile ?? true,
+            modes,
+            locality: data.locality || "",
+            city: data.city || "Hyderabad",
+            travelRadiusKm: data.travel_radius_km || 0,
+            startingPackagePrice: data.starting_package_price_inr || 3200,
+            verification: [],
+            availableDays: data.available_days || availableDays,
+            availableTimes: data.available_times || availableTimes,
+          });
+        }
+      });
+
+    // Fetch package
+    supabase
+      .from("tuition_packages")
+      .select("*")
+      .eq("id", packageId)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setPkg(data as TuitionPackageRow);
+        }
+      });
+  }, [tutorId, packageId]);
+
+  const offersHome = tutor.modes.includes("home");
   const [mode, setMode] = useState<TuitionMode>("online");
   const [selectedDays, setSelectedDays] = useState<string[]>(["Monday", "Wednesday", "Friday"]);
   const [selectedTime, setSelectedTime] = useState<string>("5:00 PM");
+
+  // Effective mode defaults to online if home is not offered
+  const activeMode = !offersHome ? "online" : mode;
 
   const toggleDay = (day: string) => {
     setSelectedDays((prev) =>
@@ -55,129 +136,123 @@ function ScheduleContent() {
   const handleContinue = () => {
     const query = new URLSearchParams({
       tutor: tutor.id,
-      package: packageId,
-      classes: String(classesCount),
-      price: String(packagePrice),
-      mode,
-      days: selectedDays.join(", "),
+      package: pkg.id,
+      mode: activeMode,
+      days: selectedDays.join(","),
       time: selectedTime,
     });
-    router.push(`/payment/checkout?${query.toString()}`);
+    router.push("/payment/checkout?" + query.toString());
   };
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
       <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
-          <Link href="/">
-            <Logo />
-          </Link>
+          <Logo />
           <Link
-            href={`/packages/select?tutor=${tutor.id}`}
-            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
+            href={"/packages/select?tutor=" + tutor.id}
+            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition-colors min-h-[44px] flex items-center"
           >
-            &larr; Back to Packages
+            &larr; Change Package
           </Link>
         </div>
       </header>
 
-      <main className="flex-1 py-12 md:py-20">
+      <main className="flex-1 py-10 md:py-16">
         <div className="container-shell max-w-3xl mx-auto">
-          {/* Header */}
           <div className="text-center max-w-xl mx-auto mb-10">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-3.5 py-1 text-xs font-bold text-[#244A40] mb-3">
               <IconCalendar size={13} />
-              <span>Step 2 of 3: Weekly Rhythm</span>
+              <span>Step 2 of 3 &bull; Tuition Rhythm</span>
             </span>
-            <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-extrabold text-[#25231F]">
-              Set Your Weekly Schedule
+            <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+              Confirm Tuition Routine
             </h1>
-            <p className="mt-2 text-sm text-[#6F6A62]">
-              Choose your preferred weekly recurring slots for {classesCount} classes with <strong className="text-[#25231F]">{tutor.name}</strong>.
+            <p className="mt-2 text-xs sm:text-sm text-[#6F6A62]">
+              Set preferred weekly rhythm with <strong className="text-[#25231F]">{tutor.name}</strong> for your{" "}
+              {pkg.total_classes}-class package.
             </p>
           </div>
 
-          {/* Focal Schedule Composer Object */}
-          <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-9 shadow-[0_12px_40px_rgba(0,0,0,0.03)] space-y-8">
-            {/* Mode Switcher */}
-            <div>
-              <label className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62] block mb-3">
-                1. Select Tuition Mode
+          <div className="space-y-6">
+            {/* Mode Selection */}
+            <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-4">
+              <label className="text-xs font-bold uppercase tracking-wider text-[#9B958C]">
+                1. Tuition Delivery Mode
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+              <div className="grid gap-3 sm:grid-cols-2">
                 <button
                   type="button"
                   onClick={() => setMode("online")}
-                  className={`rounded-2xl border p-4 text-left transition-all flex items-start gap-3 ${
-                    mode === "online"
-                      ? "border-[#315F52] bg-[#E4EEE9]/40 shadow-xs"
-                      : "border-[rgba(55,48,40,0.10)] bg-[#FFF7ED] hover:border-[#315F52]/30"
-                  }`}
+                  className={"min-h-[48px] p-4 rounded-2xl border text-left transition-all flex items-start gap-3.5 " + (
+                    activeMode === "online"
+                      ? "border-[#315F52] bg-[#E4EEE9] text-[#244A40] shadow-xs"
+                      : "border-[rgba(55,48,40,0.10)] bg-[#FFFBF5] text-[#25231F] hover:border-[rgba(55,48,40,0.20)]"
+                  )}
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E4EEE9] text-[#244A40]">
-                    <IconVideo size={18} />
-                  </div>
+                  <IconVideo size={20} className={activeMode === "online" ? "text-[#244A40]" : "text-[#6F6A62]"} />
                   <div>
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-bold text-[#25231F]">Online Classroom</p>
-                      {mode === "online" && <IconCheck size={14} className="text-[#315F52]" />}
-                    </div>
-                    <p className="text-xs text-[#6F6A62] mt-0.5">
-                      1-on-1 interactive video with shared whiteboard and lesson notes.
+                    <div className="text-xs font-bold">1-on-1 Online Live</div>
+                    <p className="text-[11px] text-[#6F6A62] mt-0.5">
+                      Interactive digital whiteboard with video room &bull; Flexible scheduling
                     </p>
                   </div>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setMode("home")}
-                  className={`rounded-2xl border p-4 text-left transition-all flex items-start gap-3 ${
-                    mode === "home"
-                      ? "border-[#315F52] bg-[#FBE2D8]/40 shadow-xs"
-                      : "border-[rgba(55,48,40,0.10)] bg-[#FFF7ED] hover:border-[#315F52]/30"
-                  }`}
+                  disabled={!offersHome}
+                  onClick={() => {
+                    if (offersHome) setMode("home");
+                  }}
+                  className={"min-h-[48px] p-4 rounded-2xl border text-left transition-all flex items-start gap-3.5 " + (
+                    !offersHome
+                      ? "border-[rgba(55,48,40,0.06)] bg-black/[0.02] text-[#9B958C] cursor-not-allowed opacity-60"
+                      : activeMode === "home"
+                      ? "border-[#315F52] bg-[#E4EEE9] text-[#244A40] shadow-xs"
+                      : "border-[rgba(55,48,40,0.10)] bg-[#FFFBF5] text-[#25231F] hover:border-[rgba(55,48,40,0.20)]"
+                  )}
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FBE2D8] text-[#BA5945]">
-                    <IconHomeTuition size={18} />
-                  </div>
+                  <IconHomeTuition size={20} className={activeMode === "home" ? "text-[#244A40]" : "text-[#6F6A62]"} />
                   <div>
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-bold text-[#25231F]">Eligible Home Tuition</p>
-                      {mode === "home" && <IconCheck size={14} className="text-[#315F52]" />}
-                    </div>
-                    <p className="text-xs text-[#6F6A62] mt-0.5">
-                      In-person visits &bull; Home tuition availability confirmed during scheduling.
+                    <div className="text-xs font-bold">In-Home Tuition</div>
+                    <p className="text-[11px] text-[#6F6A62] mt-0.5">
+                      {offersHome
+                        ? "Educator travels to student locality (" + tutor.locality + " area)"
+                        : "Home tuition not offered by this educator"}
                     </p>
                   </div>
                 </button>
               </div>
+
+              <div className="text-[11px] text-[#6F6A62] bg-[#FFFBF5] p-3 rounded-xl border border-[rgba(55,48,40,0.08)]">
+                Home tuition availability confirmed during scheduling based on locality coverage.
+              </div>
             </div>
 
-            {/* Weekly Days Selection */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62]">
-                  2. Choose Recurring Weekly Days
-                </label>
-                <span className="text-xs text-[#315F52] font-semibold">
-                  {selectedDays.length} days selected
-                </span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+            {/* Days Selection */}
+            <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-4">
+              <label className="text-xs font-bold uppercase tracking-wider text-[#9B958C]">
+                2. Preferred Weekly Learning Days
+              </label>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {availableDays.map((day) => {
-                  const selected = selectedDays.includes(day);
+                  const isSelected = selectedDays.includes(day);
                   return (
                     <button
                       key={day}
                       type="button"
                       onClick={() => toggleDay(day)}
-                      className={`rounded-2xl border py-3 px-2 text-center text-xs font-bold transition-all ${
-                        selected
-                          ? "border-[#315F52] bg-[#315F52] text-white shadow-xs"
-                          : "border-[rgba(55,48,40,0.10)] bg-[#FFF7ED] text-[#25231F] hover:border-[#315F52]/30"
-                      }`}
+                      className={"min-h-[44px] p-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-between " + (
+                        isSelected
+                          ? "bg-[#315F52] text-white border-[#315F52]"
+                          : "bg-[#FFFBF5] text-[#25231F] border-[rgba(55,48,40,0.10)] hover:border-[#315F52]"
+                      )}
                     >
-                      {day.slice(0, 3)}
+                      <span>{day}</span>
+                      {isSelected && <IconCheck size={14} className="text-white" />}
                     </button>
                   );
                 })}
@@ -185,48 +260,42 @@ function ScheduleContent() {
             </div>
 
             {/* Time Slot Selection */}
-            <div>
-              <label className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62] block mb-3">
-                3. Choose Preferred Class Time
+            <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-4">
+              <label className="text-xs font-bold uppercase tracking-wider text-[#9B958C]">
+                3. Preferred Time Slot (Asia/Kolkata)
               </label>
+
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {availableTimes.map((time) => (
                   <button
                     key={time}
                     type="button"
                     onClick={() => setSelectedTime(time)}
-                    className={`flex items-center justify-center gap-2 rounded-2xl border py-3 px-4 text-xs font-bold transition-all ${
+                    className={"min-h-[44px] p-3 rounded-xl border text-xs font-bold transition-all text-center " + (
                       selectedTime === time
-                        ? "border-[#315F52] bg-[#E4EEE9] text-[#244A40] shadow-xs"
-                        : "border-[rgba(55,48,40,0.10)] bg-[#FFF7ED] text-[#25231F] hover:border-[#315F52]/30"
-                    }`}
+                        ? "bg-[#25231F] text-white border-[#25231F]"
+                        : "bg-[#FFFBF5] text-[#25231F] border-[rgba(55,48,40,0.10)] hover:border-[#25231F]"
+                    )}
                   >
-                    <IconClock size={13} />
-                    <span>{time}</span>
+                    {time}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Summary & Continue Button */}
-            <div className="border-t border-[rgba(55,48,40,0.08)] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#9B958C]">
-                  Selected Rhythm Summary
-                </span>
-                <p className="text-xs font-bold text-[#25231F] mt-0.5">
-                  {selectedDays.join(", ")} &bull; {selectedTime} &bull; {mode === "online" ? "Online" : "Home"}
-                </p>
-              </div>
-
+            {/* Continue Button */}
+            <div className="pt-2">
               <button
                 type="button"
                 onClick={handleContinue}
-                className="btn btn-primary w-full sm:w-auto min-h-[48px] px-8 rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
+                className="btn btn-primary w-full min-h-[50px] rounded-full text-sm font-extrabold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2"
               >
-                <span>Continue to Checkout</span>
+                <span>Proceed to Sandbox Checkout</span>
                 <IconArrowRight size={15} />
               </button>
+              <p className="mt-2 text-center text-[11px] text-[#9B958C]">
+                Package: {pkg.total_classes} classes &bull; Validity: 45 days &bull; No auto-renew
+              </p>
             </div>
           </div>
         </div>
@@ -237,7 +306,7 @@ function ScheduleContent() {
 
 export default function ScheduleConfirmPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FFFBF5]" />}>
+    <Suspense fallback={<div className="text-center py-20 text-xs text-[#6F6A62]">Loading routine configuration...</div>}>
       <ScheduleContent />
     </Suspense>
   );

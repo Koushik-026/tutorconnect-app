@@ -100,10 +100,8 @@ function PackagesContent() {
 
   const handleSelectPackage = (pkg: LearningPackage) => {
     const query = new URLSearchParams({
-      tutor: tutor.id,
+      tutor: tutorId,
       package: pkg.id,
-      classes: String(pkg.classes),
-      amount: String(pkg.price),
     });
     router.push(`/schedule/confirm?${query.toString()}`);
   };
