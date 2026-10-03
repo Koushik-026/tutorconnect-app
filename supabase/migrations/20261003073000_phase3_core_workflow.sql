@@ -1,4 +1,4 @@
-﻿-- ============================================================================
+-- ============================================================================
 -- Migration: 20261003073000_phase3_core_workflow.sql
 -- Description: Phase 3 Core Marketplace, Demo Booking, Sessions & Class Ledger
 --   1. Public Tutor Catalog (Prototype catalogue without fake auth users)
@@ -142,9 +142,12 @@ CREATE POLICY "demo_bookings_owner_or_tutor_select"
     (select auth.uid()) = user_id
     OR private.is_admin()
     OR EXISTS (
-      SELECT 1 FROM public.public_tutor_catalog c
+      SELECT 1
+      FROM public.public_tutor_catalog c
+      JOIN public.tutor_profiles tp
+        ON tp.id = c.tutor_profile_id
       WHERE c.slug = demo_bookings.tutor_slug
-        AND c.tutor_profile_id = (select auth.uid())
+        AND tp.user_id = (select auth.uid())
     )
   );
 
@@ -271,25 +274,12 @@ CREATE POLICY "schedule_preferences_owner_select"
   TO authenticated
   USING ((select auth.uid()) = user_id OR private.is_admin());
 
-CREATE POLICY "schedule_preferences_owner_insert"
+CREATE POLICY "schedule_preferences_admin_manage"
   ON public.schedule_preferences
-  FOR INSERT
+  FOR ALL
   TO authenticated
-  WITH CHECK (
-    (select auth.uid()) = user_id
-    AND EXISTS (
-      SELECT 1 FROM public.student_profiles
-      WHERE id = student_profile_id
-        AND owner_user_id = (select auth.uid())
-    )
-  );
-
-CREATE POLICY "schedule_preferences_owner_update"
-  ON public.schedule_preferences
-  FOR UPDATE
-  TO authenticated
-  USING ((select auth.uid()) = user_id OR private.is_admin())
-  WITH CHECK ((select auth.uid()) = user_id OR private.is_admin());
+  USING (private.is_admin())
+  WITH CHECK (private.is_admin());
 
 -- ----------------------------------------------------------------------------
 -- 7. PACKAGE PURCHASES
@@ -307,7 +297,7 @@ CREATE TABLE IF NOT EXISTS public.package_purchases (
   status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'activated', 'failed', 'cancelled', 'refunded')),
   payment_method text DEFAULT 'UPI',
   transaction_reference text NOT NULL UNIQUE,
-  is_demo_simulation boolean NOT NULL DEFAULT true,
+  is_demo_simulation boolean NOT NULL DEFAULT false,
   activated_at timestamptz,
   created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -324,22 +314,9 @@ CREATE POLICY "package_purchases_owner_select"
   TO authenticated
   USING ((select auth.uid()) = user_id OR private.is_admin());
 
-CREATE POLICY "package_purchases_owner_insert"
+CREATE POLICY "package_purchases_admin_manage"
   ON public.package_purchases
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (
-    (select auth.uid()) = user_id
-    AND EXISTS (
-      SELECT 1 FROM public.student_profiles
-      WHERE id = student_profile_id
-        AND owner_user_id = (select auth.uid())
-    )
-  );
-
-CREATE POLICY "package_purchases_admin_update"
-  ON public.package_purchases
-  FOR UPDATE
+  FOR ALL
   TO authenticated
   USING (private.is_admin())
   WITH CHECK (private.is_admin());
@@ -429,31 +406,19 @@ CREATE POLICY "class_sessions_owner_or_tutor_select"
     (select auth.uid()) = user_id
     OR private.is_admin()
     OR EXISTS (
-      SELECT 1 FROM public.public_tutor_catalog c
+      SELECT 1
+      FROM public.public_tutor_catalog c
+      JOIN public.tutor_profiles tp
+        ON tp.id = c.tutor_profile_id
       WHERE c.slug = class_sessions.tutor_slug
-        AND c.tutor_profile_id = (select auth.uid())
+        AND tp.user_id = (select auth.uid())
     )
   );
 
-CREATE POLICY "class_sessions_owner_insert"
+-- No direct owner INSERT or UPDATE policy. Sessions are created and updated via secure RPCs.
+CREATE POLICY "class_sessions_admin_manage"
   ON public.class_sessions
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (
-    (select auth.uid()) = user_id
-    AND EXISTS (
-      SELECT 1 FROM public.student_tutor_enrollments
-      WHERE id = enrollment_id
-        AND user_id = (select auth.uid())
-        AND status = 'active'
-        AND remaining_classes > 0
-    )
-  );
-
--- No broad owner UPDATE policy. Mutations must pass through secure RPCs.
-CREATE POLICY "class_sessions_admin_update"
-  ON public.class_sessions
-  FOR UPDATE
+  FOR ALL
   TO authenticated
   USING (private.is_admin())
   WITH CHECK (private.is_admin());
@@ -542,7 +507,130 @@ $$;
 REVOKE ALL ON FUNCTION public.cancel_demo_booking(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.cancel_demo_booking(uuid) TO authenticated;
 
--- B. Create Pending Demo Purchase (Canonical pricing & validation)
+-- B. Save Schedule Preference (Constrained secure RPC)
+CREATE OR REPLACE FUNCTION public.save_schedule_preference(
+  p_student_profile_id uuid,
+  p_tutor_slug text,
+  p_package_id text,
+  p_tuition_mode text,
+  p_preferred_days text[],
+  p_preferred_time text,
+  p_initial_subject text DEFAULT NULL,
+  p_timezone text DEFAULT 'Asia/Kolkata'
+)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth, private
+AS $
+DECLARE
+  v_user_id uuid;
+  v_student record;
+  v_tutor record;
+  v_pkg record;
+  v_pref_id uuid;
+  v_day text;
+  v_valid_days text[] := ARRAY['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+BEGIN
+  v_user_id := (select auth.uid());
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'Authentication required';
+  END IF;
+
+  -- 1. Validate student profile belongs to caller
+  SELECT * INTO v_student
+  FROM public.student_profiles
+  WHERE id = p_student_profile_id AND owner_user_id = v_user_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Student profile not found or not owned by user';
+  END IF;
+
+  -- 2. Validate package exists
+  SELECT * INTO v_pkg
+  FROM public.tuition_packages
+  WHERE id = p_package_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Tuition package not found';
+  END IF;
+
+  -- 3. Validate tutor exists and is approved
+  SELECT * INTO v_tutor
+  FROM public.public_tutor_catalog
+  WHERE slug = p_tutor_slug AND is_approved = true;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Approved tutor not found';
+  END IF;
+
+  -- 4. Validate tuition mode is supported by tutor
+  IF p_tuition_mode NOT IN ('online', 'home') THEN
+    RAISE EXCEPTION 'Invalid tuition mode: %', p_tuition_mode;
+  END IF;
+
+  IF p_tuition_mode = 'home' AND NOT v_tutor.offers_home THEN
+    RAISE EXCEPTION 'Home tuition is not offered by this tutor';
+  END IF;
+
+  IF p_tuition_mode = 'online' AND NOT v_tutor.offers_online THEN
+    RAISE EXCEPTION 'Online tuition is not offered by this tutor';
+  END IF;
+
+  -- 5. Validate preferred_days is non-empty and contains valid weekdays only
+  IF p_preferred_days IS NULL OR array_length(p_preferred_days, 1) IS NULL OR array_length(p_preferred_days, 1) = 0 THEN
+    RAISE EXCEPTION 'preferred_days must not be empty';
+  END IF;
+
+  FOREACH v_day IN ARRAY p_preferred_days LOOP
+    IF NOT (v_day = ANY(v_valid_days)) THEN
+      RAISE EXCEPTION 'Invalid weekday: %', v_day;
+    END IF;
+  END LOOP;
+
+  -- 6. Validate preferred_time
+  IF p_preferred_time IS NULL OR trim(p_preferred_time) = '' THEN
+    RAISE EXCEPTION 'preferred_time must not be empty';
+  END IF;
+
+  -- 7. Validate initial_subject if provided
+  IF p_initial_subject IS NOT NULL AND trim(p_initial_subject) <> '' THEN
+    IF NOT (p_initial_subject = ANY(v_tutor.subjects)) THEN
+      RAISE EXCEPTION 'Initial subject % is not taught by this tutor', p_initial_subject;
+    END IF;
+  END IF;
+
+  -- Insert preference
+  INSERT INTO public.schedule_preferences (
+    user_id,
+    student_profile_id,
+    tutor_slug,
+    package_id,
+    tuition_mode,
+    preferred_days,
+    preferred_time,
+    timezone,
+    initial_subject
+  ) VALUES (
+    v_user_id,
+    p_student_profile_id,
+    p_tutor_slug,
+    p_package_id,
+    p_tuition_mode,
+    p_preferred_days,
+    p_preferred_time,
+    COALESCE(p_timezone, 'Asia/Kolkata'),
+    NULLIF(trim(p_initial_subject), '')
+  ) RETURNING id INTO v_pref_id;
+
+  RETURN v_pref_id;
+END;
+$;
+
+REVOKE ALL ON FUNCTION public.save_schedule_preference(uuid, text, text, text, text[], text, text, text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.save_schedule_preference(uuid, text, text, text, text[], text, text, text) TO authenticated;
+
+-- C. Create Pending Demo Purchase (Canonical pricing & validation)
 CREATE OR REPLACE FUNCTION public.create_demo_purchase(
   p_student_profile_id uuid,
   p_package_id text,
@@ -555,12 +643,13 @@ RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, auth, private
-AS $$
+AS $
 DECLARE
   v_user_id uuid;
   v_student record;
   v_pkg record;
   v_tutor record;
+  v_pref record;
   v_purchase_id uuid;
   v_tx_ref text;
 BEGIN
@@ -605,6 +694,37 @@ BEGIN
     RAISE EXCEPTION 'Online tuition is not offered by this tutor';
   END IF;
 
+  -- Validate schedule preference if supplied
+  IF p_schedule_preference_id IS NOT NULL THEN
+    SELECT * INTO v_pref
+    FROM public.schedule_preferences
+    WHERE id = p_schedule_preference_id;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Schedule preference not found';
+    END IF;
+
+    IF v_pref.user_id <> v_user_id THEN
+      RAISE EXCEPTION 'Schedule preference does not belong to authenticated user';
+    END IF;
+
+    IF v_pref.student_profile_id <> p_student_profile_id THEN
+      RAISE EXCEPTION 'Schedule preference student profile mismatch';
+    END IF;
+
+    IF v_pref.tutor_slug <> p_tutor_slug THEN
+      RAISE EXCEPTION 'Schedule preference tutor mismatch';
+    END IF;
+
+    IF v_pref.package_id <> p_package_id THEN
+      RAISE EXCEPTION 'Schedule preference package mismatch';
+    END IF;
+
+    IF v_pref.tuition_mode <> p_tuition_mode THEN
+      RAISE EXCEPTION 'Schedule preference tuition mode mismatch';
+    END IF;
+  END IF;
+
   -- Generate high-entropy transaction reference
   v_tx_ref := 'TC-SIM-' || upper(replace(gen_random_uuid()::text, '-', ''));
 
@@ -644,18 +764,18 @@ BEGIN
     'tutor_slug', v_tutor.slug
   );
 END;
-$$;
+$;
 
 REVOKE ALL ON FUNCTION public.create_demo_purchase(uuid, text, text, text, uuid, text) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.create_demo_purchase(uuid, text, text, text, uuid, text) TO authenticated;
 
--- C. Simulate Development Purchase Activation
+-- D. Simulate Development Purchase Activation
 CREATE OR REPLACE FUNCTION public.simulate_purchase_activation(p_purchase_id uuid)
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, auth, private
-AS $$
+AS $
 DECLARE
   v_user_id uuid;
   v_purchase record;
@@ -665,7 +785,13 @@ DECLARE
   v_enrollment_id uuid;
   v_initial_subject text;
   v_locality text;
-  v_start_date timestamptz;
+  v_pref_time time;
+  v_curr_date date;
+  v_candidate_date date;
+  v_day_name text;
+  v_session_time timestamptz;
+  v_sessions_count integer := 0;
+  v_day_offset integer;
 BEGIN
   v_user_id := (select auth.uid());
   IF v_user_id IS NULL THEN
@@ -704,6 +830,14 @@ BEGIN
     RAISE EXCEPTION 'Purchase cannot be activated from status %', v_purchase.status;
   END IF;
 
+  -- Verify student profile still belongs to purchase owner
+  IF NOT EXISTS (
+    SELECT 1 FROM public.student_profiles
+    WHERE id = v_purchase.student_profile_id AND owner_user_id = v_purchase.user_id
+  ) THEN
+    RAISE EXCEPTION 'Student profile does not belong to purchase owner';
+  END IF;
+
   -- Fetch package specs and verify canonical price
   SELECT * INTO v_pkg
   FROM public.tuition_packages
@@ -726,14 +860,53 @@ BEGIN
     RAISE EXCEPTION 'Approved tutor not found';
   END IF;
 
-  -- Check schedule preference if linked
+  -- Validate mode capability
+  IF v_purchase.tuition_mode = 'home' AND NOT v_tutor.offers_home THEN
+    RAISE EXCEPTION 'Home tuition is not offered by this tutor';
+  END IF;
+
+  IF v_purchase.tuition_mode = 'online' AND NOT v_tutor.offers_online THEN
+    RAISE EXCEPTION 'Online tuition is not offered by this tutor';
+  END IF;
+
+  -- Check and defensively verify schedule preference if linked
   IF v_purchase.schedule_preference_id IS NOT NULL THEN
     SELECT * INTO v_pref
     FROM public.schedule_preferences
     WHERE id = v_purchase.schedule_preference_id;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Linked schedule preference not found';
+    END IF;
+
+    IF v_pref.user_id <> v_purchase.user_id THEN
+      RAISE EXCEPTION 'Schedule preference user mismatch';
+    END IF;
+
+    IF v_pref.student_profile_id <> v_purchase.student_profile_id THEN
+      RAISE EXCEPTION 'Schedule preference student profile mismatch';
+    END IF;
+
+    IF v_pref.tutor_slug <> v_purchase.tutor_slug THEN
+      RAISE EXCEPTION 'Schedule preference tutor mismatch';
+    END IF;
+
+    IF v_pref.package_id <> v_purchase.package_id THEN
+      RAISE EXCEPTION 'Schedule preference package mismatch';
+    END IF;
+
+    IF v_pref.tuition_mode <> v_purchase.tuition_mode THEN
+      RAISE EXCEPTION 'Schedule preference tuition mode mismatch';
+    END IF;
   END IF;
 
-  v_initial_subject := COALESCE(v_pref.initial_subject, v_tutor.subjects[1], 'General Tuition');
+  -- Determine initial subject: initial_subject if valid, otherwise 'To be confirmed'
+  IF v_pref.initial_subject IS NOT NULL AND v_pref.initial_subject = ANY(v_tutor.subjects) THEN
+    v_initial_subject := v_pref.initial_subject;
+  ELSE
+    v_initial_subject := 'To be confirmed';
+  END IF;
+
   v_locality := CASE WHEN v_purchase.tuition_mode = 'home' THEN v_tutor.locality ELSE NULL END;
 
   -- Create active enrollment
@@ -767,69 +940,63 @@ BEGIN
     timezone('utc'::text, now()) + (v_pkg.validity_days || ' days')::interval
   ) RETURNING id INTO v_enrollment_id;
 
-  -- Seed initial 3 upcoming sessions based on schedule
-  v_start_date := timezone('utc'::text, now()) + interval '2 days';
-  
-  INSERT INTO public.class_sessions (
-    enrollment_id,
-    student_profile_id,
-    user_id,
-    tutor_slug,
-    tutor_name,
-    subject,
-    session_mode,
-    scheduled_start_at,
-    duration_minutes,
-    status,
-    locality,
-    meeting_provider,
-    meeting_reference
-  ) VALUES
-  (
-    v_enrollment_id,
-    v_purchase.student_profile_id,
-    v_purchase.user_id,
-    v_purchase.tutor_slug,
-    v_purchase.tutor_name,
-    v_initial_subject,
-    v_purchase.tuition_mode,
-    v_start_date,
-    60,
-    'scheduled',
-    v_locality,
-    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'demo_room' ELSE NULL END,
-    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'room-' || v_purchase.tutor_slug || '-1' ELSE NULL END
-  ),
-  (
-    v_enrollment_id,
-    v_purchase.student_profile_id,
-    v_purchase.user_id,
-    v_purchase.tutor_slug,
-    v_purchase.tutor_name,
-    v_initial_subject,
-    v_purchase.tuition_mode,
-    v_start_date + interval '3 days',
-    60,
-    'scheduled',
-    v_locality,
-    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'demo_room' ELSE NULL END,
-    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'room-' || v_purchase.tutor_slug || '-2' ELSE NULL END
-  ),
-  (
-    v_enrollment_id,
-    v_purchase.student_profile_id,
-    v_purchase.user_id,
-    v_purchase.tutor_slug,
-    v_purchase.tutor_name,
-    v_initial_subject,
-    v_purchase.tuition_mode,
-    v_start_date + interval '5 days',
-    60,
-    'scheduled',
-    v_locality,
-    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'demo_room' ELSE NULL END,
-    CASE WHEN v_purchase.tuition_mode = 'online' THEN 'room-' || v_purchase.tutor_slug || '-3' ELSE NULL END
-  );
+  -- Generate sessions ONLY if valid schedule preference exists (at most 3 upcoming sessions)
+  IF v_pref.id IS NOT NULL AND v_pref.preferred_days IS NOT NULL AND array_length(v_pref.preferred_days, 1) > 0 THEN
+    BEGIN
+      v_pref_time := v_pref.preferred_time::time;
+    EXCEPTION WHEN OTHERS THEN
+      v_pref_time := '17:00:00'::time;
+    END;
+
+    v_curr_date := (timezone('utc'::text, now()) AT TIME ZONE 'Asia/Kolkata')::date;
+
+    FOR v_day_offset IN 0..60 LOOP
+      v_candidate_date := v_curr_date + v_day_offset;
+      v_day_name := trim(to_char(v_candidate_date, 'Day'));
+
+      IF v_day_name = ANY(v_pref.preferred_days) THEN
+        v_session_time := (v_candidate_date + v_pref_time) AT TIME ZONE 'Asia/Kolkata';
+
+        IF v_session_time > timezone('utc'::text, now()) AND v_session_time <= (timezone('utc'::text, now()) + (v_pkg.validity_days || ' days')::interval) THEN
+          v_sessions_count := v_sessions_count + 1;
+
+          INSERT INTO public.class_sessions (
+            enrollment_id,
+            student_profile_id,
+            user_id,
+            tutor_slug,
+            tutor_name,
+            subject,
+            session_mode,
+            scheduled_start_at,
+            duration_minutes,
+            status,
+            locality,
+            meeting_provider,
+            meeting_reference
+          ) VALUES (
+            v_enrollment_id,
+            v_purchase.student_profile_id,
+            v_purchase.user_id,
+            v_purchase.tutor_slug,
+            v_purchase.tutor_name,
+            v_initial_subject,
+            v_purchase.tuition_mode,
+            v_session_time,
+            60,
+            'scheduled',
+            v_locality,
+            CASE WHEN v_purchase.tuition_mode = 'online' THEN 'demo_room' ELSE NULL END,
+            CASE WHEN v_purchase.tuition_mode = 'online' THEN 'room-' || v_purchase.tutor_slug || '-' || v_sessions_count ELSE NULL END
+          );
+
+          IF v_sessions_count >= 3 THEN
+            EXIT;
+          END IF;
+        END IF;
+      END IF;
+    END LOOP;
+  END IF;
 
   -- Update purchase status
   UPDATE public.package_purchases
@@ -890,6 +1057,19 @@ BEGIN
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Enrollment not found for session';
+  END IF;
+
+  -- Verify explicit relationship between session and enrollment
+  IF v_enrollment.user_id <> v_session.user_id THEN
+    RAISE EXCEPTION 'Session user_id does not match enrollment user_id';
+  END IF;
+
+  IF v_enrollment.student_profile_id <> v_session.student_profile_id THEN
+    RAISE EXCEPTION 'Session student_profile_id does not match enrollment student_profile_id';
+  END IF;
+
+  IF v_enrollment.tutor_slug <> v_session.tutor_slug THEN
+    RAISE EXCEPTION 'Session tutor_slug does not match enrollment tutor_slug';
   END IF;
 
   -- Verify enrollment is active and not expired

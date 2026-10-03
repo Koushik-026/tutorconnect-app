@@ -389,24 +389,30 @@ export async function saveSchedulePreference(params: {
 
   try {
     const supabase = await createClient();
+    const { data: prefId, error: rpcErr } = await supabase.rpc("save_schedule_preference", {
+      p_student_profile_id: params.studentProfileId,
+      p_tutor_slug: params.tutorSlug,
+      p_package_id: params.packageId,
+      p_tuition_mode: params.tuitionMode,
+      p_preferred_days: params.preferredDays,
+      p_preferred_time: params.preferredTime,
+      p_initial_subject: params.initialSubject || null,
+      p_timezone: "Asia/Kolkata",
+    });
+
+    if (rpcErr || !prefId) {
+      console.error("save_schedule_preference RPC error:", rpcErr);
+      return null;
+    }
+
     const { data, error } = await supabase
       .from("schedule_preferences")
-      .insert({
-        user_id: params.userId,
-        student_profile_id: params.studentProfileId,
-        tutor_slug: params.tutorSlug,
-        package_id: params.packageId,
-        tuition_mode: params.tuitionMode,
-        preferred_days: params.preferredDays,
-        preferred_time: params.preferredTime,
-        timezone: "Asia/Kolkata",
-        initial_subject: params.initialSubject || null,
-      })
-      .select()
+      .select("*")
+      .eq("id", prefId)
       .single();
 
     if (error || !data) {
-      console.error("Failed to save schedule preference:", error);
+      console.error("Failed to fetch saved schedule preference:", error);
       return null;
     }
     return data as SchedulePreferenceRow;
@@ -439,7 +445,7 @@ export async function createPackagePurchase(params: {
   try {
     const supabase = await createClient();
 
-    // 1. Try secure RPC
+    // Call canonical database RPC exclusively (no direct JS fallback)
     const { data: rpcRes, error: rpcErr } = await supabase.rpc("create_demo_purchase", {
       p_student_profile_id: params.studentProfileId,
       p_package_id: params.packageId,
@@ -449,60 +455,23 @@ export async function createPackagePurchase(params: {
       p_payment_method: params.paymentMethod || "UPI",
     });
 
-    if (!rpcErr && rpcRes) {
-      const { data: purchase } = await supabase
-        .from("package_purchases")
-        .select("*")
-        .eq("id", rpcRes.purchase_id)
-        .single();
-
-      if (purchase) return purchase as PackagePurchaseRow;
-    }
-
-    // 2. Direct server fallback if RPC not yet created
-    const pkg = await getPackageById(params.packageId);
-    if (!pkg) {
-      console.error("Package not found:", params.packageId);
+    if (rpcErr || !rpcRes) {
+      console.error("create_demo_purchase RPC failed:", rpcErr);
       return null;
     }
 
-    const tutor = await getTutorBySlug(params.tutorSlug);
-    if (!tutor) {
-      console.error("Tutor not found:", params.tutorSlug);
-      return null;
-    }
-
-    if (params.tuitionMode === "home" && !tutor.modes.includes("home")) {
-      console.error("Home tuition not offered by tutor");
-      return null;
-    }
-
-    const txRef = "TC-SIM-" + Math.random().toString(36).substring(2, 10).toUpperCase() + Date.now().toString(36).toUpperCase();
-
-    const { data, error } = await supabase
+    const { data: purchase, error: fetchErr } = await supabase
       .from("package_purchases")
-      .insert({
-        user_id: params.userId,
-        student_profile_id: params.studentProfileId,
-        package_id: pkg.id,
-        schedule_preference_id: params.schedulePreferenceId || null,
-        tutor_slug: tutor.id,
-        tutor_name: tutor.name,
-        tuition_mode: params.tuitionMode,
-        amount_inr: pkg.price_inr,
-        status: "pending",
-        payment_method: params.paymentMethod || "UPI",
-        transaction_reference: txRef,
-        is_demo_simulation: true,
-      })
-      .select()
+      .select("*")
+      .eq("id", rpcRes.purchase_id)
       .single();
 
-    if (error || !data) {
-      console.error("Failed to create package purchase:", error);
+    if (fetchErr || !purchase) {
+      console.error("Failed to fetch created package purchase:", fetchErr);
       return null;
     }
-    return data as PackagePurchaseRow;
+
+    return purchase as PackagePurchaseRow;
   } catch (e) {
     console.error("createPackagePurchase exception:", e);
     return null;
