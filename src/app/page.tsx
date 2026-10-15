@@ -1,784 +1,540 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { HeroComposer } from "@/components/hero-composer";
-import { TutorCard } from "@/components/tutor-card";
 import { tutors } from "@/lib/data";
 import {
-  IconShieldCheck,
+  IconArrowRight,
+  IconCheck,
   IconVideo,
   IconHomeTuition,
-  IconArrowRight,
-  IconStar,
-  IconCheck,
-  IconSparkles,
-  IconCalendar,
-  IconClock,
-  SubjectIcon,
 } from "@/components/ui/icons";
 
-export default function HomePage() {
-  const featuredTutors = tutors.slice(0, 3);
+/* ── Scroll-reveal observer hook ────────────────────────────────────────── */
+function useReveal() {
+  const ref = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.querySelectorAll(".reveal, .reveal-fade, .reveal-scale").forEach((node) => {
+            node.classList.add("revealed");
+          });
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.12 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return ref as React.RefObject<HTMLElement>;
+}
 
-  const subjectShowcase = [
-    {
-      name: "Mathematics",
-      grades: "Classes 6 - 12 (CBSE, ICSE, State)",
-      fieldBg: "bg-[#FCEBD5]",
-      accentText: "text-[#8C5D20]",
-      badgeBg: "bg-[#F1B777]/25",
-      description: "Concept building, algebra, geometry, calculus, and board exam speed.",
-      href: "/tutors?subject=Mathematics",
-    },
-    {
-      name: "Science",
-      grades: "Classes 6 - 10 (CBSE, ICSE, State)",
-      fieldBg: "bg-[#E3EADD]",
-      accentText: "text-[#2D4F42]",
-      badgeBg: "bg-[#315F52]/15",
-      description: "Fundamental physics, chemistry, biology, and experimental curiosity.",
-      href: "/tutors?subject=Science",
-    },
-    {
-      name: "Physics",
-      grades: "Classes 9 - 12 (CBSE & ICSE)",
-      fieldBg: "bg-[#E4EEE9]",
-      accentText: "text-[#244A40]",
-      badgeBg: "bg-[#315F52]/15",
-      description: "Mechanics, thermodynamics, electrodynamics, and numerical problem solving.",
-      href: "/tutors?subject=Physics",
-    },
-    {
-      name: "Chemistry",
-      grades: "Classes 9 - 12 (CBSE & ICSE)",
-      fieldBg: "bg-[#FBE2D8]",
-      accentText: "text-[#BA5945]",
-      badgeBg: "bg-[#DE765D]/20",
-      description: "Periodic trends, bonding, chemical equations, and organic reactions.",
-      href: "/tutors?subject=Chemistry",
-    },
-    {
-      name: "Biology",
-      grades: "Classes 9 - 12 (CBSE & ICSE)",
-      fieldBg: "bg-[#F5DEE4]",
-      accentText: "text-[#A84562]",
-      badgeBg: "bg-[#DE765D]/15",
-      description: "Cell biology, genetics, human physiology, and diagram precision.",
-      href: "/tutors?subject=Biology",
-    },
-    {
-      name: "English",
-      grades: "Classes 6 - 12 (CBSE, ICSE, State)",
-      fieldBg: "bg-[#F8EAC3]",
-      accentText: "text-[#7A5812]",
-      badgeBg: "bg-[#F1B777]/25",
-      description: "Grammar, literature analysis, descriptive writing, and comprehension.",
-      href: "/tutors?subject=English",
-    },
+export default function HomePage() {
+  const sampleTutors = tutors.slice(0, 3);
+
+  const sectionStoryRef = useReveal() as React.RefObject<HTMLDivElement>;
+  const sectionModesRef = useReveal() as React.RefObject<HTMLDivElement>;
+  const sectionDemoRef  = useReveal() as React.RefObject<HTMLDivElement>;
+  const sectionStepsRef = useReveal() as React.RefObject<HTMLDivElement>;
+
+  const quickSubjects = [
+    { name: "Mathematics", href: "/tutors?subject=Mathematics" },
+    { name: "Science", href: "/tutors?subject=Science" },
+    { name: "Physics", href: "/tutors?subject=Physics" },
+    { name: "English", href: "/tutors?subject=English" },
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5]">
+    <div className="flex min-h-screen flex-col" style={{ backgroundColor: "var(--tc-canvas)" }}>
       <SiteHeader />
 
       <main id="main-content" className="flex-1">
-        {/* =====================================================
-            1. HERO SECTION: Airy, Confident, Dominant Match Composer
-        ====================================================== */}
-        <section className="relative overflow-hidden pt-6 pb-20 md:pt-10 md:pb-28 lg:pb-36 bg-gradient-to-b from-[#FBE2D8]/25 via-[#FFF7ED]/40 to-[#FFFBF5]">
-          {/* Ambient soft background fields */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -left-24 top-0 h-[450px] w-[450px] rounded-full bg-[#FBE2D8]/35 blur-3xl"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-24 top-16 h-[400px] w-[400px] rounded-full bg-[#E3EADD]/40 blur-3xl"
-          />
 
+        {/* ── 1. HERO ──────────────────────────────────────────────────────── */}
+        <section className="relative overflow-hidden pt-12 pb-24 md:pt-20 md:pb-36 atmo-hero">
           <div className="container-shell relative z-10">
-            {/* Header Content with tightened tracking and large display scale */}
-            <div className="mx-auto max-w-4xl text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#315F52]/20 bg-white/90 px-4 py-1.5 text-xs font-bold text-[#244A40] shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#315F52] text-white">
-                  <IconShieldCheck size={11} />
-                </span>
-                <span>Hyderabad Mentorship &bull; Verified Profiles &bull; Free 30-Min Demo</span>
-              </div>
+            <div className="mx-auto max-w-[840px] flex flex-col items-center text-center">
 
-              <h1 className="mt-6 font-[family-name:var(--font-manrope)] text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-[-0.035em] text-[#25231F] leading-[1.08]">
-                Find the tutor your child{" "}
-                <span className="text-[#315F52] underline decoration-[#FBE2D8] decoration-wavy decoration-2 underline-offset-8">
-                  actually learns well with.
-                </span>
+              {/* Eyebrow */}
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B] mb-5 text-center">
+                1-on-1 tutoring &bull; Online &amp; at home &bull; Hyderabad
+              </p>
+
+              {/* Primary Headline (Deliberate 2-line desktop layout) */}
+              <h1
+                className="mx-auto max-w-2xl text-center font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.035em] text-[#18211E] leading-[1.08]"
+                style={{ fontSize: "clamp(2.4rem, 6vw, 4.1rem)" }}
+              >
+                <span className="sm:block">Find a tutor your child</span>{" "}
+                <span className="sm:block">learns well with.</span>
               </h1>
 
-              <p className="mt-5 mx-auto max-w-2xl text-base sm:text-lg leading-relaxed text-[#6F6A62]">
-                Thoughtfully curated 1-on-1 online and in-home tuition for school students in Hyderabad. Explore verified tutor profiles, attend a free 30-minute demo, and establish a steady learning rhythm.
-              </p>
-            </div>
-
-            {/* Dominant Focal Object: Tutor Requirement Composer */}
-            <div className="mt-10 md:mt-14">
-              <HeroComposer />
-            </div>
-
-            {/* Restrained Value Indicators */}
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm font-semibold text-[#6F6A62]">
-              <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E3EADD] text-[#244A40]">
-                  <IconCheck size={12} />
-                </span>
-                <span>1-on-1 Dedicated Attention</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E4EEE9] text-[#244A40]">
-                  <IconVideo size={12} />
-                </span>
-                <span>Free 30-Min Online Demo</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE2D8] text-[#BA5945]">
-                  <IconHomeTuition size={12} />
-                </span>
-                <span>Home Tuition in Eligible Areas</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================================
-            2. LARGE EDITORIAL STATEMENT: Generous Space, Zero Clutter
-        ====================================================== */}
-        <section className="py-24 md:py-36 border-y border-[rgba(55,48,40,0.08)] bg-white">
-          <div className="container-shell">
-            <div className="mx-auto max-w-4xl text-center">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
-                Our Core Belief
-              </span>
-              <h2 className="mt-4 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-[-0.035em] text-[#25231F] leading-[1.15]">
-                &ldquo;Tuition should feel personal, not crowded.&rdquo;
-              </h2>
-              <p className="mt-6 mx-auto max-w-2xl text-base sm:text-lg text-[#6F6A62] leading-relaxed">
-                Every student processes concepts differently. Rather than batch coaching classes where doubt resolution is rushed, TutorConnect pairs your child with dedicated 1-on-1 educators who adapt to their pace, curriculum, and exam goals.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================================
-            3. MATCHING STORY: Split Editorial + Miniature Product Visual
-        ====================================================== */}
-        <section id="how-it-works" className="py-24 md:py-32 bg-[#FFFBF5]">
-          <div className="container-shell">
-            <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
-              {/* Left Column: Editorial Explanation */}
-              <div className="lg:col-span-6 space-y-6">
-                <div>
-                  <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
-                    01 / The Matching Philosophy
-                  </span>
-                  <h2 className="mt-2 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#25231F] leading-tight">
-                    Start with how the student grasps concepts.
-                  </h2>
-                </div>
-
-                <p className="text-base text-[#6F6A62] leading-relaxed">
-                  Share the student&apos;s class, board, subject needs, and learning preferences to explore suitable tutor options.
-                </p>
-
-                <div className="space-y-4 pt-2">
-                  <div className="flex items-start gap-4">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E4EEE9] text-xs font-extrabold text-[#244A40]">
-                      1
-                    </span>
-                    <div>
-                      <h4 className="text-sm font-bold text-[#25231F]">Diagnostic Understanding</h4>
-                      <p className="mt-0.5 text-xs text-[#6F6A62]">
-                        We review class level, board alignment (CBSE, ICSE, State), and specific syllabus areas needing clarity.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E3EADD] text-xs font-extrabold text-[#244A40]">
-                      2
-                    </span>
-                    <div>
-                      <h4 className="text-sm font-bold text-[#25231F]">Teaching Profile Alignment</h4>
-                      <p className="mt-0.5 text-xs text-[#6F6A62]">
-                        Explore educators whose teaching profiles align with step-by-step intuition, problem practice, or foundational revision.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FBE2D8] text-xs font-extrabold text-[#BA5945]">
-                      3
-                    </span>
-                    <div>
-                      <h4 className="text-sm font-bold text-[#25231F]">Free 30-Minute Demo</h4>
-                      <p className="mt-0.5 text-xs text-[#6F6A62]">
-                        Attend an online demo to confirm teaching rapport before committing to any package.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <Link
-                    href="/tutors"
-                    className="inline-flex items-center gap-2 text-sm font-bold text-[#315F52] hover:text-[#244A40] transition"
-                  >
-                    <span>Browse available educators</span>
-                    <IconArrowRight size={14} />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Right Column: Miniature Match Product Mockup */}
-              <div className="lg:col-span-6">
-                <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-6 sm:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.03)] space-y-5">
-                  {/* Step 1 Requirement Card */}
-                  <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-extrabold uppercase tracking-wider text-[#6F6A62]">
-                        Student Profile
-                      </span>
-                      <span className="rounded-full bg-[#E4EEE9] px-2.5 py-0.5 text-[11px] font-bold text-[#244A40]">
-                        Active Inquiry
-                      </span>
-                    </div>
-                    <div className="mt-2 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-bold text-[#25231F]">Aarav Reddy</p>
-                        <p className="text-xs text-[#6F6A62]">Class 9 &bull; CBSE &bull; Mathematics &amp; Science</p>
-                      </div>
-                      <span className="text-xs font-semibold text-[#315F52]">Hyderabad</span>
-                    </div>
-                  </div>
-
-                  {/* Requirement Alignment Connector */}
-                  <div className="flex items-center justify-center gap-3 py-1">
-                    <div className="h-px flex-1 bg-[rgba(55,48,40,0.10)]" />
-                    <span className="rounded-full bg-[#E3EADD] px-3 py-1 text-[11px] font-bold text-[#244A40]">
-                      Suggested Tutor Profile
-                    </span>
-                    <div className="h-px flex-1 bg-[rgba(55,48,40,0.10)]" />
-                  </div>
-
-                  {/* Matched Educator Card */}
-                  <div className="rounded-2xl border border-[#315F52]/25 bg-[#E4EEE9]/30 p-5 space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#315F52] text-sm font-bold text-white shadow-xs">
-                          AS
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <p className="text-sm font-bold text-[#25231F]">Ananya Sharma</p>
-                            <span className="text-[#315F52]">
-                              <IconShieldCheck size={14} />
-                            </span>
-                          </div>
-                          <p className="text-xs text-[#6F6A62]">Mathematics &amp; Science &bull; 8+ Yrs Exp</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#25231F] shadow-2xs">
-                        <IconStar size={12} className="text-[#D4A328]" />
-                        <span>4.9</span>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-[#6F6A62] leading-relaxed">
-                      Specializes in concept intuition and CBSE board exam clarity for Class 9 &amp; 10 students.
-                    </p>
-
-                    <div className="flex items-center justify-between pt-1 text-xs">
-                      <span className="font-semibold text-[#315F52]">Online &amp; Eligible Home Tuition</span>
-                      <Link
-                        href="/demo/book?tutor=ananya-sharma"
-                        className="font-bold text-[#315F52] hover:underline"
-                      >
-                        Book Free Demo &rarr;
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================================
-            4. FREE DEMO STORY: Reverse Split (Visual Left, Narrative Right)
-        ====================================================== */}
-        <section className="py-24 md:py-32 border-y border-[rgba(55,48,40,0.08)] bg-white">
-          <div className="container-shell">
-            <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
-              {/* Left Column: Demo Product Experience Mockup */}
-              <div className="lg:col-span-6 order-2 lg:order-1">
-                <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-[#FFFBF5] p-6 sm:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.03)] space-y-4">
-                  {/* Top Bar of Simulated Demo Tool */}
-                  <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.08)] pb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="h-3 w-3 rounded-full bg-[#315F52]" />
-                      <span className="text-xs font-bold text-[#25231F]">Free 30-Min Demo Session</span>
-                    </div>
-                    <span className="rounded-full bg-[#E3EADD] px-2.5 py-0.5 text-[11px] font-bold text-[#244A40]">
-                      Zero Payment Required
-                    </span>
-                  </div>
-
-                  {/* Simulated Classroom Viewport */}
-                  <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-[#25231F] text-white p-5 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-xs text-white/80">
-                      <span className="font-medium">1-on-1 Concept Review</span>
-                      <span className="flex items-center gap-1 rounded bg-white/20 px-2 py-0.5 text-[10px] font-bold">
-                        <IconClock size={10} />
-                        30:00
-                      </span>
-                    </div>
-
-                    <div className="text-center my-auto">
-                      <p className="text-xs uppercase tracking-wider text-[#E4EEE9] font-semibold">Live Whiteboard &amp; Video</p>
-                      <p className="text-sm font-bold mt-1 text-white">Diagnostic Session: Quadratic Equations</p>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs text-white/70">
-                      <span>Tutor: Ananya S.</span>
-                      <span>Student: Aarav R.</span>
-                    </div>
-                  </div>
-
-                  {/* Demo Value Confirmation */}
-                  <div className="grid grid-cols-3 gap-2 pt-2 text-center text-xs">
-                    <div className="rounded-xl border border-[rgba(55,48,40,0.08)] bg-white p-2.5">
-                      <p className="font-extrabold text-[#25231F]">30 Mins</p>
-                      <p className="text-[10px] text-[#6F6A62]">1-on-1 Focus</p>
-                    </div>
-                    <div className="rounded-xl border border-[rgba(55,48,40,0.08)] bg-white p-2.5">
-                      <p className="font-extrabold text-[#315F52]">100% Free</p>
-                      <p className="text-[10px] text-[#6F6A62]">No Credit Card</p>
-                    </div>
-                    <div className="rounded-xl border border-[rgba(55,48,40,0.08)] bg-white p-2.5">
-                      <p className="font-extrabold text-[#315F52]">Direct Rapport</p>
-                      <p className="text-[10px] text-[#6F6A62]">Evaluate Chemistry</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column: Narrative */}
-              <div className="lg:col-span-6 space-y-6 order-1 lg:order-2">
-                <div>
-                  <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
-                    02 / Zero-Obligation Demo
-                  </span>
-                  <h2 className="mt-2 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#25231F] leading-tight">
-                    Try the tutor first. No payment required.
-                  </h2>
-                </div>
-
-                <p className="text-base text-[#6F6A62] leading-relaxed">
-                  Choosing a tutor is a personal decision. A free 30-minute online demo gives your child the opportunity to experience the educator&apos;s teaching style, discuss upcoming syllabus milestones, and see if the connection feels natural.
-                </p>
-
-                <ul className="space-y-3 text-sm text-[#25231F]">
-                  <li className="flex items-center gap-2.5">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E3EADD] text-[#244A40]">
-                      <IconCheck size={12} />
-                    </span>
-                    <span>1-on-1 focused live video session with screen sharing</span>
-                  </li>
-                  <li className="flex items-center gap-2.5">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E3EADD] text-[#244A40]">
-                      <IconCheck size={12} />
-                    </span>
-                    <span>Direct discussion on strengths, syllabus goals, and weekly pace</span>
-                  </li>
-                  <li className="flex items-center gap-2.5">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E3EADD] text-[#244A40]">
-                      <IconCheck size={12} />
-                    </span>
-                    <span>Zero upfront commitment: purchase a package only if you are completely satisfied</span>
-                  </li>
-                </ul>
-
-                <div className="pt-2">
-                  <Link
-                    href="/demo/book"
-                    className="btn btn-primary min-h-[46px] px-6 rounded-full text-xs font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)]"
-                  >
-                    <span>Book a Free 30-Min Demo</span>
-                    <IconArrowRight size={14} />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================================
-            5. ONLINE + HOME STORY: Unified Dual-Branch Experience
-        ====================================================== */}
-        <section id="modes" className="py-24 md:py-32 bg-[#FFFBF5]">
-          <div className="container-shell">
-            <div className="mx-auto max-w-3xl text-center">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#DE765D]">
-                03 / Learning Environment
-              </span>
-              <h2 className="mt-2 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#25231F]">
-                Two flexible modes. One uncompromising standard.
-              </h2>
-              <p className="mt-4 text-base text-[#6F6A62] leading-relaxed">
-                Whether your student prefers interactive online mentorship or in-person guidance at home in Hyderabad, we support both with verified educators and flexible weekly rhythms.
-              </p>
-            </div>
-
-            <div className="mt-14 grid gap-8 md:grid-cols-2">
-              {/* Online Mode Panel */}
-              <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-8 sm:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.02)] space-y-5">
-                <div className="flex items-center justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E4EEE9] text-[#244A40]">
-                    <IconVideo size={22} />
-                  </div>
-                  <span className="rounded-full bg-[#E4EEE9] px-3 py-1 text-xs font-bold text-[#244A40]">
-                    Universal Access
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#25231F]">
-                    Online Tuition
-                  </h3>
-                  <p className="mt-2 text-sm text-[#6F6A62] leading-relaxed">
-                    Interactive 1-on-1 virtual sessions featuring digital lesson notes, screen sharing, and comfortable scheduling without commute friction.
-                  </p>
-                </div>
-
-                <div className="space-y-2.5 pt-2 border-t border-[rgba(55,48,40,0.08)] text-xs text-[#25231F]">
-                  <div className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#315F52]" />
-                    <span>Free 30-min online demo for every new tutor</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#315F52]" />
-                    <span>Digital lesson notes when shared by tutor</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#315F52]" />
-                    <span>Available across Hyderabad &amp; all regions</span>
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <Link
-                    href="/tutors?mode=online"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#315F52] hover:text-[#244A40] transition"
-                  >
-                    <span>Browse Online Tutors</span>
-                    <IconArrowRight size={13} />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Home Mode Panel */}
-              <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-8 sm:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.02)] space-y-5">
-                <div className="flex items-center justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FBE2D8] text-[#BA5945]">
-                    <IconHomeTuition size={22} />
-                  </div>
-                  <span className="rounded-full bg-[#FBE2D8] px-3 py-1 text-xs font-bold text-[#BA5945]">
-                    Hyderabad In-Person
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#25231F]">
-                    Eligible Home Tuition
-                  </h3>
-                  <p className="mt-2 text-sm text-[#6F6A62] leading-relaxed">
-                    Verified educators visit your home in person for disciplined, distraction-free study within designated Hyderabad localities.
-                  </p>
-                </div>
-
-                <div className="space-y-2.5 pt-2 border-t border-[rgba(55,48,40,0.08)] text-xs text-[#25231F]">
-                  <div className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#315F52]" />
-                    <span>In-person mentor visits your residence</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#315F52]" />
-                    <span>Coverage in Madhapur, Gachibowli, Jubilee Hills, Banjara Hills, Kondapur</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#315F52]" />
-                    <span>Subject to tutor offering &amp; locality radius eligibility</span>
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <Link
-                    href="/tutors?mode=home"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#DE765D] hover:text-[#BA5945] transition"
-                  >
-                    <span>Browse Home Tutors</span>
-                    <IconArrowRight size={13} />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================================
-            6. SUBJECT & TUTOR SHOWCASE: Low-Saturation Field Tiles
-        ====================================================== */}
-        <section className="py-24 md:py-32 border-t border-[rgba(55,48,40,0.08)] bg-white">
-          <div className="container-shell">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <div>
-                <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
-                  04 / Curriculum Scope
-                </span>
-                <h2 className="mt-2 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#25231F]">
-                  Explore subjects by learning field.
-                </h2>
-              </div>
-              <Link
-                href="/tutors"
-                className="text-xs font-bold text-[#315F52] hover:underline flex items-center gap-1"
+              {/* Supporting Copy (Deliberate 2-line desktop layout) */}
+              <p
+                className="mt-6 mx-auto max-w-xl text-center text-[#66716D] leading-relaxed"
+                style={{ fontSize: "clamp(1rem, 2.2vw, 1.18rem)" }}
               >
-                <span>View all subjects</span>
-                <IconArrowRight size={13} />
-              </Link>
-            </div>
-
-            {/* Subject Field Tiles */}
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {subjectShowcase.map((s) => (
-                <Link
-                  key={s.name}
-                  href={s.href}
-                  className="group rounded-3xl border border-[rgba(55,48,40,0.10)] bg-[#FFF7ED] p-6 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:-translate-y-1 transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${s.fieldBg} ${s.accentText}`}>
-                      <SubjectIcon name={s.name} size={22} />
-                    </div>
-                    <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${s.badgeBg} ${s.accentText}`}>
-                      CBSE &bull; ICSE
-                    </span>
-                  </div>
-
-                  <h3 className="mt-5 font-[family-name:var(--font-manrope)] text-xl font-bold text-[#25231F] group-hover:text-[#315F52] transition-colors">
-                    {s.name}
-                  </h3>
-                  <p className="mt-1 text-xs font-semibold text-[#6F6A62]">{s.grades}</p>
-                  <p className="mt-3 text-xs text-[#6F6A62] leading-relaxed">{s.description}</p>
-
-                  <div className="mt-5 pt-3 border-t border-[rgba(55,48,40,0.06)] flex items-center justify-between text-xs font-bold text-[#315F52]">
-                    <span>Find {s.name} Tutors</span>
-                    <IconArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* Featured Tutors Mini Grid */}
-            <div className="mt-20">
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-                <div>
-                  <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
-                    Educators in Hyderabad
-                  </span>
-                  <h3 className="mt-1 font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#25231F]">
-                    Meet verified mentors ready to guide.
-                  </h3>
-                </div>
-                <Link
-                  href="/tutors"
-                  className="text-xs font-bold text-[#315F52] hover:underline flex items-center gap-1"
-                >
-                  <span>See all educators</span>
-                  <IconArrowRight size={13} />
-                </Link>
-              </div>
-
-              <div className="mt-8 grid gap-6 md:grid-cols-3">
-                {featuredTutors.map((tutor) => (
-                  <TutorCard key={tutor.id} tutor={tutor} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================================
-            7. LEARNING JOURNEY: Progressive Sequence (Not Boxed Bento)
-        ====================================================== */}
-        <section className="py-24 md:py-32 bg-[#FFFBF5]">
-          <div className="container-shell">
-            <div className="mx-auto max-w-3xl text-center">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
-                05 / Progression
-              </span>
-              <h2 className="mt-2 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#25231F]">
-                From first match to steady academic momentum.
-              </h2>
-            </div>
-
-            <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-              {[
-                {
-                  step: "01",
-                  title: "Find Tutor",
-                  text: "Search by subject, class, board, and online/home preference.",
-                  bg: "bg-[#E4EEE9]",
-                  color: "text-[#244A40]",
-                },
-                {
-                  step: "02",
-                  title: "Free Demo",
-                  text: "Attend a 30-min online demo. Confirm rapport before committing.",
-                  bg: "bg-[#E3EADD]",
-                  color: "text-[#244A40]",
-                },
-                {
-                  step: "03",
-                  title: "Select Rhythm",
-                  text: "Choose 8, 12, or 15 classes with 45-day validity and weekly slots.",
-                  bg: "bg-[#FBE2D8]",
-                  color: "text-[#BA5945]",
-                },
-                {
-                  step: "04",
-                  title: "Master Concepts",
-                  text: "1-on-1 focused study with lesson notes shared by tutor.",
-                  bg: "bg-[#E4EEE9]",
-                  color: "text-[#2C5282]",
-                },
-                {
-                  step: "05",
-                  title: "Track Progress",
-                  text: "Review homework, class milestones, and syllabus momentum in workspace.",
-                  bg: "bg-[#F7E9BE]/60",
-                  color: "text-[#7A5812]",
-                },
-              ].map((item) => (
-                <div
-                  key={item.step}
-                  className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between"
-                >
-                  <div>
-                    <span className={`inline-flex h-8 w-8 items-center justify-center rounded-xl ${item.bg} text-xs font-black ${item.color}`}>
-                      {item.step}
-                    </span>
-                    <h4 className="mt-4 font-[family-name:var(--font-manrope)] text-base font-bold text-[#25231F]">
-                      {item.title}
-                    </h4>
-                    <p className="mt-2 text-xs text-[#6F6A62] leading-relaxed">{item.text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================================
-            8. TRUST & VERIFICATION: Restrained Factual Standards
-        ====================================================== */}
-        <section className="py-20 md:py-28 border-t border-[rgba(55,48,40,0.08)] bg-white">
-          <div className="container-shell">
-            <div className="mx-auto max-w-3xl text-center">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
-                Trust &amp; Governance
-              </span>
-              <h2 className="mt-2 font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold tracking-tight text-[#25231F]">
-                Factual standards you can rely on.
-              </h2>
-            </div>
-
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E4EEE9] text-[#244A40]">
-                  <IconShieldCheck size={18} />
-                </span>
-                <h4 className="mt-3 text-sm font-bold text-[#25231F]">Verified Tutor Profiles</h4>
-                <p className="mt-1 text-xs text-[#6F6A62] leading-relaxed">
-                  Academic qualifications, teaching experience, and identity details are personally reviewed.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E3EADD] text-[#244A40]">
-                  <IconVideo size={18} />
-                </span>
-                <h4 className="mt-3 text-sm font-bold text-[#25231F]">Free 30-Min Demo</h4>
-                <p className="mt-1 text-xs text-[#6F6A62] leading-relaxed">
-                  Experience the tutor&apos;s teaching approach in a live 1-on-1 demo before any payment is discussed.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FBE2D8] text-[#BA5945]">
-                  <IconCalendar size={18} />
-                </span>
-                <h4 className="mt-3 text-sm font-bold text-[#25231F]">No Lock-In Subscriptions</h4>
-                <p className="mt-1 text-xs text-[#6F6A62] leading-relaxed">
-                  Packages of 8, 12, or 15 classes come with a 45-day validity window. No recurring billing.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E4EEE9] text-[#2C5282]">
-                  <IconSparkles size={18} />
-                </span>
-                <h4 className="mt-3 text-sm font-bold text-[#25231F]">Tuition Support Assistance</h4>
-                <p className="mt-1 text-xs text-[#6F6A62] leading-relaxed">
-                  Direct coordination support for parents and students throughout their learning journey.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================================
-            9. FINAL CTA: Atmospheric Light Field
-        ====================================================== */}
-        <section className="py-20 md:py-28 bg-[#FFFBF5]">
-          <div className="container-shell">
-            <div className="relative overflow-hidden rounded-3xl border border-[rgba(55,48,40,0.12)] bg-gradient-to-r from-[#FBE2D8]/30 via-[#FFF7ED] to-[#E4EEE9]/40 p-10 sm:p-14 lg:p-16 text-center shadow-[0_12px_40px_rgba(0,0,0,0.02)]">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
-                Get Started
-              </span>
-              <h2 className="mt-3 font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-[-0.035em] text-[#25231F]">
-                Ready to give your child the right mentor?
-              </h2>
-              <p className="mt-4 mx-auto max-w-xl text-base sm:text-lg text-[#6F6A62] leading-relaxed">
-                Start with a free 30-minute online demo. Connect with verified Hyderabad educators without upfront payment.
+                <span className="sm:block">Thoughtful 1-on-1 tutoring, online or at home,</span>{" "}
+                <span className="sm:block">with a free 30-minute online demo.</span>
               </p>
 
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+              {/* Primary Actions (Centered axis) */}
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
                 <Link
                   href="/tutors"
-                  className="btn btn-primary w-full sm:w-auto min-h-[50px] px-8 rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)]"
+                  className="btn btn-primary min-h-[52px] px-8 text-sm font-bold gap-2 shadow-[0_4px_20px_rgba(35,107,91,0.25)]"
                 >
                   <span>Find a Tutor</span>
                   <IconArrowRight size={15} />
                 </Link>
-
                 <Link
                   href="/demo/book"
-                  className="btn btn-outline w-full sm:w-auto min-h-[50px] px-7 rounded-full text-sm font-bold"
+                  className="btn btn-outline min-h-[52px] px-7 text-sm font-bold"
                 >
-                  <span>Book a Free Demo</span>
+                  Book a Free Demo
                 </Link>
               </div>
+
+              {/* Search Dock (Centered axis) */}
+              <div className="mt-12 w-full flex justify-center">
+                <HeroComposer />
+              </div>
+
             </div>
           </div>
         </section>
+
+        {/* ── 2. PERSONAL TUTOR EXPLORATION STORY ───────────────────────────── */}
+        <section
+          id="subjects"
+          ref={sectionStoryRef}
+          className="py-28 md:py-40 bg-white border-y border-[rgba(24,33,30,0.06)]"
+        >
+          <div className="container-shell">
+            <div className="grid items-center gap-16 lg:grid-cols-12">
+
+              {/* Left Column: Narrative */}
+              <div className="space-y-6 lg:col-span-6">
+                <div>
+                  <p className="reveal text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B]">
+                    01 &bull; Personal Fit
+                  </p>
+                  <h2
+                    className="reveal reveal-delay-1 mt-4 font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.03em] text-[#18211E] leading-[1.12]"
+                    style={{ fontSize: "clamp(2rem, 4.5vw, 3rem)" }}
+                  >
+                    Every student learns at their own pace.
+                  </h2>
+                </div>
+                <p className="reveal reveal-delay-2 text-[#66716D] leading-relaxed max-w-md text-base">
+                  Explore tutor profiles, teaching approach, and subject expertise
+                  across Classes 6 to 12. Filter by curriculum, syllabus goals, and
+                  preferred schedule to find a tutor suited to your child.
+                </p>
+
+                {/* Lightweight Subject Examples */}
+                <div className="reveal reveal-delay-3 pt-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#9BAAA5] mb-3">Explore Subjects</p>
+                  <div className="flex flex-wrap gap-2">
+                    {quickSubjects.map((sub) => (
+                      <Link
+                        key={sub.name}
+                        href={sub.href}
+                        className="rounded-full border border-[rgba(24,33,30,0.08)] bg-[#F4F8FB] px-3.5 py-1.5 text-xs font-semibold text-[#18211E] hover:border-[#236B5B]/30 hover:bg-[#E2F5EC] hover:text-[#1A5247] transition-all"
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="reveal reveal-delay-4 pt-3">
+                  <Link
+                    href="/tutors"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-[#236B5B] hover:text-[#1A5247] transition-colors group"
+                  >
+                    <span>Browse all tutor profiles</span>
+                    <IconArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Column: Sample Tutor Profile Previews */}
+              <div className="reveal-scale space-y-3.5 lg:col-span-6">
+                {sampleTutors.map((tutor) => (
+                  <Link
+                    key={tutor.id}
+                    href={`/tutors/${tutor.id}`}
+                    className="group block rounded-2xl border border-[rgba(24,33,30,0.08)] bg-[#FCFDFE] p-5 shadow-[0_2px_12px_rgba(24,33,30,0.03)] hover:border-[#236B5B]/30 hover:shadow-[0_8px_24px_rgba(24,33,30,0.06)] transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E2F5EC] text-sm font-extrabold text-[#1A5247]">
+                          {tutor.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-sm text-[#18211E] group-hover:text-[#236B5B] transition-colors truncate">
+                              {tutor.name}
+                            </p>
+                            <span className="rounded-full bg-[rgba(24,33,30,0.06)] px-2 py-0.5 text-[10px] font-medium text-[#66716D] shrink-0">
+                              Demo profile
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#66716D] truncate mt-0.5">
+                            {tutor.headline}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="shrink-0 text-right">
+                        <span className="text-xs font-bold text-[#18211E] tabular-nums">From &#8377;{tutor.startingPackagePrice || 3200}</span>
+                        <span className="text-[11px] text-[#9BAAA5]"> / pkg</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[rgba(24,33,30,0.05)] pt-3 text-xs">
+                      <span className="text-[#66716D]">
+                        {tutor.subjects.slice(0, 2).join(" &bull; ")}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        {tutor.modes.includes("online") && (
+                          <span className="rounded-full bg-[#E3F2FF] px-2.5 py-0.5 text-[10px] font-bold text-[#1D4ED8]">
+                            Online
+                          </span>
+                        )}
+                        {tutor.modes.includes("home") && (
+                          <span className="rounded-full bg-[#E2F5EC] px-2.5 py-0.5 text-[10px] font-bold text-[#1A5247]">
+                            Home
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ── 3. ONLINE VS HOME TUITION ─────────────────────────────────────── */}
+        <section
+          ref={sectionModesRef}
+          className="py-28 md:py-40 atmo-alt"
+        >
+          <div className="container-shell">
+            <div className="mx-auto max-w-xl text-center mb-16">
+              <p className="reveal text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B]">
+                02 &bull; Delivery Formats
+              </p>
+              <h2
+                className="reveal reveal-delay-1 mt-4 font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.03em] text-[#18211E] leading-[1.12]"
+                style={{ fontSize: "clamp(2rem, 4.5vw, 3rem)" }}
+              >
+                Online, at home, or both.
+              </h2>
+              <p className="reveal reveal-delay-2 mt-4 text-[#66716D] leading-relaxed text-base">
+                Choose the mode that best fits your child&apos;s learning environment and weekly schedule.
+              </p>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-2">
+
+              {/* Card 1: Online Tuition */}
+              <div className="reveal rounded-3xl border border-[rgba(24,33,30,0.08)] bg-white p-8 md:p-10 shadow-[0_4px_20px_rgba(24,33,30,0.04)] flex flex-col justify-between space-y-6">
+                <div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E3F2FF] text-[#1D4ED8] mb-6">
+                    <IconVideo size={24} />
+                  </div>
+                  <h3 className="font-[family-name:var(--font-manrope)] font-bold text-xl text-[#18211E]">
+                    1-on-1 Online Tuition
+                  </h3>
+                  <p className="mt-3 text-sm text-[#66716D] leading-relaxed">
+                    1-on-1 online tutoring with flexible scheduling and focused attention from your selected tutor.
+                  </p>
+                  <ul className="mt-6 space-y-3 text-xs text-[#18211E]">
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      1-on-1 attention from your selected tutor
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      Flexible online scheduling
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      Learn from home without travel
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <Link
+                    href="/tutors?mode=online"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-[#1D4ED8] hover:text-[#1E40AF] transition-colors group"
+                  >
+                    <span>Browse online tutors</span>
+                    <IconArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Card 2: Home Tuition */}
+              <div className="reveal reveal-delay-1 rounded-3xl border border-[rgba(24,33,30,0.08)] bg-white p-8 md:p-10 shadow-[0_4px_20px_rgba(24,33,30,0.04)] flex flex-col justify-between space-y-6">
+                <div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E2F5EC] text-[#1A5247] mb-6">
+                    <IconHomeTuition size={24} />
+                  </div>
+                  <h3 className="font-[family-name:var(--font-manrope)] font-bold text-xl text-[#18211E]">
+                    In-Person Home Tuition
+                  </h3>
+                  <p className="mt-3 text-sm text-[#66716D] leading-relaxed">
+                    Tutors can teach at your home in eligible Hyderabad areas.
+                    Personalized in-person guidance at the student&apos;s own study desk.
+                  </p>
+                  <ul className="mt-6 space-y-3 text-xs text-[#18211E]">
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      Direct in-person guidance and study routines
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      Scheduled weekly slots in eligible Hyderabad localities
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      Comfortable, distraction-free home learning environment
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <Link
+                    href="/tutors?mode=home"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-[#236B5B] hover:text-[#1A5247] transition-colors group"
+                  >
+                    <span>Browse home tutors in Hyderabad</span>
+                    <IconArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ── 4. FREE DEMO ─────────────────────────────────────────────────── */}
+        <section
+          ref={sectionDemoRef}
+          className="py-28 md:py-40 bg-white border-y border-[rgba(24,33,30,0.06)]"
+        >
+          <div className="container-shell">
+            <div className="grid items-center gap-16 lg:grid-cols-12">
+
+              {/* Narrative */}
+              <div className="space-y-6 lg:col-span-7">
+                <div>
+                  <p className="reveal text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B]">
+                    03 &bull; Free Demo
+                  </p>
+                  <h2
+                    className="reveal reveal-delay-1 mt-4 font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.03em] text-[#18211E] leading-[1.12]"
+                    style={{ fontSize: "clamp(2rem, 4.5vw, 3rem)" }}
+                  >
+                    Experience the teaching style before you commit.
+                  </h2>
+                </div>
+                <p className="reveal reveal-delay-2 text-[#66716D] leading-relaxed max-w-lg text-base">
+                  A free 30-minute online demo lets your child and tutor meet, assess
+                  current coursework, and understand communication style — before choosing any class package.
+                </p>
+
+                <div className="reveal reveal-delay-3 space-y-3.5 pt-2">
+                  <div className="flex items-start gap-3 text-sm text-[#18211E]">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247] mt-0.5">
+                      <IconCheck size={11} />
+                    </span>
+                    <span>Free 30-minute online demo with your selected tutor</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-sm text-[#18211E]">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247] mt-0.5">
+                      <IconCheck size={11} />
+                    </span>
+                    <span>No upfront fee or payment details required to book</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-sm text-[#18211E]">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247] mt-0.5">
+                      <IconCheck size={11} />
+                    </span>
+                    <span>Decide on an 8, 12, or 15 class package only after the trial</span>
+                  </div>
+                </div>
+
+                <div className="reveal reveal-delay-4 pt-4">
+                  <Link
+                    href="/demo/book"
+                    className="btn btn-primary min-h-[50px] px-8 text-sm font-bold gap-2"
+                  >
+                    <span>Book a Free Demo</span>
+                    <IconArrowRight size={15} />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Visual Card */}
+              <div className="reveal-scale lg:col-span-5">
+                <div className="rounded-3xl border border-[rgba(24,33,30,0.08)] bg-[#F4F8FB] p-8 md:p-10 space-y-6">
+                  <div className="border-b border-[rgba(24,33,30,0.07)] pb-6">
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#9BAAA5]">Demo Session Structure</p>
+                    <p className="mt-2 font-[family-name:var(--font-manrope)] font-extrabold text-3xl text-[#18211E]">
+                      30 Minutes
+                    </p>
+                    <p className="text-xs text-[#66716D] mt-1">30-minute online demo</p>
+                  </div>
+
+                  <div className="space-y-4 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#66716D]">Session Fee</span>
+                      <span className="font-bold text-[#236B5B]">&#8377;0 (Free)</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#66716D]">Mode</span>
+                      <span className="font-semibold text-[#18211E]">Online</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#66716D]">Syllabus Discussion</span>
+                      <span className="font-semibold text-[#18211E]">Included</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#66716D]">Commitment</span>
+                      <span className="font-semibold text-[#18211E]">Zero Obligation</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ── 5. VERY SMALL HOW IT WORKS ─────────────────────────────────────── */}
+        <section
+          id="how-it-works"
+          ref={sectionStepsRef}
+          className="py-24 md:py-36 atmo-alt border-t border-[rgba(24,33,30,0.06)]"
+        >
+          <div className="container-shell">
+            <div className="mx-auto max-w-xl text-center mb-14">
+              <p className="reveal text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B]">
+                04 &bull; How It Works
+              </p>
+              <h2
+                className="reveal reveal-delay-1 mt-4 font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.03em] text-[#18211E]"
+                style={{ fontSize: "clamp(1.85rem, 4vw, 2.75rem)" }}
+              >
+                Three simple steps.
+              </h2>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  step: "01",
+                  title: "Find your tutor",
+                  text: "Filter profiles by subject, grade level (Classes 6–12), and delivery mode.",
+                },
+                {
+                  step: "02",
+                  title: "Book a free demo",
+                  text: "Attend a 30-minute online trial to assess mutual comfort, teaching pace, and style.",
+                },
+                {
+                  step: "03",
+                  title: "Start regular lessons",
+                  text: "Select a package (8, 12, or 15 sessions) and track lesson logs in your Class Ledger.",
+                },
+              ].map((item, i) => (
+                <div
+                  key={item.step}
+                  className={`reveal reveal-delay-${i + 1} rounded-2xl border border-[rgba(24,33,30,0.07)] bg-white p-7 flex flex-col justify-between space-y-5`}
+                >
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#E2F5EC] text-xs font-black text-[#1A5247]">
+                    {item.step}
+                  </span>
+                  <div>
+                    <h3 className="font-[family-name:var(--font-manrope)] font-bold text-base text-[#18211E]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-xs text-[#66716D] leading-relaxed">
+                      {item.text}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── 6. FINAL CTA (Identical Typography Pattern) ──────────────────── */}
+        <section className="py-36 md:py-48 atmo-cta border-t border-[rgba(24,33,30,0.06)]">
+          <div className="container-tight flex flex-col items-center text-center">
+            {/* Headline with exact 2-line desktop control */}
+            <h2
+              className="mx-auto max-w-2xl text-center font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.035em] text-[#18211E] leading-[1.08]"
+              style={{ fontSize: "clamp(2.25rem, 5.5vw, 3.75rem)" }}
+            >
+              <span className="sm:block">Find a tutor your child</span>{" "}
+              <span className="sm:block">learns well with.</span>
+            </h2>
+
+            {/* Subtitle with exact 2-line desktop control */}
+            <p
+              className="mt-6 mx-auto max-w-xl text-center text-[#66716D] leading-relaxed text-base"
+            >
+              <span className="sm:block">Thoughtful 1-on-1 tutoring, online or at home,</span>{" "}
+              <span className="sm:block">with a free 30-minute online demo.</span>
+            </p>
+
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+              <Link
+                href="/tutors"
+                className="btn btn-primary min-h-[54px] px-9 text-sm font-bold gap-2 shadow-[0_6px_24px_rgba(35,107,91,0.28)]"
+              >
+                <span>Find a Tutor</span>
+                <IconArrowRight size={15} />
+              </Link>
+              <Link
+                href="/demo/book"
+                className="btn btn-outline min-h-[54px] px-8 text-sm font-bold"
+              >
+                Book a Free Demo
+              </Link>
+            </div>
+
+            <p className="mt-8 text-xs text-[#9BAAA5] text-center">
+              Free 30-minute demo &bull; 1-on-1 dedicated attention &bull; No subscription lock-in
+            </p>
+          </div>
+        </section>
+
       </main>
 
       <SiteFooter />
