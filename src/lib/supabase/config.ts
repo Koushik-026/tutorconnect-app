@@ -30,3 +30,11 @@ export function getSupabaseConfig(): SupabaseConfig | null {
     publishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!.trim(),
   };
 }
+
+/**
+ * Checks whether email/password authentication is enabled via feature flag.
+ * Default is false.
+ */
+export function isEmailPasswordAuthEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_EMAIL_PASSWORD_AUTH_ENABLED === "true";
+}

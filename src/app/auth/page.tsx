@@ -9,10 +9,11 @@ import {
   IconCheck,
 } from "@/components/ui/icons";
 import { createClient } from "@/lib/supabase/client";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { isSupabaseConfigured, isEmailPasswordAuthEnabled } from "@/lib/supabase/config";
 import { sanitizeInternalRedirect } from "@/lib/utils/redirect";
 
 type RoleIntent = "student" | "tutor";
+type AuthMode = "sign_in" | "create_account" | "forgot_password";
 
 // Feature flag: Google is primary authentication for demo. Email/magic-link UI is hidden from normal flow.
 const SHOW_EMAIL_AUTH = false;
@@ -50,11 +51,30 @@ function AuthInner() {
   const errorParam = searchParams.get("error");
 
   const [role, setRole] = useState<RoleIntent>(initialRole);
+  const [authMode, setAuthMode] = useState<AuthMode>("sign_in");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [signupNotice, setSignupNotice] = useState("");
+  const [resetNotice, setResetNotice] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "email_sent" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState(
     errorParam ? "Authentication attempt could not be completed. Please try again." : ""
   );
+
+  const isEmailPasswordEnabled = isEmailPasswordAuthEnabled();
+
+  const switchAuthMode = (newMode: AuthMode) => {
+    setAuthMode(newMode);
+    setStatus("idle");
+    setErrorMessage("");
+    setPasswordError("");
+    setResetNotice("");
+    setSignupNotice("");
+    setPassword("");
+    setConfirmPassword("");
+  };
 
   const getDefaultNext = (targetRole: RoleIntent) =>
     targetRole === "tutor" ? "/dashboard/tutor/pending" : "/tutors";
@@ -124,6 +144,179 @@ function AuthInner() {
     } catch {
       setStatus("error");
       setErrorMessage("An unexpected error occurred during Google sign-in. Please try again.");
+    }
+  };
+
+  const handlePasswordSignIn = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!isConfigured) {
+      setStatus("error");
+      setErrorMessage("Supabase authentication runtime is not configured.");
+      return;
+    }
+
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !cleanEmail.includes("@")) {
+      setStatus("error");
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
+    if (!password) {
+      setStatus("error");
+      setErrorMessage("Please enter your password.");
+      return;
+    }
+
+    try {
+      setStatus("loading");
+      setErrorMessage("");
+
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      });
+
+      if (error) {
+        setStatus("error");
+        if (error.status === 429 || error.message.toLowerCase().includes("rate limit")) {
+          setErrorMessage("Too many attempts. Please wait a few minutes before trying again.");
+        } else {
+          setErrorMessage("Invalid email or password. Please try again.");
+        }
+        return;
+      }
+
+      if (data?.session) {
+        const safeNext = getEffectiveNext(role);
+        router.push(`/auth/resolve?intent=${role}&next=${encodeURIComponent(safeNext)}`);
+      } else {
+        setStatus("error");
+        setErrorMessage("Sign-in could not be completed. Please try again.");
+      }
+    } catch {
+      setStatus("error");
+      setErrorMessage("An unexpected error occurred during sign-in.");
+    }
+  };
+
+  const handlePasswordSignUp = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!isConfigured) {
+      setStatus("error");
+      setErrorMessage("Supabase authentication runtime is not configured.");
+      return;
+    }
+
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !cleanEmail.includes("@")) {
+      setStatus("error");
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
+    if (!password || password.length < 8) {
+      setPasswordError("Password must be at least 8 characters.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setStatus("loading");
+      setErrorMessage("");
+      setPasswordError("");
+      setSignupNotice("");
+
+      const supabase = createClient();
+      const safeNext = getEffectiveNext(role);
+      const origin = window.location.origin;
+      const emailRedirectTo = `${origin}/auth/confirm?next=${encodeURIComponent(safeNext)}&intent=${role}`;
+
+      const { data, error } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password,
+        options: {
+          emailRedirectTo,
+        },
+      });
+
+      if (error) {
+        setStatus("error");
+        if (error.status === 429 || error.message?.toLowerCase().includes("rate limit")) {
+          setErrorMessage("Too many attempts. Please wait a few minutes before trying again.");
+        } else {
+          // Generic failure message; do not leak raw provider/internal errors or enumeration hints
+          setErrorMessage("Unable to create account. Please check your information or try again later.");
+        }
+        return;
+      }
+
+      if (data?.session) {
+        router.push(`/auth/resolve?intent=${role}&next=${encodeURIComponent(safeNext)}`);
+      } else {
+        setStatus("idle");
+        // Neutral response: does not guarantee an email was sent or reveal account existence
+        setSignupNotice(
+          "If this email can be registered, check your inbox for a verification link."
+        );
+      }
+    } catch {
+      setStatus("error");
+      setErrorMessage("An unexpected error occurred during account creation.");
+    }
+  };
+
+  const handleForgotPassword = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!isConfigured) {
+      setStatus("error");
+      setErrorMessage("Supabase authentication runtime is not configured.");
+      return;
+    }
+
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !cleanEmail.includes("@")) {
+      setStatus("error");
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
+    try {
+      setStatus("loading");
+      setErrorMessage("");
+      setResetNotice("");
+
+      const supabase = createClient();
+      const origin = window.location.origin;
+      const redirectTo = `${origin}/auth/confirm?type=recovery`;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo,
+      });
+
+      if (error) {
+        setStatus("error");
+        if (error.status === 429 || error.message?.toLowerCase().includes("rate limit")) {
+          setErrorMessage("Too many attempts. Please wait a few minutes before trying again.");
+        } else {
+          // Generic failure message; do not leak raw provider/internal errors
+          setErrorMessage("Unable to process password reset request. Please try again later.");
+        }
+        return;
+      }
+
+      setStatus("idle");
+      setResetNotice(
+        `If an account exists for ${cleanEmail}, a password recovery link has been sent. Please check your inbox.`
+      );
+    } catch {
+      setStatus("error");
+      setErrorMessage("An unexpected error occurred while requesting password reset.");
     }
   };
 
@@ -374,6 +567,9 @@ function AuthInner() {
                       setRole("student");
                       setStatus("idle");
                       setErrorMessage("");
+                      setPasswordError("");
+                      setResetNotice("");
+                      setSignupNotice("");
                       setOtpError("");
                     }}
                     className={
@@ -391,6 +587,9 @@ function AuthInner() {
                       setRole("tutor");
                       setStatus("idle");
                       setErrorMessage("");
+                      setPasswordError("");
+                      setResetNotice("");
+                      setSignupNotice("");
                       setOtpError("");
                     }}
                     className={
@@ -406,10 +605,20 @@ function AuthInner() {
 
                 <div className="mb-6">
                   <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#18211E]">
-                    {role === "student" ? "Sign in as Student or Parent" : "Sign in as Tutor"}
+                    {authMode === "forgot_password"
+                      ? "Reset your password"
+                      : authMode === "create_account"
+                      ? role === "student"
+                        ? "Create Student or Parent Account"
+                        : "Create Tutor Account"
+                      : role === "student"
+                      ? "Sign in as Student or Parent"
+                      : "Sign in as Tutor"}
                   </h2>
                   <p className="mt-1 text-xs text-[#66716D]">
-                    {role === "student"
+                    {authMode === "forgot_password"
+                      ? "Enter your account email to receive a recovery link."
+                      : role === "student"
                       ? "Explore tutors, book demo sessions, and manage your tuition schedule."
                       : "Access your teaching profile, availability, and inquiries."}
                   </p>
@@ -535,24 +744,288 @@ function AuthInner() {
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <>
-                    {/* Primary: Google OAuth Button */}
-                    <button
-                      type="button"
-                      disabled={status === "loading"}
-                      onClick={handleGoogleSignIn}
-                      className="btn btn-outline w-full min-h-[50px] rounded-full text-sm font-bold gap-3 justify-center border border-[rgba(24,33,30,0.12)] bg-white text-[#18211E] hover:border-[#236B5B]/40 hover:bg-[#F4F8FB] transition disabled:opacity-50 shadow-xs"
-                    >
-                      <GoogleIcon />
-                      <span>{status === "loading" ? "Connecting to Google..." : "Continue with Google"}</span>
-                    </button>
+                ) : isEmailPasswordEnabled && authMode === "forgot_password" ? (
+                      <div className="space-y-4">
+                        {resetNotice ? (
+                          <div className="space-y-4">
+                            <div
+                              role="status"
+                              className="rounded-2xl border border-[#236B5B]/20 bg-[#E2F5EC] p-4 text-xs font-medium text-[#1A5247]"
+                            >
+                              {resetNotice}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => switchAuthMode("sign_in")}
+                              className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(35,107,91,0.22)] justify-center gap-2"
+                            >
+                              <span>Return to sign in</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <form onSubmit={handleForgotPassword} className="space-y-4">
+                            <div>
+                              <label htmlFor="auth-email" className="text-xs font-bold text-[#66716D] block mb-1">
+                                Email Address
+                              </label>
+                              <input
+                                id="auth-email"
+                                type="email"
+                                required
+                                autoComplete="email"
+                                disabled={status === "loading"}
+                                value={email}
+                                onChange={(e) => {
+                                  setEmail(e.target.value);
+                                  setErrorMessage("");
+                                }}
+                                placeholder="name@example.com"
+                                className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                              />
+                            </div>
 
-                    <p className="mt-4 text-center text-xs text-[#9BAAA5]">
-                      Secure, fast sign-in using your Google account.
-                    </p>
+                            <button
+                              type="submit"
+                              disabled={status === "loading"}
+                              className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(35,107,91,0.22)] justify-center gap-2 mt-2 disabled:opacity-50"
+                            >
+                              <span>{status === "loading" ? "Sending Link..." : "Send Reset Link"}</span>
+                              <IconArrowRight size={15} />
+                            </button>
 
-                    {/* Email / Magic Link UI (hidden for demo, underlying implementation preserved) */}
+                            <div className="pt-3 text-center">
+                              <button
+                                type="button"
+                                onClick={() => switchAuthMode("sign_in")}
+                                className="text-xs font-bold text-[#236B5B] hover:underline"
+                              >
+                                &larr; Back to sign in
+                              </button>
+                            </div>
+                          </form>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        {/* Primary: Google OAuth Button */}
+                        <button
+                          type="button"
+                          disabled={status === "loading"}
+                          onClick={handleGoogleSignIn}
+                          className="btn btn-outline w-full min-h-[50px] rounded-full text-sm font-bold gap-3 justify-center border border-[rgba(24,33,30,0.12)] bg-white text-[#18211E] hover:border-[#236B5B]/40 hover:bg-[#F4F8FB] transition disabled:opacity-50 shadow-xs"
+                        >
+                          <GoogleIcon />
+                          <span>{status === "loading" ? "Connecting to Google..." : "Continue with Google"}</span>
+                        </button>
+
+                        <p className="mt-4 text-center text-xs text-[#9BAAA5]">
+                          Secure, fast sign-in using your Google account.
+                        </p>
+
+                        {/* Email + Password Authentication Forms (active only when feature flag is enabled) */}
+                        {isEmailPasswordEnabled && (
+                          <div className="mt-6 pt-6 border-t border-[rgba(24,33,30,0.08)]">
+                            <div className="relative mb-5 text-center">
+                              <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-[rgba(24,33,30,0.08)]" />
+                              </div>
+                              <span className="relative bg-white px-3 text-[11px] font-semibold text-[#9BAAA5]">
+                                {authMode === "create_account"
+                                  ? "or register with email"
+                                  : "or with email & password"}
+                              </span>
+                            </div>
+
+                            {passwordError && (
+                              <div
+                                role="alert"
+                                className="mb-4 rounded-xl border border-[#C84B31]/25 bg-[#FCEEEA] p-3 text-xs font-medium text-[#C84B31]"
+                              >
+                                {passwordError}
+                              </div>
+                            )}
+
+                            {authMode === "create_account" ? (
+                              signupNotice ? (
+                                <div className="space-y-4">
+                                  <div
+                                    role="status"
+                                    className="rounded-2xl border border-[#236B5B]/20 bg-[#E2F5EC] p-4 text-xs font-medium text-[#1A5247]"
+                                  >
+                                    {signupNotice}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => switchAuthMode("sign_in")}
+                                    className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(35,107,91,0.22)] justify-center gap-2"
+                                  >
+                                    <span>Go to sign in</span>
+                                  </button>
+                                </div>
+                              ) : (
+                                <form onSubmit={handlePasswordSignUp} className="space-y-4">
+                                  <div>
+                                    <label htmlFor="auth-email" className="text-xs font-bold text-[#66716D] block mb-1">
+                                      Email Address
+                                    </label>
+                                    <input
+                                      id="auth-email"
+                                      type="email"
+                                      required
+                                      autoComplete="email"
+                                      disabled={status === "loading"}
+                                      value={email}
+                                      onChange={(e) => {
+                                        setEmail(e.target.value);
+                                        setErrorMessage("");
+                                      }}
+                                      placeholder="name@example.com"
+                                      className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label htmlFor="auth-password" className="text-xs font-bold text-[#66716D] block mb-1">
+                                      Password
+                                    </label>
+                                    <input
+                                      id="auth-password"
+                                      type="password"
+                                      required
+                                      minLength={8}
+                                      autoComplete="new-password"
+                                      disabled={status === "loading"}
+                                      value={password}
+                                      onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        setPasswordError("");
+                                        setErrorMessage("");
+                                      }}
+                                      placeholder="At least 8 characters"
+                                      className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label htmlFor="auth-confirm-password" className="text-xs font-bold text-[#66716D] block mb-1">
+                                      Confirm Password
+                                    </label>
+                                    <input
+                                      id="auth-confirm-password"
+                                      type="password"
+                                      required
+                                      minLength={8}
+                                      autoComplete="new-password"
+                                      disabled={status === "loading"}
+                                      value={confirmPassword}
+                                      onChange={(e) => {
+                                        setConfirmPassword(e.target.value);
+                                        setPasswordError("");
+                                        setErrorMessage("");
+                                      }}
+                                      placeholder="Re-enter your password"
+                                      className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                    />
+                                  </div>
+
+                                  <button
+                                    type="submit"
+                                    disabled={status === "loading"}
+                                    className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(35,107,91,0.22)] justify-center gap-2 mt-2 disabled:opacity-50"
+                                  >
+                                    <span>{status === "loading" ? "Creating Account..." : "Create Account"}</span>
+                                    <IconArrowRight size={15} />
+                                  </button>
+
+                                  <div className="pt-2 text-center text-xs text-[#66716D]">
+                                    Already have an account?{" "}
+                                    <button
+                                      type="button"
+                                      onClick={() => switchAuthMode("sign_in")}
+                                      className="font-bold text-[#236B5B] hover:underline"
+                                    >
+                                      Sign in
+                                    </button>
+                                  </div>
+                                </form>
+                              )
+                            ) : (
+                              /* Sign In Mode */
+                              <form onSubmit={handlePasswordSignIn} className="space-y-4">
+                                <div>
+                                  <label htmlFor="auth-email" className="text-xs font-bold text-[#66716D] block mb-1">
+                                    Email Address
+                                  </label>
+                                  <input
+                                    id="auth-email"
+                                    type="email"
+                                    required
+                                    autoComplete="email"
+                                    disabled={status === "loading"}
+                                    value={email}
+                                    onChange={(e) => {
+                                      setEmail(e.target.value);
+                                      setErrorMessage("");
+                                    }}
+                                    placeholder="name@example.com"
+                                    className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                  />
+                                </div>
+
+                                <div>
+                                  <div className="flex items-center justify-between mb-1">
+                                    <label htmlFor="auth-password" className="text-xs font-bold text-[#66716D]">
+                                      Password
+                                    </label>
+                                    <button
+                                      type="button"
+                                      onClick={() => switchAuthMode("forgot_password")}
+                                      className="text-xs font-bold text-[#236B5B] hover:underline"
+                                    >
+                                      Forgot password?
+                                    </button>
+                                  </div>
+                                  <input
+                                    id="auth-password"
+                                    type="password"
+                                    required
+                                    autoComplete="current-password"
+                                    disabled={status === "loading"}
+                                    value={password}
+                                    onChange={(e) => {
+                                      setPassword(e.target.value);
+                                      setErrorMessage("");
+                                    }}
+                                    placeholder="••••••••"
+                                    className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                  />
+                                </div>
+
+                                <button
+                                  type="submit"
+                                  disabled={status === "loading"}
+                                  className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(35,107,91,0.22)] justify-center gap-2 mt-2 disabled:opacity-50"
+                                >
+                                  <span>{status === "loading" ? "Signing In..." : "Sign In"}</span>
+                                  <IconArrowRight size={15} />
+                                </button>
+
+                                <div className="pt-2 text-center text-xs text-[#66716D]">
+                                  Don&apos;t have an account?{" "}
+                                  <button
+                                    type="button"
+                                    onClick={() => switchAuthMode("create_account")}
+                                    className="font-bold text-[#236B5B] hover:underline"
+                                  >
+                                    Create account
+                                  </button>
+                                </div>
+                              </form>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Email / Magic Link UI (hidden for demo, underlying implementation preserved) */}
                     {SHOW_EMAIL_AUTH && (
                       <div className="mt-6 pt-6 border-t border-[rgba(24,33,30,0.08)]">
                         <div className="relative mb-5 text-center">
