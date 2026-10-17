@@ -50,10 +50,10 @@ export default async function StudentDashboardLayout({
       {!auth.isConfigured && (
         <div
           role="status"
-          className="bg-[#FFF7ED] border-b border-[rgba(55,48,40,0.10)] px-4 py-2 text-center text-xs text-[#6F6A62] font-semibold"
+          className="bg-[var(--tc-surface-muted)] border-b border-[var(--tc-border)] px-4 py-2 text-center text-xs text-[var(--tc-text-secondary)] font-semibold"
         >
-          <span className="text-[#315F52] font-bold">Workspace Preview:</span> Connect Supabase in{" "}
-          <code className="bg-white px-1.5 py-0.5 rounded border border-[rgba(55,48,40,0.10)]">.env.local</code> to activate live account authorization.
+          <span className="text-[var(--tc-primary)] font-bold">Workspace Preview:</span> Connect Supabase in{" "}
+          <code className="bg-[var(--tc-surface)] text-[var(--tc-text-primary)] px-1.5 py-0.5 rounded border border-[var(--tc-border)]">.env.local</code> to activate live account authorization.
         </div>
       )}
       {children}

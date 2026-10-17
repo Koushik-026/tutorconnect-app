@@ -82,8 +82,8 @@ export default async function TutorPendingPage() {
 
 function renderPendingUI(displayName: string, notes: string | null) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] transition-colors text-[var(--tc-text-primary)]">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Link href="/">
             <Logo />
@@ -91,7 +91,7 @@ function renderPendingUI(displayName: string, notes: string | null) {
           <form method="POST" action="/auth/signout">
             <button
               type="submit"
-              className="text-xs font-bold text-[#6F6A62] hover:text-[#DE765D] transition"
+              className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[#DE765D] transition"
             >
               Sign Out
             </button>
@@ -101,40 +101,40 @@ function renderPendingUI(displayName: string, notes: string | null) {
 
       <main className="flex-1 py-12 md:py-20 flex items-center">
         <div className="container-shell max-w-xl mx-auto w-full">
-          <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(55,48,40,0.04)] text-center space-y-6">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF7ED] border border-[rgba(55,48,40,0.10)] px-4 py-1.5 text-xs font-bold text-[#C84B31]">
+          <div className="rounded-3xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-7 sm:p-10 shadow-xs text-center space-y-6">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--tc-warning)]/10 border border-[var(--tc-border)] px-4 py-1.5 text-xs font-bold text-[var(--tc-warning)]">
               <IconClock size={14} />
               <span>Application Status: Pending Review</span>
             </div>
 
             <div>
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
                 Educator Application Under Review
               </h1>
-              <p className="mt-3 text-xs sm:text-sm text-[#6F6A62] leading-relaxed">
+              <p className="mt-3 text-xs sm:text-sm text-[var(--tc-text-secondary)] leading-relaxed">
                 Your educator application has been submitted and is awaiting review.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-5 text-left text-xs space-y-3">
+            <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-bg)] transition-colors p-5 text-left text-xs space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[#6F6A62]">Educator:</span>
-                <span className="font-bold text-[#25231F]">{displayName}</span>
+                <span className="text-[var(--tc-text-secondary)]">Educator:</span>
+                <span className="font-bold text-[var(--tc-text-primary)]">{displayName}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#6F6A62]">Role:</span>
-                <span className="font-bold text-[#25231F]">Tuition Educator</span>
+                <span className="text-[var(--tc-text-secondary)]">Role:</span>
+                <span className="font-bold text-[var(--tc-text-primary)]">Tuition Educator</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#6F6A62]">Current State:</span>
-                <span className="font-bold text-[#C84B31]">Pending Review</span>
+                <span className="text-[var(--tc-text-secondary)]">Current State:</span>
+                <span className="font-bold text-[var(--tc-warning)]">Pending Review</span>
               </div>
               {notes && (
-                <div className="border-t border-[rgba(55,48,40,0.06)] pt-3 text-[11px] text-[#6F6A62]">
-                  <strong className="text-[#25231F]">Reviewer Note:</strong> {notes}
+                <div className="border-t border-[var(--tc-border)] pt-3 text-[11px] text-[var(--tc-text-secondary)]">
+                  <strong className="text-[var(--tc-text-primary)]">Reviewer Note:</strong> {notes}
                 </div>
               )}
-              <div className="border-t border-[rgba(55,48,40,0.06)] pt-3 text-[11px] text-[#9B958C]">
+              <div className="border-t border-[var(--tc-border)] pt-3 text-[11px] text-[var(--tc-text-secondary)]">
                 Tutor workspace features are not enabled in this build yet.
               </div>
             </div>
@@ -163,8 +163,8 @@ function renderPendingUI(displayName: string, notes: string | null) {
 
 function renderRejectedUI(displayName: string, notes: string | null) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] transition-colors text-[var(--tc-text-primary)]">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Link href="/">
             <Logo />
@@ -172,7 +172,7 @@ function renderRejectedUI(displayName: string, notes: string | null) {
           <form method="POST" action="/auth/signout">
             <button
               type="submit"
-              className="text-xs font-bold text-[#6F6A62] hover:text-[#DE765D] transition"
+              className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[#DE765D] transition"
             >
               Sign Out
             </button>
@@ -182,33 +182,33 @@ function renderRejectedUI(displayName: string, notes: string | null) {
 
       <main className="flex-1 py-12 md:py-20 flex items-center">
         <div className="container-shell max-w-xl mx-auto w-full">
-          <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(55,48,40,0.04)] text-center space-y-6">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FCEEEA] border border-[rgba(55,48,40,0.10)] px-4 py-1.5 text-xs font-bold text-[#A6361E]">
+          <div className="rounded-3xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-7 sm:p-10 shadow-xs text-center space-y-6">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--tc-danger)]/10 border border-[var(--tc-border)] px-4 py-1.5 text-xs font-bold text-[var(--tc-danger)]">
               <IconX size={14} />
               <span>Application Status: Not Approved</span>
             </div>
 
             <div>
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
                 Application Status Update
               </h1>
-              <p className="mt-3 text-xs sm:text-sm text-[#6F6A62] leading-relaxed">
+              <p className="mt-3 text-xs sm:text-sm text-[var(--tc-text-secondary)] leading-relaxed">
                 Your educator application cannot be approved at this time.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-5 text-left text-xs space-y-3">
+            <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-bg)] transition-colors p-5 text-left text-xs space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[#6F6A62]">Educator:</span>
-                <span className="font-bold text-[#25231F]">{displayName}</span>
+                <span className="text-[var(--tc-text-secondary)]">Educator:</span>
+                <span className="font-bold text-[var(--tc-text-primary)]">{displayName}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#6F6A62]">Decision:</span>
-                <span className="font-bold text-[#A6361E]">Application Declined</span>
+                <span className="text-[var(--tc-text-secondary)]">Decision:</span>
+                <span className="font-bold text-[var(--tc-danger)]">Application Declined</span>
               </div>
               {notes && (
-                <div className="border-t border-[rgba(55,48,40,0.06)] pt-3 text-[11px] text-[#6F6A62]">
-                  <strong className="text-[#25231F]">Feedback Note:</strong> {notes}
+                <div className="border-t border-[var(--tc-border)] pt-3 text-[11px] text-[var(--tc-text-secondary)]">
+                  <strong className="text-[var(--tc-text-primary)]">Feedback Note:</strong> {notes}
                 </div>
               )}
             </div>
@@ -237,8 +237,8 @@ function renderRejectedUI(displayName: string, notes: string | null) {
 
 function renderSuspendedUI(displayName: string, notes: string | null) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] transition-colors text-[var(--tc-text-primary)]">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Link href="/">
             <Logo />
@@ -246,7 +246,7 @@ function renderSuspendedUI(displayName: string, notes: string | null) {
           <form method="POST" action="/auth/signout">
             <button
               type="submit"
-              className="text-xs font-bold text-[#6F6A62] hover:text-[#DE765D] transition"
+              className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[#DE765D] transition"
             >
               Sign Out
             </button>
@@ -256,24 +256,24 @@ function renderSuspendedUI(displayName: string, notes: string | null) {
 
       <main className="flex-1 py-12 md:py-20 flex items-center">
         <div className="container-shell max-w-xl mx-auto w-full">
-          <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(55,48,40,0.04)] text-center space-y-6">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FCEEEA] border border-[rgba(55,48,40,0.10)] px-4 py-1.5 text-xs font-bold text-[#A6361E]">
+          <div className="rounded-3xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-7 sm:p-10 shadow-xs text-center space-y-6">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--tc-danger)]/10 border border-[var(--tc-border)] px-4 py-1.5 text-xs font-bold text-[var(--tc-danger)]">
               <IconX size={14} />
               <span>Account Status: Suspended</span>
             </div>
 
             <div>
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
                 Account Access Suspended
               </h1>
-              <p className="mt-3 text-xs sm:text-sm text-[#6F6A62] leading-relaxed">
+              <p className="mt-3 text-xs sm:text-sm text-[var(--tc-text-secondary)] leading-relaxed">
                 Your educator account has been temporarily suspended.
               </p>
             </div>
 
             {notes && (
-              <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-4 text-left text-xs text-[#6F6A62]">
-                <strong className="text-[#25231F]">Notice:</strong> {notes}
+              <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-bg)] transition-colors p-4 text-left text-xs text-[var(--tc-text-secondary)]">
+                <strong className="text-[var(--tc-text-primary)]">Notice:</strong> {notes}
               </div>
             )}
 

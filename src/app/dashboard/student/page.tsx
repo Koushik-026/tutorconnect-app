@@ -14,7 +14,6 @@ import type {
 import {
   IconCalendar,
   IconClock,
-  IconShieldCheck,
   IconArrowRight,
   IconBookOpen,
   IconMessageSquare,
@@ -162,11 +161,11 @@ function StudentDashboardContent() {
   const tutorHeadline = activeEnrollment ? "Active Tuition Mentor" : "Mathematics &bull; 8+ Yrs Exp";
 
   return (
-    <div className="flex min-h-screen bg-[#FFFBF5] text-[#25231F]">
+    <div className="flex min-h-screen bg-[var(--tc-bg)] transition-colors text-[var(--tc-text-primary)]">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-5 right-5 z-50 rounded-2xl border border-[rgba(55,48,40,0.12)] bg-white p-4 shadow-xl text-xs font-semibold text-[#25231F] flex items-center gap-2 max-w-sm">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E4EEE9] text-[#244A40] shrink-0 font-bold">
+        <div className="fixed top-5 right-5 z-50 rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-4 shadow-xl text-xs font-semibold text-[var(--tc-text-primary)] flex items-center gap-2 max-w-sm">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--tc-soft-primary)] text-[var(--tc-primary)] shrink-0 font-bold">
             i
           </span>
           <span>{toastMessage}</span>
@@ -174,8 +173,8 @@ function StudentDashboardContent() {
       )}
 
       {/* Desktop Persistent Quiet Sidebar (w-64) */}
-      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-[rgba(55,48,40,0.08)] bg-white z-30">
-        <div className="flex h-18 items-center px-6 border-b border-[rgba(55,48,40,0.06)]">
+      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-[var(--tc-border)] bg-[var(--tc-surface)] z-30">
+        <div className="flex h-18 items-center px-6 border-b border-[var(--tc-border)]">
           <Logo />
         </div>
 
@@ -189,8 +188,8 @@ function StudentDashboardContent() {
                   href={item.href}
                   className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-xs font-bold transition-all ${
                     item.active
-                      ? "bg-[#E4EEE9] text-[#244A40] shadow-2xs"
-                      : "text-[#6F6A62] hover:bg-[#FFFBF5] hover:text-[#25231F]"
+                      ? "bg-[var(--tc-soft-primary)] text-[var(--tc-primary)] shadow-2xs"
+                      : "text-[var(--tc-text-secondary)] hover:bg-[var(--tc-bg)] transition-colors hover:text-[var(--tc-text-primary)]"
                   }`}
                 >
                   <NavIcon type={item.icon} size={16} />
@@ -208,7 +207,7 @@ function StudentDashboardContent() {
                     `${item.label} workspace will be connected in upcoming platform modules.`
                   )
                 }
-                className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-xs font-bold text-[#6F6A62] hover:bg-[#FFFBF5] hover:text-[#25231F] transition-colors text-left"
+                className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-xs font-bold text-[var(--tc-text-secondary)] hover:bg-[var(--tc-bg)] transition-colors hover:text-[var(--tc-text-primary)] transition-colors text-left"
               >
                 <NavIcon type={item.icon} size={16} />
                 <span>{item.label}</span>
@@ -218,21 +217,21 @@ function StudentDashboardContent() {
         </nav>
 
         {/* Sidebar Bottom Profile Snapshot */}
-        <div className="p-4 border-t border-[rgba(55,48,40,0.08)] space-y-2">
-          <div className="flex items-center gap-3 rounded-2xl bg-[#FFFBF5] p-3 border border-[rgba(55,48,40,0.08)]">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#315F52] font-extrabold text-white text-xs">
+        <div className="p-4 border-t border-[var(--tc-border)] space-y-2">
+          <div className="flex items-center gap-3 rounded-2xl bg-[var(--tc-bg)] transition-colors p-3 border border-[var(--tc-border)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--tc-primary)] font-extrabold text-white text-xs">
               {learnerInitials || "TC"}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-bold text-[#25231F]">{learnerName}</p>
-              <p className="truncate text-[11px] text-[#6F6A62]">
+              <p className="truncate text-xs font-bold text-[var(--tc-text-primary)]">{learnerName}</p>
+              <p className="truncate text-[11px] text-[var(--tc-text-secondary)]">
                 {profile?.class_level || "Class 9"} &bull; {profile?.board || "CBSE"}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-2 pt-1 text-[11px] text-[#6F6A62]">
-            <Link href="/dashboard/student/sessions" className="hover:text-[#25231F]">
+          <div className="flex items-center justify-between px-2 pt-1 text-[11px] text-[var(--tc-text-secondary)]">
+            <Link href="/dashboard/student/sessions" className="hover:text-[var(--tc-text-primary)]">
               My Sessions
             </Link>
             <span>&bull;</span>
@@ -251,16 +250,16 @@ function StudentDashboardContent() {
       {/* Main Workspace */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0 pb-28 lg:pb-16">
         {/* Mobile Top Header */}
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-[rgba(55,48,40,0.08)] bg-white/95 px-4 backdrop-blur-md lg:hidden">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/95 px-4 backdrop-blur-md lg:hidden">
           <Logo />
           <div className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#315F52] text-xs font-extrabold text-white">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--tc-primary)] text-xs font-extrabold text-white">
               {learnerInitials || "TC"}
             </span>
             <form method="POST" action="/auth/signout">
               <button
                 type="submit"
-                className="text-xs font-bold text-[#6F6A62] hover:text-[#DE765D] transition"
+                className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[#DE765D] transition"
               >
                 Sign Out
               </button>
@@ -272,18 +271,18 @@ function StudentDashboardContent() {
           {/* Welcome & State Banner */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#315F52]">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-[var(--tc-primary)]">
                 My Learning Space
               </span>
-              <h1 className="mt-1 font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+              <h1 className="mt-1 font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
                 Welcome back, {learnerName}.
               </h1>
-              <p className="mt-1 text-xs sm:text-sm text-[#6F6A62]">
+              <p className="mt-1 text-xs sm:text-sm text-[var(--tc-text-secondary)]">
                 {isModeActive
                   ? "Your active tuition rhythm is on track. Keep up the steady weekly momentum!"
                   : hasLiveDemo
                   ? `Your free 30-minute diagnostic demo with ${tutorDisplayName} is scheduled.`
-                  : "Explore verified educators and book a free 30-minute demo to begin."}
+                  : "Explore educators and book a free 30-minute demo to begin."}
               </p>
             </div>
 
@@ -298,26 +297,26 @@ function StudentDashboardContent() {
           </div>
 
           {/* 1. DOMINANT NEXT-CLASS / DEMO COMPOSITION */}
-          <section className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-6 sm:p-8 md:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.03)]">
+          <section className="rounded-3xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-6 sm:p-8 md:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.03)]">
             <div className="grid gap-8 lg:grid-cols-12 items-center">
               {/* Left Portion: Session Focus & Topic */}
               <div className="lg:col-span-7 space-y-3">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-[#E3EADD] px-3 py-0.5 text-xs font-bold text-[#244A40]">
+                  <span className="rounded-full bg-[var(--tc-soft-primary)] px-3 py-0.5 text-xs font-bold text-[var(--tc-primary)]">
                     {nextSession
                       ? "Next Scheduled Class"
                       : upcomingDemo
                       ? "Upcoming Free Demo"
                       : "Tuition Overview"}
                   </span>
-                  <span className="text-xs font-semibold text-[#6F6A62]">
+                  <span className="text-xs font-semibold text-[var(--tc-text-secondary)]">
                     {isModeActive
                       ? `Class ${completedClasses + 1} of ${totalClasses}`
                       : "30-Minute Online Demo"}
                   </span>
                 </div>
 
-                <h2 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F] leading-tight">
+                <h2 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)] leading-tight">
                   {nextSession
                     ? `${nextSession.subject} with ${nextSession.tutor_name}`
                     : upcomingDemo
@@ -325,17 +324,17 @@ function StudentDashboardContent() {
                     : "No Upcoming Classes Scheduled"}
                 </h2>
 
-                <p className="text-xs sm:text-sm text-[#6F6A62] leading-relaxed max-w-xl">
+                <p className="text-xs sm:text-sm text-[var(--tc-text-secondary)] leading-relaxed max-w-xl">
                   {nextSession
                     ? `Continuing syllabus coverage. Session mode: ${nextSession.session_mode === "home" ? "Home In-person" : "1-on-1 Online"}.`
                     : upcomingDemo
                     ? `Diagnostic demo session. Purpose: ${upcomingDemo.learning_goal || "Evaluate teaching style and subject comfort."}`
-                    : "Schedule a free demo with any of our verified educators to explore concepts before selecting a routine."}
+                    : "Schedule a free demo with any of our educators to explore concepts before selecting a routine."}
                 </p>
 
                 {(nextSession || upcomingDemo) && (
-                  <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-semibold text-[#25231F]">
-                    <span className="flex items-center gap-1.5 text-[#244A40]">
+                  <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-semibold text-[var(--tc-text-primary)]">
+                    <span className="flex items-center gap-1.5 text-[var(--tc-primary)]">
                       <IconCalendar size={14} />
                       <span>
                         {new Date(
@@ -347,7 +346,7 @@ function StudentDashboardContent() {
                         })}
                       </span>
                     </span>
-                    <span className="flex items-center gap-1.5 text-[#244A40]">
+                    <span className="flex items-center gap-1.5 text-[var(--tc-primary)]">
                       <IconClock size={14} />
                       <span>
                         {new Date(
@@ -364,9 +363,9 @@ function StudentDashboardContent() {
               </div>
 
               {/* Right Supporting Portion: Tutor & Action */}
-              <div className="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-[rgba(55,48,40,0.08)] pt-6 lg:pt-0 lg:pl-8 space-y-4">
+              <div className="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-[var(--tc-border)] pt-6 lg:pt-0 lg:pl-8 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E4EEE9] text-base font-extrabold text-[#244A40]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--tc-soft-primary)] text-base font-extrabold text-[var(--tc-primary)]">
                     {tutorDisplayName
                       .split(" ")
                       .map((w) => w[0])
@@ -375,10 +374,10 @@ function StudentDashboardContent() {
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-bold text-[#25231F]">{tutorDisplayName}</p>
-                      <span className="text-[#315F52]"><IconShieldCheck size={16} /></span>
+                      <p className="text-sm font-bold text-[var(--tc-text-primary)]">{tutorDisplayName}</p>
+                      
                     </div>
-                    <p className="text-xs text-[#6F6A62]">{tutorHeadline}</p>
+                    <p className="text-xs text-[var(--tc-text-secondary)]">{tutorHeadline}</p>
                   </div>
                 </div>
 
@@ -392,12 +391,12 @@ function StudentDashboardContent() {
                       >
                         Join Class
                       </button>
-                      <p className="text-[10px] text-center text-[#9B958C]">
+                      <p className="text-[10px] text-center text-[var(--tc-text-secondary)]">
                         Video room available in demo mode / coming next
                       </p>
                     </div>
                   ) : (
-                    <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFF7ED] p-3 text-center text-xs font-semibold text-[#6F6A62]">
+                    <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] p-3 text-center text-xs font-semibold text-[var(--tc-text-secondary)]">
                       Home tuition visit scheduled
                     </div>
                   )
@@ -414,7 +413,7 @@ function StudentDashboardContent() {
                     href="/tutors"
                     className="btn btn-primary w-full min-h-[46px] rounded-full text-xs font-bold justify-center"
                   >
-                    <span>Browse Verified Tutors</span>
+                    <span>Browse Tutors</span>
                   </Link>
                 )}
               </div>
@@ -423,51 +422,51 @@ function StudentDashboardContent() {
 
           {/* 2. TUITION RHYTHM & PACKAGE PROGRESS */}
           {isModeActive && (
-            <section className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-5">
+            <section className="rounded-3xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-5">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                  <h3 className="font-[family-name:var(--font-manrope)] text-lg font-extrabold text-[#25231F]">
+                  <h3 className="font-[family-name:var(--font-manrope)] text-lg font-extrabold text-[var(--tc-text-primary)]">
                     Active Learning Package &bull; Class Ledger
                   </h3>
-                  <p className="text-xs text-[#6F6A62]">
+                  <p className="text-xs text-[var(--tc-text-secondary)]">
                     Audited class consumption for active enrollment
                   </p>
                 </div>
-                <span className="self-start rounded-full bg-[#E4EEE9] px-3 py-1 text-xs font-bold text-[#244A40]">
+                <span className="self-start rounded-full bg-[var(--tc-soft-primary)] px-3 py-1 text-xs font-bold text-[var(--tc-primary)]">
                   {remainingClasses} of {totalClasses} Classes Remaining
                 </span>
               </div>
 
               {/* Progress Bar */}
               <div className="space-y-1.5">
-                <div className="h-3 w-full rounded-full bg-[#FFF7ED] overflow-hidden">
+                <div className="h-3 w-full rounded-full bg-[var(--tc-surface-muted)] overflow-hidden">
                   <div
-                    className="h-full bg-[#315F52] rounded-full transition-all duration-500"
+                    className="h-full bg-[var(--tc-primary)] rounded-full transition-all duration-500"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[11px] font-semibold text-[#6F6A62]">
+                <div className="flex justify-between text-[11px] font-semibold text-[var(--tc-text-secondary)]">
                   <span>{completedClasses} classes audited &amp; completed</span>
                   <span>{progressPercent}% completed</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
-                <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
-                  <span className="text-[#9B958C] font-bold block mb-0.5">TOTAL CLASSES</span>
-                  <p className="font-extrabold text-base text-[#25231F]">{totalClasses}</p>
+                <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-bg)] transition-colors p-3.5">
+                  <span className="text-[var(--tc-text-secondary)] font-bold block mb-0.5">TOTAL CLASSES</span>
+                  <p className="font-extrabold text-base text-[var(--tc-text-primary)]">{totalClasses}</p>
                 </div>
-                <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
-                  <span className="text-[#9B958C] font-bold block mb-0.5">REMAINING</span>
-                  <p className="font-extrabold text-base text-[#244A40]">{remainingClasses}</p>
+                <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-bg)] transition-colors p-3.5">
+                  <span className="text-[var(--tc-text-secondary)] font-bold block mb-0.5">REMAINING</span>
+                  <p className="font-extrabold text-base text-[var(--tc-primary)]">{remainingClasses}</p>
                 </div>
-                <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
-                  <span className="text-[#9B958C] font-bold block mb-0.5">CLASS DURATION</span>
-                  <p className="font-extrabold text-base text-[#25231F]">60 Mins</p>
+                <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-bg)] transition-colors p-3.5">
+                  <span className="text-[var(--tc-text-secondary)] font-bold block mb-0.5">CLASS DURATION</span>
+                  <p className="font-extrabold text-base text-[var(--tc-text-primary)]">60 Mins</p>
                 </div>
-                <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-3.5">
-                  <span className="text-[#9B958C] font-bold block mb-0.5">VALIDITY</span>
-                  <p className="font-extrabold text-base text-[#25231F]">45 Days</p>
+                <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-bg)] transition-colors p-3.5">
+                  <span className="text-[var(--tc-text-secondary)] font-bold block mb-0.5">VALIDITY</span>
+                  <p className="font-extrabold text-base text-[var(--tc-text-primary)]">45 Days</p>
                 </div>
               </div>
             </section>
@@ -477,39 +476,39 @@ function StudentDashboardContent() {
           <section className="grid gap-4 sm:grid-cols-3">
             <Link
               href="/dashboard/student/sessions"
-              className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-5 hover:border-[#315F52]/40 transition group"
+              className="rounded-3xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-5 hover:border-[var(--tc-primary)]/40 transition group"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E4EEE9] text-[#244A40] mb-3 group-hover:scale-105 transition-transform">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--tc-soft-primary)] text-[var(--tc-primary)] mb-3 group-hover:scale-105 transition-transform">
                 <IconCalendar size={18} />
               </div>
-              <h4 className="text-xs font-bold text-[#25231F]">My Schedule</h4>
-              <p className="text-[11px] text-[#6F6A62] mt-0.5">
+              <h4 className="text-xs font-bold text-[var(--tc-text-primary)]">My Schedule</h4>
+              <p className="text-[11px] text-[var(--tc-text-secondary)] mt-0.5">
                 Review upcoming classes and audit completed sessions
               </p>
             </Link>
 
             <Link
               href="/packages/select"
-              className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-5 hover:border-[#315F52]/40 transition group"
+              className="rounded-3xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-5 hover:border-[var(--tc-primary)]/40 transition group"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF7ED] text-[#315F52] mb-3 group-hover:scale-105 transition-transform">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--tc-soft-primary)] text-[var(--tc-primary)] mb-3 group-hover:scale-105 transition-transform">
                 <IconCreditCard size={18} />
               </div>
-              <h4 className="text-xs font-bold text-[#25231F]">Class Packages</h4>
-              <p className="text-[11px] text-[#6F6A62] mt-0.5">
+              <h4 className="text-xs font-bold text-[var(--tc-text-primary)]">Class Packages</h4>
+              <p className="text-[11px] text-[var(--tc-text-secondary)] mt-0.5">
                 Explore 8, 12, or 15 class learning packages
               </p>
             </Link>
 
             <Link
               href="/tutors"
-              className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-5 hover:border-[#315F52]/40 transition group"
+              className="rounded-3xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-5 hover:border-[var(--tc-primary)]/40 transition group"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FBE2D8] text-[#BA5945] mb-3 group-hover:scale-105 transition-transform">
                 <IconSearch size={18} />
               </div>
-              <h4 className="text-xs font-bold text-[#25231F]">Discover Mentors</h4>
-              <p className="text-[11px] text-[#6F6A62] mt-0.5">
+              <h4 className="text-xs font-bold text-[var(--tc-text-primary)]">Discover Mentors</h4>
+              <p className="text-[11px] text-[var(--tc-text-secondary)] mt-0.5">
                 Browse educators across CBSE, ICSE, and State boards
               </p>
             </Link>
@@ -522,7 +521,7 @@ function StudentDashboardContent() {
 
 export default function StudentDashboardPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FFFBF5]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[var(--tc-bg)] transition-colors" />}>
       <StudentDashboardContent />
     </Suspense>
   );

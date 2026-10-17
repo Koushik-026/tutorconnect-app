@@ -30,41 +30,41 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-[#315F52] hover:bg-[#244A40] active:bg-[#1C3B33] text-white shadow-[0_4px_16px_rgba(49,95,82,0.20)] hover:shadow-[0_6px_20px_rgba(49,95,82,0.26)] active:scale-[0.985] hover:-translate-y-0.5 border border-transparent",
+    "bg-[var(--tc-primary)] hover:bg-[var(--tc-primary-hover)] active:bg-[var(--tc-primary-hover)] text-white shadow-xs hover:shadow-sm active:scale-[0.98] hover:-translate-y-0.5 border border-transparent",
   forest:
-    "bg-[#315F52] hover:bg-[#244A40] active:bg-[#1C3B33] text-white shadow-[0_4px_16px_rgba(49,95,82,0.20)] hover:shadow-[0_6px_20px_rgba(49,95,82,0.26)] active:scale-[0.985] hover:-translate-y-0.5 border border-transparent",
+    "bg-[var(--tc-primary)] hover:bg-[var(--tc-primary-hover)] active:bg-[var(--tc-primary-hover)] text-white shadow-xs hover:shadow-sm active:scale-[0.98] hover:-translate-y-0.5 border border-transparent",
   secondary:
-    "bg-[#E4EEE9] hover:bg-[#D5E3DC] active:bg-[#C5D7CF] text-[#244A40] border border-[#315F52]/20 hover:border-[#315F52]/35 active:scale-[0.985] hover:-translate-y-0.5",
+    "bg-[var(--tc-surface)] hover:bg-[var(--tc-soft-primary)] active:bg-[var(--tc-soft-primary)] text-[var(--tc-primary)] border border-[var(--tc-border)] hover:border-[var(--tc-primary)]/30 active:scale-[0.98] hover:-translate-y-0.5 shadow-2xs",
   accent:
-    "bg-[#DE765D] hover:bg-[#BA5945] active:bg-[#9E4533] text-white shadow-[0_4px_16px_rgba(222,118,93,0.20)] hover:shadow-[0_6px_20px_rgba(222,118,93,0.26)] active:scale-[0.985] hover:-translate-y-0.5 border border-transparent",
+    "bg-[var(--tc-teal)] hover:bg-[#0D9488] active:bg-[#0F766E] text-white shadow-xs hover:shadow-sm active:scale-[0.98] hover:-translate-y-0.5 border border-transparent",
   coral:
-    "bg-[#DE765D] hover:bg-[#BA5945] active:bg-[#9E4533] text-white shadow-[0_4px_16px_rgba(222,118,93,0.20)] hover:shadow-[0_6px_20px_rgba(222,118,93,0.26)] active:scale-[0.985] hover:-translate-y-0.5 border border-transparent",
+    "bg-[var(--tc-teal)] hover:bg-[#0D9488] active:bg-[#0F766E] text-white shadow-xs hover:shadow-sm active:scale-[0.98] hover:-translate-y-0.5 border border-transparent",
   outline:
-    "bg-white hover:bg-[#FFF7ED] active:bg-[#FCEBD5] text-[#25231F] hover:text-[#25231F] border border-[rgba(55,48,40,0.12)] hover:border-[#315F52]/40 shadow-[0_2px_8px_rgba(0,0,0,0.02)] active:scale-[0.985] hover:-translate-y-0.5",
+    "bg-transparent hover:bg-[var(--tc-soft-primary)] active:bg-[var(--tc-soft-primary)] text-[var(--tc-text-primary)] hover:text-[var(--tc-primary)] border border-[var(--tc-border)] hover:border-[var(--tc-primary)]/35 active:scale-[0.98] hover:-translate-y-0.5",
   ghost:
-    "bg-transparent hover:bg-[#E4EEE9]/60 active:bg-[#E4EEE9] text-[#6F6A62] hover:text-[#25231F] border border-transparent",
+    "bg-transparent hover:bg-[var(--tc-surface-muted)] active:bg-[var(--tc-surface-muted)] text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] border border-transparent",
   danger:
-    "bg-[#C84B31] hover:bg-[#B33E26] active:bg-[#99311B] text-white shadow-sm hover:shadow-[0_4px_14px_rgba(200,75,49,0.22)] active:scale-[0.985] hover:-translate-y-0.5 border border-transparent",
+    "bg-[var(--tc-danger)] hover:bg-[#B91C1C] active:bg-[#991B1B] text-white shadow-xs active:scale-[0.98] hover:-translate-y-0.5 border border-transparent",
   /* Backward compatibility aliases */
   plum:
-    "bg-[#315F52] hover:bg-[#244A40] active:bg-[#1C3B33] text-white shadow-[0_4px_16px_rgba(49,95,82,0.20)] hover:shadow-[0_6px_20px_rgba(49,95,82,0.26)] active:scale-[0.985] hover:-translate-y-0.5 border border-transparent",
+    "bg-[var(--tc-primary)] hover:bg-[var(--tc-primary-hover)] text-white shadow-xs border border-transparent",
   sage:
-    "bg-[#315F52] hover:bg-[#244A40] active:bg-[#1C3B33] text-white shadow-[0_4px_16px_rgba(49,95,82,0.20)] hover:shadow-[0_6px_20px_rgba(49,95,82,0.26)] active:scale-[0.985] hover:-translate-y-0.5 border border-transparent",
+    "bg-[var(--tc-teal)] hover:bg-[#0D9488] text-white shadow-xs border border-transparent",
   teal:
-    "bg-[#315F52] hover:bg-[#244A40] active:bg-[#1C3B33] text-white shadow-[0_4px_16px_rgba(49,95,82,0.20)] hover:shadow-[0_6px_20px_rgba(49,95,82,0.26)] active:scale-[0.985] hover:-translate-y-0.5 border border-transparent",
+    "bg-[var(--tc-teal)] hover:bg-[#0D9488] text-white shadow-xs border border-transparent",
   peach:
-    "bg-[#DE765D] hover:bg-[#BA5945] active:bg-[#9E4533] text-white shadow-[0_4px_16px_rgba(222,118,93,0.20)] hover:shadow-[0_6px_20px_rgba(222,118,93,0.26)] active:scale-[0.985] hover:-translate-y-0.5 border border-transparent",
+    "bg-[var(--tc-primary)] hover:bg-[var(--tc-primary-hover)] text-white shadow-xs border border-transparent",
 };
 
 const familyRadiusClasses: Record<ButtonFamily, string> = {
   marketing: "rounded-full",
-  action: "rounded-2xl",
+  action: "rounded-xl",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "min-h-[38px] px-4 py-1.5 text-xs font-bold gap-1.5",
-  md: "min-h-[46px] px-5 py-2.5 text-sm font-bold gap-2",
-  lg: "min-h-[52px] px-7 py-3.5 text-base font-extrabold gap-2.5",
+  sm: "min-h-[36px] px-3.5 py-1.5 text-xs font-semibold gap-1.5",
+  md: "min-h-[44px] px-5 py-2 text-sm font-semibold gap-2",
+  lg: "min-h-[50px] px-7 py-3 text-base font-bold gap-2.5",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -89,7 +89,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         type={type}
         disabled={disabled}
-        className={`inline-flex items-center justify-center transition-all duration-150 cursor-pointer select-none font-[inherit] leading-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#315F52] focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none ${familyRadiusClasses[family]} ${variantClasses[variant]} ${sizeClasses[size]} ${fullWidth ? "w-full" : ""} ${className}`}
+        className={`inline-flex items-center justify-center transition-all duration-180 cursor-pointer select-none font-[inherit] leading-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--tc-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--tc-bg)] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none ${familyRadiusClasses[family]} ${variantClasses[variant]} ${sizeClasses[size]} ${fullWidth ? "w-full" : ""} ${className}`}
         {...props}
       >
         {leftIcon && <span className="shrink-0">{leftIcon}</span>}

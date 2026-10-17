@@ -152,11 +152,11 @@ export default function MySessionsPage() {
       : cancelledSessions;
 
   return (
-    <div className="flex min-h-screen bg-[#FFFBF5] text-[#25231F]">
+    <div className="flex min-h-screen bg-[var(--tc-bg)] text-[var(--tc-text-primary)] transition-colors">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-5 right-5 z-50 rounded-2xl border border-[rgba(55,48,40,0.12)] bg-white p-4 shadow-xl text-xs font-semibold text-[#25231F] flex items-center gap-2 max-w-sm">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E4EEE9] text-[#244A40] shrink-0 font-bold">
+        <div className="fixed top-5 right-5 z-50 rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-4 shadow-xl text-xs font-semibold text-[var(--tc-text-primary)] flex items-center gap-2 max-w-sm">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--tc-soft-primary)] text-[var(--tc-primary)] shrink-0 font-bold">
             ✓
           </span>
           <span>{toastMessage}</span>
@@ -164,8 +164,8 @@ export default function MySessionsPage() {
       )}
 
       {/* Desktop Persistent Sidebar */}
-      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-[rgba(55,48,40,0.08)] bg-white z-30">
-        <div className="flex h-18 items-center px-6 border-b border-[rgba(55,48,40,0.06)]">
+      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-[var(--tc-border)] bg-[var(--tc-surface)] z-30">
+        <div className="flex h-18 items-center px-6 border-b border-[var(--tc-border)]">
           <Logo />
         </div>
 
@@ -177,8 +177,8 @@ export default function MySessionsPage() {
                 href={item.href}
                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition ${
                   item.active
-                    ? "bg-[#315F52] text-white shadow-xs"
-                    : "text-[#6F6A62] hover:bg-[#FFF7ED] hover:text-[#25231F]"
+                    ? "bg-[var(--tc-primary)] text-white shadow-xs"
+                    : "text-[var(--tc-text-secondary)] hover:bg-[var(--tc-surface-muted)] hover:text-[var(--tc-text-primary)]"
                 }`}
               >
                 <NavIcon type={item.icon} size={16} />
@@ -187,10 +187,10 @@ export default function MySessionsPage() {
             ))}
           </nav>
 
-          <div className="border-t border-[rgba(55,48,40,0.08)] pt-4 space-y-2">
+          <div className="border-t border-[var(--tc-border)] pt-4 space-y-2">
             <Link
               href="/dashboard/student"
-              className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-[#6F6A62] hover:text-[#25231F]"
+              className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)]"
             >
               <IconArrowLeft size={14} />
               <span>Back to Learning Space</span>
@@ -202,15 +202,15 @@ export default function MySessionsPage() {
       {/* Main Container */}
       <div className="lg:pl-64 flex flex-col flex-1">
         {/* Top Header */}
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-[rgba(55,48,40,0.08)] bg-white/80 px-6 backdrop-blur-md">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/80 px-6 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard/student"
-              className="lg:hidden text-xs font-bold text-[#6F6A62]"
+              className="lg:hidden text-xs font-bold text-[var(--tc-text-secondary)]"
             >
               &larr; Workspace
             </Link>
-            <h1 className="font-[family-name:var(--font-manrope)] text-lg font-extrabold text-[#25231F]">
+            <h1 className="font-[family-name:var(--font-manrope)] text-lg font-extrabold text-[var(--tc-text-primary)]">
               My Scheduled Sessions
             </h1>
           </div>
@@ -227,14 +227,14 @@ export default function MySessionsPage() {
 
         <main className="flex-1 p-6 md:p-8 space-y-6 max-w-5xl">
           {/* Tabs Filter */}
-          <div className="flex items-center gap-2 border-b border-[rgba(55,48,40,0.08)] pb-3">
+          <div className="flex items-center gap-2 border-b border-[var(--tc-border)] pb-3">
             <button
               type="button"
               onClick={() => setActiveTab("upcoming")}
               className={`rounded-full px-4 py-2 text-xs font-bold transition ${
                 activeTab === "upcoming"
-                  ? "bg-[#315F52] text-white shadow-xs"
-                  : "bg-white text-[#6F6A62] border border-[rgba(55,48,40,0.10)] hover:text-[#25231F]"
+                  ? "bg-[var(--tc-primary)] text-white shadow-xs"
+                  : "bg-[var(--tc-surface)] text-[var(--tc-text-secondary)] border border-[var(--tc-border)] hover:text-[var(--tc-text-primary)]"
               }`}
             >
               Upcoming ({upcomingSessions.length})
@@ -245,8 +245,8 @@ export default function MySessionsPage() {
               onClick={() => setActiveTab("completed")}
               className={`rounded-full px-4 py-2 text-xs font-bold transition ${
                 activeTab === "completed"
-                  ? "bg-[#315F52] text-white shadow-xs"
-                  : "bg-white text-[#6F6A62] border border-[rgba(55,48,40,0.10)] hover:text-[#25231F]"
+                  ? "bg-[var(--tc-primary)] text-white shadow-xs"
+                  : "bg-[var(--tc-surface)] text-[var(--tc-text-secondary)] border border-[var(--tc-border)] hover:text-[var(--tc-text-primary)]"
               }`}
             >
               Completed ({completedSessions.length})
@@ -257,8 +257,8 @@ export default function MySessionsPage() {
               onClick={() => setActiveTab("cancelled")}
               className={`rounded-full px-4 py-2 text-xs font-bold transition ${
                 activeTab === "cancelled"
-                  ? "bg-[#315F52] text-white shadow-xs"
-                  : "bg-white text-[#6F6A62] border border-[rgba(55,48,40,0.10)] hover:text-[#25231F]"
+                  ? "bg-[var(--tc-primary)] text-white shadow-xs"
+                  : "bg-[var(--tc-surface)] text-[var(--tc-text-secondary)] border border-[var(--tc-border)] hover:text-[var(--tc-text-primary)]"
               }`}
             >
               Cancelled ({cancelledSessions.length})
@@ -267,18 +267,18 @@ export default function MySessionsPage() {
 
           {/* Session Cards List */}
           {isLoading ? (
-            <div className="rounded-3xl border border-[rgba(55,48,40,0.08)] bg-white p-12 text-center text-xs font-semibold text-[#6F6A62]">
+            <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-12 text-center text-xs font-semibold text-[var(--tc-text-secondary)]">
               Loading sessions...
             </div>
           ) : displayedSessions.length === 0 ? (
-            <div className="rounded-3xl border border-[rgba(55,48,40,0.08)] bg-white p-12 text-center space-y-4">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFF7ED] text-[#315F52]">
+            <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-12 text-center space-y-4">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--tc-soft-primary)] text-[var(--tc-primary)]">
                 <IconCalendar size={22} />
               </div>
-              <h2 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-[#25231F]">
+              <h2 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-[var(--tc-text-primary)]">
                 No {activeTab} sessions found
               </h2>
-              <p className="text-xs text-[#6F6A62] max-w-sm mx-auto">
+              <p className="text-xs text-[var(--tc-text-secondary)] max-w-sm mx-auto">
                 {activeTab === "upcoming"
                   ? "Book a free demo or activate a tuition package to schedule 1-on-1 classes with your mentor."
                   : "Completed classes and audit ledger records will appear here as your routine progresses."}
@@ -308,12 +308,12 @@ export default function MySessionsPage() {
                 return (
                   <div
                     key={session.id}
-                    className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-6"
+                    className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-6"
                   >
                     {/* Left: Info */}
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-[#E4EEE9] px-2.5 py-0.5 text-xs font-bold text-[#244A40]">
+                        <span className="rounded-full bg-[var(--tc-soft-primary)] border border-[var(--tc-primary)]/15 px-2.5 py-0.5 text-xs font-bold text-[var(--tc-primary)]">
                           {session.subject}
                         </span>
                         {isOnline && (
@@ -328,18 +328,18 @@ export default function MySessionsPage() {
                             <span>Home Tuition</span>
                           </span>
                         )}
-                        <span className="rounded-full bg-[#FFF7ED] px-2 py-0.5 text-[11px] font-semibold text-[#6F6A62]">
+                        <span className="rounded-full bg-[var(--tc-surface-muted)] border border-[var(--tc-border)] px-2 py-0.5 text-[11px] font-semibold text-[var(--tc-text-secondary)]">
                           Status: {session.status}
                         </span>
                       </div>
 
-                      <h3 className="font-[family-name:var(--font-manrope)] text-base font-extrabold text-[#25231F]">
+                      <h3 className="font-[family-name:var(--font-manrope)] text-base font-extrabold text-[var(--tc-text-primary)]">
                         {session.subject} with {session.tutor_name}
                       </h3>
 
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-[#6F6A62]">
-                        <span className="flex items-center gap-1.5 font-bold text-[#25231F]">
-                          <IconCalendar size={13} className="text-[#315F52]" />
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--tc-text-secondary)]">
+                        <span className="flex items-center gap-1.5 font-bold text-[var(--tc-text-primary)]">
+                          <IconCalendar size={13} className="text-[var(--tc-primary)]" />
                           {startDate.toLocaleDateString("en-IN", {
                             weekday: "short",
                             month: "short",
@@ -348,7 +348,7 @@ export default function MySessionsPage() {
                           })}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <IconClock size={13} className="text-[#315F52]" />
+                          <IconClock size={13} className="text-[var(--tc-primary)]" />
                           {startDate.toLocaleTimeString("en-IN", {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -383,7 +383,7 @@ export default function MySessionsPage() {
 
                       {/* Home Session: STRICT RULE - NEVER show Join Class button */}
                       {isHome && session.status === "scheduled" && (
-                        <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFF7ED] px-4 py-2 text-center text-xs text-[#6F6A62] font-semibold">
+                        <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-2 text-center text-xs text-[var(--tc-text-secondary)] font-semibold">
                           In-person home visit scheduled
                         </div>
                       )}
@@ -394,14 +394,14 @@ export default function MySessionsPage() {
                           type="button"
                           disabled={isPending}
                           onClick={() => handleCompleteSession(session.id)}
-                          className="btn btn-outline min-h-[44px] px-4 rounded-full text-xs font-bold justify-center hover:bg-[#E4EEE9] hover:border-[#315F52]"
+                          className="btn btn-outline min-h-[44px] px-4 rounded-full text-xs font-bold justify-center hover:bg-[var(--tc-soft-primary)] hover:border-[var(--tc-primary)]"
                         >
                           Mark Completed (Test Ledger)
                         </button>
                       )}
 
                       {session.status === "completed" && (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold text-[#244A40] bg-[#E3EADD] px-3.5 py-1.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-[var(--tc-primary)] bg-[var(--tc-soft-primary)] border border-[var(--tc-primary)]/20 px-3.5 py-1.5 rounded-full">
                           <IconCheck size={14} />
                           <span>Ledger Audited &bull; Completed</span>
                         </span>

@@ -106,10 +106,10 @@ export function DemoSessionClient({
   };
 
   return (
-    <div className="flex h-screen flex-col bg-[#25231F] text-white">
+    <div className="flex h-screen flex-col bg-[#111827] text-white">
       {/* Simulation Banner */}
-      <div className="bg-[#FFFBF5] text-[#25231F] text-center px-4 py-1.5 text-xs font-semibold border-b border-[rgba(55,48,40,0.10)] flex items-center justify-center gap-2">
-        <span className="rounded-full bg-[#E3EADD] px-2 py-0.5 text-[10px] font-bold text-[#244A40]">
+      <div className="bg-[var(--tc-surface-muted)] text-[var(--tc-text-primary)] text-center px-4 py-1.5 text-xs font-semibold border-b border-[var(--tc-border)] flex items-center justify-center gap-2">
+        <span className="rounded-full bg-[var(--tc-soft-primary)] px-2 py-0.5 text-[10px] font-bold text-[var(--tc-primary)]">
           Interactive Demo Room Preview
         </span>
         <span>Audio/video streams, whiteboard, and chat are simulated for preview purposes.</span>
@@ -201,7 +201,7 @@ export function DemoSessionClient({
               type="button"
               onClick={() => setMicrophoneOn((p) => !p)}
               className={"flex items-center gap-2 rounded-full px-4 min-h-[44px] text-xs font-bold transition-all " + (
-                microphoneOn ? "bg-white/10 hover:bg-white/20 text-white" : "bg-[#C84B31] text-white"
+                microphoneOn ? "bg-white/10 hover:bg-white/20 text-white" : "bg-[var(--tc-danger)] text-white"
               )}
             >
               {microphoneOn ? <IconMic size={16} /> : <IconMicOff size={16} />}
@@ -212,7 +212,7 @@ export function DemoSessionClient({
               type="button"
               onClick={() => setCameraOn((p) => !p)}
               className={"flex items-center gap-2 rounded-full px-4 min-h-[44px] text-xs font-bold transition-all " + (
-                cameraOn ? "bg-white/10 hover:bg-white/20 text-white" : "bg-[#C84B31] text-white"
+                cameraOn ? "bg-white/10 hover:bg-white/20 text-white" : "bg-[var(--tc-danger)] text-white"
               )}
             >
               {cameraOn ? <IconVideo size={16} /> : <IconVideoOff size={16} />}
@@ -223,7 +223,7 @@ export function DemoSessionClient({
               type="button"
               onClick={() => setScreenSharing((p) => !p)}
               className={"flex items-center gap-2 rounded-full px-4 min-h-[44px] text-xs font-bold transition-all " + (
-                screenSharing ? "bg-[#315F52] text-white" : "bg-white/10 hover:bg-white/20 text-white"
+                screenSharing ? "bg-[var(--tc-primary)] text-white" : "bg-white/10 hover:bg-white/20 text-white"
               )}
             >
               <IconScreenShare size={16} />
@@ -234,7 +234,7 @@ export function DemoSessionClient({
               type="button"
               onClick={() => setChatOpen((p) => !p)}
               className={"flex items-center gap-2 rounded-full px-4 min-h-[44px] text-xs font-bold transition-all " + (
-                chatOpen ? "bg-white text-[#25231F]" : "bg-white/10 hover:bg-white/20 text-white"
+                chatOpen ? "bg-[var(--tc-primary)] text-white" : "bg-white/10 hover:bg-white/20 text-white"
               )}
             >
               <IconMessageSquare size={16} />
@@ -277,7 +277,7 @@ export function DemoSessionClient({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type a response..."
-                className="flex-1 min-h-[44px] rounded-xl border border-white/15 bg-white/5 px-3 text-xs text-white placeholder-white/40 focus:border-[#315F52] focus:outline-hidden"
+                className="flex-1 min-h-[44px] rounded-xl border border-white/15 bg-white/5 px-3 text-xs text-white placeholder-white/40 focus:border-[var(--tc-primary)] focus:outline-hidden"
               />
               <button
                 type="submit"
@@ -293,18 +293,18 @@ export function DemoSessionClient({
       {/* Leave Confirmation Dialog */}
       {leaveDialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-[#25231F] text-center shadow-xl space-y-4">
+          <div className="w-full max-w-sm rounded-2xl bg-[var(--tc-surface)] border border-[var(--tc-border)] p-6 text-[var(--tc-text-primary)] text-center shadow-xl space-y-4">
             <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold">
               Leave Demo Session?
             </h3>
-            <p className="text-xs text-[#6F6A62] leading-relaxed">
+            <p className="text-xs text-[var(--tc-text-secondary)] leading-relaxed">
               We hope this 1-on-1 demo gave you a clear feel for the educator&apos;s teaching tempo. Take 30 seconds to share brief feedback and explore package options.
             </p>
             <div className="flex gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setLeaveDialogOpen(false)}
-                className="flex-1 min-h-[44px] rounded-xl border border-[rgba(55,48,40,0.15)] text-xs font-bold hover:bg-black/5"
+                className="flex-1 min-h-[44px] rounded-xl border border-[var(--tc-border)] text-xs font-bold hover:bg-[var(--tc-surface-muted)] text-[var(--tc-text-primary)]"
               >
                 Stay in Demo
               </button>

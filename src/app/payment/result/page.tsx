@@ -76,8 +76,8 @@ function PaymentResultContent() {
   const method = purchase?.payment_method || "UPI";
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] text-[var(--tc-text-primary)] transition-colors">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Link href="/">
             <Logo />
@@ -85,14 +85,14 @@ function PaymentResultContent() {
           {status === "success" ? (
             <Link
               href="/dashboard/student"
-              className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
+              className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] transition"
             >
               Go to Workspace &rarr;
             </Link>
           ) : (
             <Link
               href="/tutors"
-              className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
+              className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] transition"
             >
               Explore Tutors &rarr;
             </Link>
@@ -103,43 +103,43 @@ function PaymentResultContent() {
       <main className="flex-1 py-12 md:py-20 flex items-center">
         <div className="container-shell max-w-lg mx-auto w-full">
           {/* Centered Receipt/Status Object */}
-          <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.03)] text-center">
+          <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-7 sm:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.03)] text-center">
             {status === "success" ? (
               <>
                 {/* Sage Tinted Status Badge */}
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-4 py-1.5 text-xs font-bold text-[#244A40] mb-5">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--tc-teal)]/10 border border-[var(--tc-teal)]/20 px-4 py-1.5 text-xs font-bold text-[var(--tc-teal)] mb-5">
                   <IconCheck size={14} />
                   <span>Tuition Package Activated</span>
                 </div>
 
-                <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+                <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
                   Payment Received
                 </h1>
-                <p className="mt-2 text-xs text-[#6F6A62]">
-                  Your learning package with <strong className="text-[#25231F]">{purchase?.tutor_name || tutor.name}</strong> is now active in your student workspace.
+                <p className="mt-2 text-xs text-[var(--tc-text-secondary)]">
+                  Your learning package with <strong className="text-[var(--tc-text-primary)]">{purchase?.tutor_name || tutor.name}</strong> is now active in your student workspace.
                 </p>
 
                 {/* Receipt Card */}
-                <div className="mt-6 rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-5 text-left space-y-3 text-xs">
+                <div className="mt-6 rounded-xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] p-5 text-left space-y-3 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-[#6F6A62]">Package:</span>
-                    <span className="font-bold text-[#25231F]">{classes} Classes (60m each)</span>
+                    <span className="text-[var(--tc-text-secondary)]">Package:</span>
+                    <span className="font-bold text-[var(--tc-text-primary)]">{classes} Classes (60m each)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#6F6A62]">Validity:</span>
-                    <span className="font-bold text-[#25231F]">45 Days</span>
+                    <span className="text-[var(--tc-text-secondary)]">Validity:</span>
+                    <span className="font-bold text-[var(--tc-text-primary)]">45 Days</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#6F6A62]">Amount Paid:</span>
-                    <span className="font-bold text-[#25231F]">{formatCurrency(amount)}</span>
+                    <span className="text-[var(--tc-text-secondary)]">Amount Paid:</span>
+                    <span className="font-bold text-[var(--tc-text-primary)]">{formatCurrency(amount)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#6F6A62]">Method:</span>
-                    <span className="font-bold text-[#25231F]">{method}</span>
+                    <span className="text-[var(--tc-text-secondary)]">Method:</span>
+                    <span className="font-bold text-[var(--tc-text-primary)]">{method}</span>
                   </div>
-                  <div className="flex justify-between border-t border-[rgba(55,48,40,0.06)] pt-2">
-                    <span className="text-[#9B958C]">Transaction Ref:</span>
-                    <span className="font-mono text-[#6F6A62]">{transaction}</span>
+                  <div className="flex justify-between border-t border-[var(--tc-border)] pt-2">
+                    <span className="text-[var(--tc-text-secondary)]">Transaction Ref:</span>
+                    <span className="font-mono text-[var(--tc-text-secondary)]">{transaction}</span>
                   </div>
                 </div>
 
@@ -163,15 +163,15 @@ function PaymentResultContent() {
             ) : (
               <>
                 {/* Soft Danger Tint Status Badge */}
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FCEEEA] px-4 py-1.5 text-xs font-bold text-[#A6361E] mb-5">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--tc-danger)]/10 border border-[var(--tc-danger)]/20 px-4 py-1.5 text-xs font-bold text-[var(--tc-danger)] mb-5">
                   <IconX size={14} />
                   <span>Payment Simulation Incomplete</span>
                 </div>
 
-                <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+                <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
                   Transaction Incomplete
                 </h1>
-                <p className="mt-2 text-xs text-[#6F6A62]">
+                <p className="mt-2 text-xs text-[var(--tc-text-secondary)]">
                   The simulated transaction was declined. No funds were charged.
                 </p>
 
@@ -185,7 +185,7 @@ function PaymentResultContent() {
 
                   <Link
                     href="/tutors"
-                    className="text-xs font-semibold text-[#6F6A62] hover:text-[#25231F] transition"
+                    className="text-xs font-semibold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] transition"
                   >
                     Explore Other Educators
                   </Link>
@@ -201,7 +201,7 @@ function PaymentResultContent() {
 
 export default function PaymentResultPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FFFBF5]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[var(--tc-bg)]" />}>
       <PaymentResultContent />
     </Suspense>
   );

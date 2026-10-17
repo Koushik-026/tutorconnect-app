@@ -64,13 +64,13 @@ function DemoFeedbackInner() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] text-[var(--tc-text-primary)] transition-colors">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href={`/packages/select?tutor=${encodeURIComponent(tutorSlug)}`}
-            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
+            className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] transition"
           >
             View Tuition Packages &rarr;
           </Link>
@@ -82,18 +82,18 @@ function DemoFeedbackInner() {
           {/* Compact Centered Feedback Object */}
           <form
             onSubmit={handleSubmit}
-            className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.03)] text-center space-y-6"
+            className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-7 sm:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.03)] text-center space-y-6"
           >
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-3.5 py-1 text-xs font-bold text-[#244A40]">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--tc-teal)]/10 border border-[var(--tc-teal)]/20 px-3.5 py-1 text-xs font-bold text-[var(--tc-teal)]">
               <IconCheck size={14} />
               <span>Demo Session Completed</span>
             </div>
 
             <div>
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
                 How was your demo session?
               </h1>
-              <p className="mt-2 text-xs sm:text-sm text-[#6F6A62]">
+              <p className="mt-2 text-xs sm:text-sm text-[var(--tc-text-secondary)]">
                 Your feedback helps us curate the right learning rhythm for your child.
               </p>
             </div>
@@ -113,8 +113,8 @@ function DemoFeedbackInner() {
                     size={36}
                     className={`${
                       star <= (hoveredRating || rating)
-                        ? "text-[#F1B777] fill-[#D4A328]"
-                        : "text-[rgba(55,48,40,0.18)]"
+                        ? "text-[var(--tc-warning)] fill-[var(--tc-warning)]"
+                        : "text-[var(--tc-border)]"
                     } transition-colors`}
                   />
                 </button>
@@ -122,8 +122,8 @@ function DemoFeedbackInner() {
             </div>
 
             {/* Quick Feedback Tags */}
-            <div className="text-left space-y-2 border-t border-[rgba(55,48,40,0.08)] pt-5">
-              <span className="text-xs font-bold text-[#6F6A62] block">
+            <div className="text-left space-y-2 border-t border-[var(--tc-border)] pt-5">
+              <span className="text-xs font-bold text-[var(--tc-text-secondary)] block">
                 What stood out? (Select all that apply)
               </span>
               <div className="flex flex-wrap gap-2">
@@ -136,8 +136,8 @@ function DemoFeedbackInner() {
                       onClick={() => toggleTag(tag)}
                       className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
                         selected
-                          ? "bg-[#315F52] text-white shadow-xs"
-                          : "bg-[#FFFBF5] border border-[rgba(55,48,40,0.10)] text-[#6F6A62] hover:text-[#25231F]"
+                          ? "bg-[var(--tc-primary)] text-white shadow-xs"
+                          : "bg-[var(--tc-surface-muted)] border border-[var(--tc-border)] text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)]"
                       }`}
                     >
                       {tag}
@@ -149,7 +149,7 @@ function DemoFeedbackInner() {
 
             {/* Optional Note */}
             <div className="text-left">
-              <label className="text-xs font-bold text-[#6F6A62] block mb-1">
+              <label className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-1">
                 Additional Comments (Optional)
               </label>
               <textarea
@@ -157,12 +157,12 @@ function DemoFeedbackInner() {
                 value={feedbackText}
                 onChange={(e) => setFeedbackText(e.target.value)}
                 placeholder="Share any specific syllabus topics or questions..."
-                className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] p-3 text-xs text-[#25231F] focus:border-[#315F52] focus:outline-hidden"
+                className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] p-3 text-xs text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden"
               />
             </div>
 
             {/* Clear Transition to Class Packages */}
-            <div className="pt-2 border-t border-[rgba(55,48,40,0.08)]">
+            <div className="pt-2 border-t border-[var(--tc-border)]">
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -171,7 +171,7 @@ function DemoFeedbackInner() {
                 <span>{isSubmitting ? "Saving..." : "Continue to Class Packages"}</span>
                 <IconArrowRight size={15} />
               </button>
-              <p className="mt-2.5 text-[11px] text-[#9B958C]">
+              <p className="mt-2.5 text-[11px] text-[var(--tc-text-secondary)]">
                 Establish your steady weekly learning rhythm with 8, 12, or 15 classes
               </p>
             </div>
@@ -184,7 +184,7 @@ function DemoFeedbackInner() {
 
 export default function DemoFeedbackPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FFFBF5]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[var(--tc-bg)]" />}>
       <DemoFeedbackInner />
     </Suspense>
   );

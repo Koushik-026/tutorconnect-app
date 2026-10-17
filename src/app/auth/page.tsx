@@ -506,13 +506,13 @@ function AuthInner() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FCFDFE] text-[#18211E]">
-      <header className="border-b border-[rgba(24,33,30,0.08)] bg-white/88 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] transition-colors text-[var(--tc-text-primary)]">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/88 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href="/"
-            className="text-xs font-bold text-[#66716D] hover:text-[#18211E] transition"
+            className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] transition"
           >
             &larr; Back to Home
           </Link>
@@ -524,29 +524,29 @@ function AuthInner() {
           <div className="grid gap-12 lg:grid-cols-12 items-center">
             {/* Left Column: Context & Simple Factual Messaging */}
             <div className="lg:col-span-5 space-y-6">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B]">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--tc-primary)]">
                 {role === "student" ? "Student & Parent" : "Tutor Portal"}
               </p>
 
-              <h1 className="font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#18211E] leading-[1.15]">
+              <h1 className="font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--tc-text-primary)] leading-[1.15]">
                 {role === "student"
                   ? "Manage your tutoring journey in one place."
                   : "Join TutorConnect as a tutor."}
               </h1>
 
-              <p className="text-sm leading-relaxed text-[#66716D]">
+              <p className="text-sm leading-relaxed text-[var(--tc-text-secondary)]">
                 {role === "student"
                   ? "Sign in to explore tutors, book demos, and manage your learning schedule."
                   : "Sign in to continue your tutor profile and application."}
               </p>
 
-              <div className="space-y-3 pt-2 text-xs font-medium text-[#66716D]">
+              <div className="space-y-3 pt-2 text-xs font-medium text-[var(--tc-text-secondary)]">
                 <div className="flex items-center gap-2">
-                  <IconCheck size={14} className="text-[#236B5B]" />
+                  <IconCheck size={14} className="text-[var(--tc-primary)]" />
                   <span>Quick, secure sign-in with your Google account</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <IconCheck size={14} className="text-[#236B5B]" />
+                  <IconCheck size={14} className="text-[var(--tc-primary)]" />
                   <span>
                     {role === "student"
                       ? "Book 30-minute demos and manage your lesson calendar"
@@ -558,9 +558,9 @@ function AuthInner() {
 
             {/* Right Column: Focused Auth Card */}
             <div className="lg:col-span-7">
-              <div className="rounded-3xl border border-[rgba(24,33,30,0.08)] bg-white p-7 sm:p-9 shadow-[0_8px_32px_rgba(24,33,30,0.04)]">
+              <div className="rounded-3xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-7 sm:p-9 shadow-xs">
                 {/* Role Intent Switcher */}
-                <div className="flex rounded-full bg-[#F4F8FB] p-1 border border-[rgba(24,33,30,0.08)] mb-6">
+                <div className="flex rounded-full bg-[var(--tc-surface-muted)] p-1 border border-[var(--tc-border)] mb-6">
                   <button
                     type="button"
                     onClick={() => {
@@ -575,8 +575,8 @@ function AuthInner() {
                     className={
                       "flex-1 rounded-full py-2.5 text-xs font-bold transition-all text-center " +
                       (role === "student"
-                        ? "bg-[#236B5B] text-white shadow-xs"
-                        : "text-[#66716D] hover:text-[#18211E]")
+                        ? "bg-[var(--tc-primary)] text-white shadow-xs"
+                        : "text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)]")
                     }
                   >
                     Student / Parent
@@ -595,8 +595,8 @@ function AuthInner() {
                     className={
                       "flex-1 rounded-full py-2.5 text-xs font-bold transition-all text-center " +
                       (role === "tutor"
-                        ? "bg-[#236B5B] text-white shadow-xs"
-                        : "text-[#66716D] hover:text-[#18211E]")
+                        ? "bg-[var(--tc-primary)] text-white shadow-xs"
+                        : "text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)]")
                     }
                   >
                     Educator / Tutor
@@ -604,7 +604,7 @@ function AuthInner() {
                 </div>
 
                 <div className="mb-6">
-                  <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#18211E]">
+                  <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[var(--tc-text-primary)]">
                     {authMode === "forgot_password"
                       ? "Reset your password"
                       : authMode === "create_account"
@@ -615,7 +615,7 @@ function AuthInner() {
                       ? "Sign in as Student or Parent"
                       : "Sign in as Tutor"}
                   </h2>
-                  <p className="mt-1 text-xs text-[#66716D]">
+                  <p className="mt-1 text-xs text-[var(--tc-text-secondary)]">
                     {authMode === "forgot_password"
                       ? "Enter your account email to receive a recovery link."
                       : role === "student"
@@ -628,7 +628,7 @@ function AuthInner() {
                 {errorMessage && (
                   <div
                     role="alert"
-                    className="mb-5 rounded-2xl border border-[#C84B31]/25 bg-[#FCEEEA] p-4 text-xs font-medium text-[#C84B31]"
+                    className="mb-5 rounded-2xl border border-[var(--tc-danger)]/20 bg-[var(--tc-danger)]/10 p-4 text-xs font-medium text-[var(--tc-danger)]"
                   >
                     {errorMessage}
                   </div>
@@ -637,21 +637,21 @@ function AuthInner() {
                 {/* State: Email Sent with OTP Fallback (retained internally for email flows) */}
                 {status === "email_sent" ? (
                   <div className="space-y-6">
-                    <div className="rounded-2xl border border-[#236B5B]/20 bg-[#E2F5EC]/50 p-6 text-center space-y-3">
-                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#236B5B] text-white">
+                    <div className="rounded-2xl border border-[var(--tc-primary)]/20 bg-[var(--tc-soft-primary)]/50 p-6 text-center space-y-3">
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--tc-primary)] text-white">
                         <IconCheck size={20} />
                       </div>
-                      <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-[#18211E]">
+                      <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-[var(--tc-text-primary)]">
                         Check your email
                       </h3>
-                      <p className="text-xs text-[#66716D] leading-relaxed max-w-sm mx-auto">
-                        We sent a secure magic link and 6-digit verification code to <strong className="text-[#18211E]">{email}</strong>. Click the link in your email to sign in immediately.
+                      <p className="text-xs text-[var(--tc-text-secondary)] leading-relaxed max-w-sm mx-auto">
+                        We sent a secure magic link and 6-digit verification code to <strong className="text-[var(--tc-text-primary)]">{email}</strong>. Click the link in your email to sign in immediately.
                       </p>
                     </div>
 
-                    <div className="rounded-2xl border border-[rgba(24,33,30,0.08)] bg-white p-5 sm:p-6 space-y-4">
+                    <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-5 sm:p-6 space-y-4">
                       <div className="text-center space-y-1">
-                        <p className="text-xs font-semibold text-[#18211E]">
+                        <p className="text-xs font-semibold text-[var(--tc-text-primary)]">
                           Link not working? Enter the 6-digit code from the email.
                         </p>
                       </div>
@@ -661,7 +661,7 @@ function AuthInner() {
                         <div>
                           <label
                             htmlFor="auth-otp"
-                            className="text-xs font-bold text-[#66716D] block mb-2 text-center"
+                            className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-2 text-center"
                           >
                             6-Digit Verification Code
                           </label>
@@ -681,14 +681,14 @@ function AuthInner() {
                               setOtpError("");
                             }}
                             placeholder="------"
-                            className="w-full max-w-xs mx-auto block rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-center text-xl sm:text-2xl font-mono font-bold tracking-[0.35em] text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                            className="w-full max-w-xs mx-auto block rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-3 text-center text-xl sm:text-2xl font-mono font-bold tracking-[0.35em] text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden focus:ring-2 focus:ring-[var(--tc-primary)]/15 transition min-h-[48px]"
                           />
                         </div>
 
                         {otpError && (
                           <div
                             role="alert"
-                            className="rounded-xl border border-[#C84B31]/25 bg-[#FCEEEA] p-3 text-xs font-medium text-[#C84B31] text-center"
+                            className="rounded-xl border border-[var(--tc-danger)]/20 bg-[var(--tc-danger)]/10 p-3 text-xs font-medium text-[var(--tc-danger)] text-center"
                           >
                             {otpError}
                           </div>
@@ -697,7 +697,7 @@ function AuthInner() {
                         {resendNotice && (
                           <div
                             role="status"
-                            className="rounded-xl border border-[#236B5B]/20 bg-[#E2F5EC] p-3 text-xs font-medium text-[#1A5247] text-center"
+                            className="rounded-xl border border-[var(--tc-primary)]/20 bg-[var(--tc-soft-primary)] p-3 text-xs font-medium text-[var(--tc-primary)] text-center"
                           >
                             {resendNotice}
                           </div>
@@ -714,12 +714,12 @@ function AuthInner() {
                       </form>
 
                       {/* Manual Resend & Different Email options */}
-                      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs border-t border-[rgba(24,33,30,0.06)] pt-4">
+                      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs border-t border-[var(--tc-border)] pt-4">
                         <button
                           type="button"
                           disabled={isResending || resendCooldown > 0}
                           onClick={handleResendOtp}
-                          className="font-bold text-[#236B5B] hover:underline disabled:opacity-50 disabled:no-underline min-h-[44px] inline-flex items-center"
+                          className="font-bold text-[var(--tc-primary)] hover:underline disabled:opacity-50 disabled:no-underline min-h-[44px] inline-flex items-center"
                         >
                           {resendCooldown > 0
                             ? ("Resend code in " + resendCooldown + "s")
@@ -737,7 +737,7 @@ function AuthInner() {
                             setResendNotice("");
                             setErrorMessage("");
                           }}
-                          className="font-semibold text-[#66716D] hover:text-[#18211E] min-h-[44px] inline-flex items-center"
+                          className="font-semibold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] min-h-[44px] inline-flex items-center"
                         >
                           Use a different email
                         </button>
@@ -750,7 +750,7 @@ function AuthInner() {
                           <div className="space-y-4">
                             <div
                               role="status"
-                              className="rounded-2xl border border-[#236B5B]/20 bg-[#E2F5EC] p-4 text-xs font-medium text-[#1A5247]"
+                              className="rounded-2xl border border-[var(--tc-primary)]/20 bg-[var(--tc-soft-primary)] p-4 text-xs font-medium text-[var(--tc-primary)]"
                             >
                               {resetNotice}
                             </div>
@@ -765,7 +765,7 @@ function AuthInner() {
                         ) : (
                           <form onSubmit={handleForgotPassword} className="space-y-4">
                             <div>
-                              <label htmlFor="auth-email" className="text-xs font-bold text-[#66716D] block mb-1">
+                              <label htmlFor="auth-email" className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-1">
                                 Email Address
                               </label>
                               <input
@@ -780,7 +780,7 @@ function AuthInner() {
                                   setErrorMessage("");
                                 }}
                                 placeholder="name@example.com"
-                                className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-3 text-sm font-semibold text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden focus:ring-2 focus:ring-[var(--tc-primary)]/15 transition min-h-[48px]"
                               />
                             </div>
 
@@ -797,7 +797,7 @@ function AuthInner() {
                               <button
                                 type="button"
                                 onClick={() => switchAuthMode("sign_in")}
-                                className="text-xs font-bold text-[#236B5B] hover:underline"
+                                className="text-xs font-bold text-[var(--tc-primary)] hover:underline"
                               >
                                 &larr; Back to sign in
                               </button>
@@ -812,24 +812,24 @@ function AuthInner() {
                           type="button"
                           disabled={status === "loading"}
                           onClick={handleGoogleSignIn}
-                          className="btn btn-outline w-full min-h-[50px] rounded-full text-sm font-bold gap-3 justify-center border border-[rgba(24,33,30,0.12)] bg-white text-[#18211E] hover:border-[#236B5B]/40 hover:bg-[#F4F8FB] transition disabled:opacity-50 shadow-xs"
+                          className="btn btn-outline w-full min-h-[50px] rounded-full text-sm font-bold gap-3 justify-center border border-[var(--tc-border)] bg-[var(--tc-surface)] text-[var(--tc-text-primary)] hover:border-[var(--tc-primary)]/40 hover:bg-[var(--tc-surface-muted)] transition disabled:opacity-50 shadow-xs"
                         >
                           <GoogleIcon />
                           <span>{status === "loading" ? "Connecting to Google..." : "Continue with Google"}</span>
                         </button>
 
-                        <p className="mt-4 text-center text-xs text-[#9BAAA5]">
+                        <p className="mt-4 text-center text-xs text-[var(--tc-text-secondary)]">
                           Secure, fast sign-in using your Google account.
                         </p>
 
                         {/* Email + Password Authentication Forms (active only when feature flag is enabled) */}
                         {isEmailPasswordEnabled && (
-                          <div className="mt-6 pt-6 border-t border-[rgba(24,33,30,0.08)]">
+                          <div className="mt-6 pt-6 border-t border-[var(--tc-border)]">
                             <div className="relative mb-5 text-center">
                               <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-[rgba(24,33,30,0.08)]" />
+                                <div className="w-full border-t border-[var(--tc-border)]" />
                               </div>
-                              <span className="relative bg-white px-3 text-[11px] font-semibold text-[#9BAAA5]">
+                              <span className="relative bg-[var(--tc-surface)] px-3 text-[11px] font-semibold text-[var(--tc-text-secondary)]">
                                 {authMode === "create_account"
                                   ? "or register with email"
                                   : "or with email & password"}
@@ -839,7 +839,7 @@ function AuthInner() {
                             {passwordError && (
                               <div
                                 role="alert"
-                                className="mb-4 rounded-xl border border-[#C84B31]/25 bg-[#FCEEEA] p-3 text-xs font-medium text-[#C84B31]"
+                                className="mb-4 rounded-xl border border-[var(--tc-danger)]/20 bg-[var(--tc-danger)]/10 p-3 text-xs font-medium text-[var(--tc-danger)]"
                               >
                                 {passwordError}
                               </div>
@@ -850,7 +850,7 @@ function AuthInner() {
                                 <div className="space-y-4">
                                   <div
                                     role="status"
-                                    className="rounded-2xl border border-[#236B5B]/20 bg-[#E2F5EC] p-4 text-xs font-medium text-[#1A5247]"
+                                    className="rounded-2xl border border-[var(--tc-primary)]/20 bg-[var(--tc-soft-primary)] p-4 text-xs font-medium text-[var(--tc-primary)]"
                                   >
                                     {signupNotice}
                                   </div>
@@ -865,7 +865,7 @@ function AuthInner() {
                               ) : (
                                 <form onSubmit={handlePasswordSignUp} className="space-y-4">
                                   <div>
-                                    <label htmlFor="auth-email" className="text-xs font-bold text-[#66716D] block mb-1">
+                                    <label htmlFor="auth-email" className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-1">
                                       Email Address
                                     </label>
                                     <input
@@ -880,12 +880,12 @@ function AuthInner() {
                                         setErrorMessage("");
                                       }}
                                       placeholder="name@example.com"
-                                      className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                      className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-3 text-sm font-semibold text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden focus:ring-2 focus:ring-[var(--tc-primary)]/15 transition min-h-[48px]"
                                     />
                                   </div>
 
                                   <div>
-                                    <label htmlFor="auth-password" className="text-xs font-bold text-[#66716D] block mb-1">
+                                    <label htmlFor="auth-password" className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-1">
                                       Password
                                     </label>
                                     <input
@@ -902,12 +902,12 @@ function AuthInner() {
                                         setErrorMessage("");
                                       }}
                                       placeholder="At least 8 characters"
-                                      className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                      className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-3 text-sm font-semibold text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden focus:ring-2 focus:ring-[var(--tc-primary)]/15 transition min-h-[48px]"
                                     />
                                   </div>
 
                                   <div>
-                                    <label htmlFor="auth-confirm-password" className="text-xs font-bold text-[#66716D] block mb-1">
+                                    <label htmlFor="auth-confirm-password" className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-1">
                                       Confirm Password
                                     </label>
                                     <input
@@ -924,7 +924,7 @@ function AuthInner() {
                                         setErrorMessage("");
                                       }}
                                       placeholder="Re-enter your password"
-                                      className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                      className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-3 text-sm font-semibold text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden focus:ring-2 focus:ring-[var(--tc-primary)]/15 transition min-h-[48px]"
                                     />
                                   </div>
 
@@ -937,12 +937,12 @@ function AuthInner() {
                                     <IconArrowRight size={15} />
                                   </button>
 
-                                  <div className="pt-2 text-center text-xs text-[#66716D]">
+                                  <div className="pt-2 text-center text-xs text-[var(--tc-text-secondary)]">
                                     Already have an account?{" "}
                                     <button
                                       type="button"
                                       onClick={() => switchAuthMode("sign_in")}
-                                      className="font-bold text-[#236B5B] hover:underline"
+                                      className="font-bold text-[var(--tc-primary)] hover:underline"
                                     >
                                       Sign in
                                     </button>
@@ -953,7 +953,7 @@ function AuthInner() {
                               /* Sign In Mode */
                               <form onSubmit={handlePasswordSignIn} className="space-y-4">
                                 <div>
-                                  <label htmlFor="auth-email" className="text-xs font-bold text-[#66716D] block mb-1">
+                                  <label htmlFor="auth-email" className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-1">
                                     Email Address
                                   </label>
                                   <input
@@ -968,19 +968,19 @@ function AuthInner() {
                                       setErrorMessage("");
                                     }}
                                     placeholder="name@example.com"
-                                    className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                    className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-3 text-sm font-semibold text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden focus:ring-2 focus:ring-[var(--tc-primary)]/15 transition min-h-[48px]"
                                   />
                                 </div>
 
                                 <div>
                                   <div className="flex items-center justify-between mb-1">
-                                    <label htmlFor="auth-password" className="text-xs font-bold text-[#66716D]">
+                                    <label htmlFor="auth-password" className="text-xs font-bold text-[var(--tc-text-secondary)]">
                                       Password
                                     </label>
                                     <button
                                       type="button"
                                       onClick={() => switchAuthMode("forgot_password")}
-                                      className="text-xs font-bold text-[#236B5B] hover:underline"
+                                      className="text-xs font-bold text-[var(--tc-primary)] hover:underline"
                                     >
                                       Forgot password?
                                     </button>
@@ -997,7 +997,7 @@ function AuthInner() {
                                       setErrorMessage("");
                                     }}
                                     placeholder="••••••••"
-                                    className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                                    className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-3 text-sm font-semibold text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden focus:ring-2 focus:ring-[var(--tc-primary)]/15 transition min-h-[48px]"
                                   />
                                 </div>
 
@@ -1010,12 +1010,12 @@ function AuthInner() {
                                   <IconArrowRight size={15} />
                                 </button>
 
-                                <div className="pt-2 text-center text-xs text-[#66716D]">
+                                <div className="pt-2 text-center text-xs text-[var(--tc-text-secondary)]">
                                   Don&apos;t have an account?{" "}
                                   <button
                                     type="button"
                                     onClick={() => switchAuthMode("create_account")}
-                                    className="font-bold text-[#236B5B] hover:underline"
+                                    className="font-bold text-[var(--tc-primary)] hover:underline"
                                   >
                                     Create account
                                   </button>
@@ -1027,19 +1027,19 @@ function AuthInner() {
 
                         {/* Email / Magic Link UI (hidden for demo, underlying implementation preserved) */}
                     {SHOW_EMAIL_AUTH && (
-                      <div className="mt-6 pt-6 border-t border-[rgba(24,33,30,0.08)]">
+                      <div className="mt-6 pt-6 border-t border-[var(--tc-border)]">
                         <div className="relative mb-5 text-center">
                           <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-[rgba(24,33,30,0.08)]" />
+                            <div className="w-full border-t border-[var(--tc-border)]" />
                           </div>
-                          <span className="relative bg-white px-3 text-[11px] font-semibold text-[#9BAAA5]">
+                          <span className="relative bg-[var(--tc-surface)] px-3 text-[11px] font-semibold text-[var(--tc-text-secondary)]">
                             or with email magic link
                           </span>
                         </div>
 
                         <form onSubmit={handleMagicLinkSubmit} className="space-y-4">
                           <div>
-                            <label htmlFor="auth-email" className="text-xs font-bold text-[#66716D] block mb-1">
+                            <label htmlFor="auth-email" className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-1">
                               Email Address
                             </label>
                             <input
@@ -1050,7 +1050,7 @@ function AuthInner() {
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
                               placeholder="name@example.com"
-                              className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition"
+                              className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-3 text-sm font-semibold text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden focus:ring-2 focus:ring-[var(--tc-primary)]/15 transition"
                             />
                           </div>
 
@@ -1078,7 +1078,7 @@ function AuthInner() {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FCFDFE]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[var(--tc-bg)] transition-colors" />}>
       <AuthInner />
     </Suspense>
   );

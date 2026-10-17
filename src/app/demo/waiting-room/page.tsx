@@ -96,31 +96,31 @@ function WaitingRoomInner() {
   return (
     <div className="container-shell max-w-4xl mx-auto w-full py-8">
       {/* Simulation Warning Banner */}
-      <div className="mb-6 rounded-2xl bg-[#FFF7ED] border border-[rgba(55,48,40,0.10)] px-4 py-2.5 text-xs text-[#6F6A62] text-center">
-        <span className="font-bold text-[#25231F]">Demo Room Preview:</span> Testing audio &amp; camera hardware locally. No external video streaming service is active during this preview.
+      <div className="mb-6 rounded-2xl bg-[var(--tc-surface-muted)] border border-[var(--tc-border)] px-4 py-2.5 text-xs text-[var(--tc-text-secondary)] text-center">
+        <span className="font-bold text-[var(--tc-text-primary)]">Demo Room Preview:</span> Testing audio &amp; camera hardware locally. No external video streaming service is active during this preview.
       </div>
 
       <div className="text-center max-w-xl mx-auto mb-8">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-3.5 py-1 text-xs font-bold text-[#244A40] mb-3">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--tc-soft-primary)] border border-[var(--tc-primary)]/20 px-3.5 py-1 text-xs font-bold text-[var(--tc-primary)] mb-3">
           <IconClock size={13} />
           <span>{timingLabel}</span>
         </span>
-        <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+        <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
           Online Demo Waiting Room
         </h1>
-        <p className="mt-2 text-xs sm:text-sm text-[#6F6A62]">
+        <p className="mt-2 text-xs sm:text-sm text-[var(--tc-text-secondary)]">
           Verify your camera and microphone preview before entering the demo room with{" "}
-          <strong className="text-[#25231F]">{tutorName}</strong>.
+          <strong className="text-[var(--tc-text-primary)]">{tutorName}</strong>.
         </p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-12 items-center">
         {/* Large Camera Preview */}
         <div className="lg:col-span-8">
-          <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-[rgba(55,48,40,0.12)] bg-[#25231F] shadow-[0_12px_40px_rgba(0,0,0,0.06)] flex flex-col justify-between p-5 text-white">
+          <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-[var(--tc-border)] bg-[#18201C] shadow-[0_12px_40px_rgba(0,0,0,0.06)] flex flex-col justify-between p-5 text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 rounded-full bg-black/40 backdrop-blur-md px-3 py-1 text-xs font-semibold">
-                <span className="h-2 w-2 rounded-full bg-[#315F52] animate-pulse" />
+                <span className="h-2 w-2 rounded-full bg-[var(--tc-primary)] animate-pulse" />
                 <span>Local Camera Preview: {cameraOn ? "Active" : "Disabled"}</span>
               </div>
 
@@ -151,7 +151,7 @@ function WaitingRoomInner() {
                 className={"flex items-center gap-2 rounded-full px-4 min-h-[44px] text-xs font-bold backdrop-blur-md transition-all " + (
                   microphoneOn
                     ? "bg-white/20 hover:bg-white/30 text-white"
-                    : "bg-[#C84B31] text-white"
+                    : "bg-[var(--tc-danger)] text-white"
                 )}
               >
                 {microphoneOn ? <IconMic size={16} /> : <IconMicOff size={16} />}
@@ -164,7 +164,7 @@ function WaitingRoomInner() {
                 className={"flex items-center gap-2 rounded-full px-4 min-h-[44px] text-xs font-bold backdrop-blur-md transition-all " + (
                   cameraOn
                     ? "bg-white/20 hover:bg-white/30 text-white"
-                    : "bg-[#C84B31] text-white"
+                    : "bg-[var(--tc-danger)] text-white"
                 )}
               >
                 {cameraOn ? <IconVideo size={16} /> : <IconVideoOff size={16} />}
@@ -176,31 +176,31 @@ function WaitingRoomInner() {
 
         {/* Right: Educator Info & Join Action */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-4">
+          <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E4EEE9] text-sm font-extrabold text-[#244A40]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--tc-soft-primary)] text-sm font-extrabold text-[var(--tc-primary)]">
                 {tutorName.slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#25231F]">
+                <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[var(--tc-text-primary)]">
                   {tutorName}
                 </h3>
-                <p className="text-xs text-[#6F6A62]">{subjectName}</p>
+                <p className="text-xs text-[var(--tc-text-secondary)]">{subjectName}</p>
               </div>
             </div>
 
-            <div className="space-y-2 border-t border-[rgba(55,48,40,0.08)] pt-4 text-xs text-[#6F6A62]">
+            <div className="space-y-2 border-t border-[var(--tc-border)] pt-4 text-xs text-[var(--tc-text-secondary)]">
               <div className="flex items-center justify-between">
                 <span>Duration:</span>
-                <span className="font-bold text-[#25231F]">30 Minutes</span>
+                <span className="font-bold text-[var(--tc-text-primary)]">30 Minutes</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Subject:</span>
-                <span className="font-bold text-[#25231F]">{subjectName}</span>
+                <span className="font-bold text-[var(--tc-text-primary)]">{subjectName}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Format:</span>
-                <span className="font-bold text-[#25231F]">Online Classroom</span>
+                <span className="font-bold text-[var(--tc-text-primary)]">Online Classroom</span>
               </div>
             </div>
 
@@ -224,7 +224,7 @@ function WaitingRoomInner() {
                 </button>
                 <Link
                   href={bookingId ? "/demo/confirmation?booking_id=" + bookingId : "/demo/confirmation"}
-                  className="block text-center text-xs font-bold text-[#315F52] hover:underline"
+                  className="block text-center text-xs font-bold text-[var(--tc-primary)] hover:underline"
                 >
                   View Demo Details &rarr;
                 </Link>
@@ -239,12 +239,12 @@ function WaitingRoomInner() {
                   <IconLock size={15} />
                   <span>Scheduling Verification Issue</span>
                 </button>
-                <p className="text-[11px] text-center text-[#9B958C]">
+                <p className="text-[11px] text-center text-[var(--tc-text-secondary)]">
                   Unable to verify demo schedule. Please check demo confirmation or contact support.
                 </p>
                 <Link
                   href={bookingId ? "/demo/confirmation?booking_id=" + bookingId : "/demo/confirmation"}
-                  className="block text-center text-xs font-bold text-[#315F52] hover:underline"
+                  className="block text-center text-xs font-bold text-[var(--tc-primary)] hover:underline"
                 >
                   View Demo Details &rarr;
                 </Link>
@@ -259,16 +259,16 @@ function WaitingRoomInner() {
                   <IconLock size={15} />
                   <span>Enter Demo Room</span>
                 </button>
-                <p className="text-[11px] text-center text-[#9B958C]">
+                <p className="text-[11px] text-center text-[var(--tc-text-secondary)]">
                   Room opens exactly 10 minutes before start time
                 </p>
               </div>
             )}
           </div>
 
-          <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFF7ED] p-4 text-xs text-[#6F6A62]">
-            <div className="flex items-center gap-2 font-bold text-[#25231F] mb-1">
-              <IconCheck size={14} className="text-[#315F52]" />
+          <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] p-4 text-xs text-[var(--tc-text-secondary)]">
+            <div className="flex items-center gap-2 font-bold text-[var(--tc-text-primary)] mb-1">
+              <IconCheck size={14} className="text-[var(--tc-primary)]" />
               <span>No payment required</span>
             </div>
             <p className="text-[11px] leading-relaxed">
@@ -283,13 +283,13 @@ function WaitingRoomInner() {
 
 export default function DemoWaitingRoomPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] text-[var(--tc-text-primary)] transition-colors">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href="/tutors"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition-colors min-h-[44px]"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] transition-colors min-h-[44px]"
           >
             <IconArrowLeft size={14} />
             <span>Exit Waiting Room</span>
@@ -298,7 +298,7 @@ export default function DemoWaitingRoomPage() {
       </header>
 
       <main className="flex-1 flex items-center">
-        <Suspense fallback={<div className="text-center py-20 text-xs text-[#6F6A62]">Loading waiting room...</div>}>
+        <Suspense fallback={<div className="text-center py-20 text-xs text-[var(--tc-text-secondary)]">Loading waiting room...</div>}>
           <WaitingRoomInner />
         </Suspense>
       </main>

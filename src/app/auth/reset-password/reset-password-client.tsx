@@ -84,13 +84,13 @@ function ResetPasswordInner() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FCFDFE] text-[#18211E]">
-      <header className="border-b border-[rgba(24,33,30,0.08)] bg-white/88 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] text-[var(--tc-text-primary)] transition-colors">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/88 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href="/auth"
-            className="text-xs font-bold text-[#66716D] hover:text-[#18211E] transition"
+            className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] transition"
           >
             &larr; Back to Sign In
           </Link>
@@ -99,16 +99,16 @@ function ResetPasswordInner() {
 
       <main className="flex-1 py-12 md:py-20 flex items-center">
         <div className="container-shell max-w-md mx-auto">
-          <div className="rounded-3xl border border-[rgba(24,33,30,0.08)] bg-white p-7 sm:p-9 shadow-[0_8px_32px_rgba(24,33,30,0.04)]">
+          <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-7 sm:p-9 shadow-xs">
             <div className="mb-6 text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#236B5B]/20 bg-[#E2F5EC] px-3 py-1 text-xs font-bold text-[#1A5247] mb-3">
-                <IconShieldCheck size={14} className="text-[#236B5B]" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--tc-primary)]/20 bg-[#E2F5EC] px-3 py-1 text-xs font-bold text-[#1A5247] mb-3">
+                <IconShieldCheck size={14} className="text-[var(--tc-primary)]" />
                 <span>Password Recovery</span>
               </span>
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#18211E]">
+              <h1 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[var(--tc-text-primary)]">
                 Set New Password
               </h1>
-              <p className="mt-1 text-xs text-[#66716D]">
+              <p className="mt-1 text-xs text-[var(--tc-text-secondary)]">
                 Enter your new password below to regain access to your account.
               </p>
             </div>
@@ -116,7 +116,7 @@ function ResetPasswordInner() {
             {hasValidSession === false && (
               <div
                 role="alert"
-                className="mb-5 rounded-2xl border border-[#C84B31]/25 bg-[#FCEEEA] p-4 text-xs font-medium text-[#C84B31]"
+                className="mb-5 rounded-2xl border border-[var(--tc-danger)]/20 bg-[var(--tc-danger)]/10 p-4 text-xs font-medium text-[var(--tc-danger)]"
               >
                 Your password recovery session is invalid or has expired. Please{" "}
                 <Link href="/auth" className="underline font-bold">
@@ -129,21 +129,21 @@ function ResetPasswordInner() {
             {errorMessage && (
               <div
                 role="alert"
-                className="mb-5 rounded-2xl border border-[#C84B31]/25 bg-[#FCEEEA] p-4 text-xs font-medium text-[#C84B31]"
+                className="mb-5 rounded-2xl border border-[var(--tc-danger)]/20 bg-[var(--tc-danger)]/10 p-4 text-xs font-medium text-[var(--tc-danger)]"
               >
                 {errorMessage}
               </div>
             )}
 
             {status === "success" ? (
-              <div className="rounded-2xl border border-[#236B5B]/20 bg-[#E2F5EC]/50 p-6 text-center space-y-3">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#236B5B] text-white">
+              <div className="rounded-2xl border border-[var(--tc-primary)]/20 bg-[#E2F5EC]/50 p-6 text-center space-y-3">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--tc-primary)] text-white">
                   <IconCheck size={20} />
                 </div>
-                <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#18211E]">
+                <h3 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[var(--tc-text-primary)]">
                   Password Updated Successfully
                 </h3>
-                <p className="text-xs text-[#66716D]">
+                <p className="text-xs text-[var(--tc-text-secondary)]">
                   Redirecting you to your account...
                 </p>
               </div>
@@ -152,7 +152,7 @@ function ResetPasswordInner() {
                 <div>
                   <label
                     htmlFor="new-password"
-                    className="text-xs font-bold text-[#66716D] block mb-1"
+                    className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-1"
                   >
                     New Password
                   </label>
@@ -169,14 +169,14 @@ function ResetPasswordInner() {
                       setErrorMessage("");
                     }}
                     placeholder="At least 8 characters"
-                    className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                    className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-3 text-sm font-semibold text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden focus:ring-2 focus:ring-[var(--tc-primary)]/15 transition min-h-[48px]"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="confirm-password"
-                    className="text-xs font-bold text-[#66716D] block mb-1"
+                    className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-1"
                   >
                     Confirm New Password
                   </label>
@@ -193,7 +193,7 @@ function ResetPasswordInner() {
                       setErrorMessage("");
                     }}
                     placeholder="Re-enter password"
-                    className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
+                    className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-3 text-sm font-semibold text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden focus:ring-2 focus:ring-[var(--tc-primary)]/15 transition min-h-[48px]"
                   />
                 </div>
 

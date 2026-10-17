@@ -61,13 +61,13 @@ function OnboardingInner() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] text-[var(--tc-text-primary)] transition-colors">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href="/"
-            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
+            className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] transition"
           >
             Skip for now
           </Link>
@@ -76,22 +76,22 @@ function OnboardingInner() {
 
       <main className="flex-1 py-12 md:py-20 flex items-center">
         <div className="container-shell max-w-xl mx-auto">
-          <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(55,48,40,0.04)]">
+          <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-7 sm:p-10 shadow-xs">
             <div className="text-center mb-8">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#315F52]/20 bg-[#E4EEE9] px-3.5 py-1 text-xs font-bold text-[#244A40] mb-3">
-                <IconShieldCheck size={14} className="text-[#315F52]" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--tc-primary)]/20 bg-[var(--tc-soft-primary)] px-3.5 py-1 text-xs font-bold text-[var(--tc-primary)] mb-3">
+                <IconShieldCheck size={14} className="text-[var(--tc-primary)]" />
                 <span>Account Setup</span>
               </span>
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
                 How will you be using TutorConnect?
               </h1>
-              <p className="mt-2 text-xs text-[#6F6A62]">
+              <p className="mt-2 text-xs text-[var(--tc-text-secondary)]">
                 Choose your primary role to configure your personalized workspace.
               </p>
             </div>
 
             {errorMsg && (
-              <div className="mb-6 rounded-2xl border border-[#C84B31]/25 bg-[#FCEEEA] p-4 text-xs font-medium text-[#A6361E]">
+              <div className="mb-6 rounded-2xl border border-[var(--tc-danger)]/20 bg-[var(--tc-danger)]/10 p-4 text-xs font-medium text-[var(--tc-danger)]">
                 {errorMsg}
               </div>
             )}
@@ -113,7 +113,7 @@ function OnboardingInner() {
                   {
                     id: "tutor",
                     title: "I want to teach as a Tutor",
-                    desc: "Apply to offer verified 1-on-1 online or home tuition in Hyderabad.",
+                    desc: "Apply to offer 1-on-1 online or home tuition in Hyderabad.",
                   },
                 ].map((item) => (
                   <button
@@ -122,19 +122,19 @@ function OnboardingInner() {
                     onClick={() => setSelectedRole(item.id as ChosenRole)}
                     className={`w-full text-left rounded-2xl border p-4 transition-all flex items-start justify-between ${
                       selectedRole === item.id
-                        ? "border-[#315F52] bg-[#E4EEE9]/30 shadow-xs"
-                        : "border-[rgba(55,48,40,0.10)] bg-[#FFF7ED] hover:border-[#315F52]/30"
+                        ? "border-[var(--tc-primary)] bg-[var(--tc-soft-primary)] shadow-xs"
+                        : "border-[var(--tc-border)] bg-[var(--tc-surface-muted)] hover:border-[var(--tc-primary)]/40"
                     }`}
                   >
                     <div>
-                      <div className="text-sm font-bold text-[#25231F]">{item.title}</div>
-                      <div className="text-xs text-[#6F6A62] mt-0.5">{item.desc}</div>
+                      <div className="text-sm font-bold text-[var(--tc-text-primary)]">{item.title}</div>
+                      <div className="text-xs text-[var(--tc-text-secondary)] mt-0.5">{item.desc}</div>
                     </div>
                     <div
                       className={`h-5 w-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
                         selectedRole === item.id
-                          ? "border-[#315F52] bg-[#315F52] text-white"
-                          : "border-[rgba(55,48,40,0.20)] bg-white"
+                          ? "border-[var(--tc-primary)] bg-[var(--tc-primary)] text-white"
+                          : "border-[var(--tc-border)] bg-[var(--tc-surface)]"
                       }`}
                     >
                       {selectedRole === item.id && <IconCheck size={12} />}
@@ -145,7 +145,7 @@ function OnboardingInner() {
 
               {/* Optional Display Name */}
               <div className="pt-2">
-                <label htmlFor="display-name" className="text-xs font-bold text-[#6F6A62] block mb-1">
+                <label htmlFor="display-name" className="text-xs font-bold text-[var(--tc-text-secondary)] block mb-1">
                   Your Full Name
                 </label>
                 <input
@@ -154,7 +154,7 @@ function OnboardingInner() {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="e.g. Srikrishna Rao"
-                  className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-4 py-2.5 text-sm font-semibold text-[#25231F] placeholder:text-[#9B958C] focus:border-[#315F52] focus:outline-hidden"
+                  className="w-full rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] px-4 py-2.5 text-sm font-semibold text-[var(--tc-text-primary)] placeholder:text-[var(--tc-text-secondary)] focus:border-[var(--tc-primary)] focus:outline-hidden"
                 />
               </div>
 
@@ -176,7 +176,7 @@ function OnboardingInner() {
 
 export default function OnboardingPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FFFBF5]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[var(--tc-bg)]" />}>
       <OnboardingInner />
     </Suspense>
   );

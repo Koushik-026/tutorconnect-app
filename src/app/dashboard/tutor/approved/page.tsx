@@ -57,8 +57,8 @@ export default async function TutorApprovedPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] transition-colors text-[var(--tc-text-primary)]">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Link href="/">
             <Logo />
@@ -66,7 +66,7 @@ export default async function TutorApprovedPage() {
           <form method="POST" action="/auth/signout">
             <button
               type="submit"
-              className="text-xs font-bold text-[#6F6A62] hover:text-[#DE765D] transition"
+              className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[#DE765D] transition"
             >
               Sign Out
             </button>
@@ -76,35 +76,35 @@ export default async function TutorApprovedPage() {
 
       <main className="flex-1 py-12 md:py-20 flex items-center">
         <div className="container-shell max-w-xl mx-auto w-full">
-          <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-10 shadow-[0_12px_40px_rgba(55,48,40,0.04)] text-center space-y-6">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-4 py-1.5 text-xs font-bold text-[#244A40]">
+          <div className="rounded-3xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-7 sm:p-10 shadow-xs text-center space-y-6">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--tc-soft-primary)] px-4 py-1.5 text-xs font-bold text-[var(--tc-primary)]">
               <IconCheck size={14} />
               <span>Application Status: Approved</span>
             </div>
 
             <div>
-              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+              <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
                 Educator Application Approved
               </h1>
-              <p className="mt-3 text-xs sm:text-sm text-[#6F6A62] leading-relaxed">
+              <p className="mt-3 text-xs sm:text-sm text-[var(--tc-text-secondary)] leading-relaxed">
                 Your educator application has been approved.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-5 text-left text-xs space-y-3">
+            <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-bg)] transition-colors p-5 text-left text-xs space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[#6F6A62]">Educator:</span>
-                <span className="font-bold text-[#25231F]">{tutorProfile.display_name}</span>
+                <span className="text-[var(--tc-text-secondary)]">Educator:</span>
+                <span className="font-bold text-[var(--tc-text-primary)]">{tutorProfile.display_name}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#6F6A62]">Account:</span>
-                <span className="font-bold text-[#25231F]">Approved Educator</span>
+                <span className="text-[var(--tc-text-secondary)]">Account:</span>
+                <span className="font-bold text-[var(--tc-text-primary)]">Approved Educator</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#6F6A62]">Status:</span>
-                <span className="font-bold text-[#244A40]">Approved</span>
+                <span className="text-[var(--tc-text-secondary)]">Status:</span>
+                <span className="font-bold text-[var(--tc-primary)]">Approved</span>
               </div>
-              <div className="border-t border-[rgba(55,48,40,0.06)] pt-3 text-[11px] text-[#6F6A62]">
+              <div className="border-t border-[var(--tc-border)] pt-3 text-[11px] text-[var(--tc-text-secondary)]">
                 Tutor workspace features are not enabled in this build yet.
               </div>
             </div>

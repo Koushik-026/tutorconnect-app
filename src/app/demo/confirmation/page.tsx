@@ -89,8 +89,8 @@ function DemoConfirmationInner() {
   if (loading) {
     return (
       <div className="text-center py-20">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-[#315F52] border-t-transparent mb-3" />
-        <p className="text-xs text-[#6F6A62]">Verifying reservation details...</p>
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-[var(--tc-primary)] border-t-transparent mb-3" />
+        <p className="text-xs text-[var(--tc-text-secondary)]">Verifying reservation details...</p>
       </div>
     );
   }
@@ -98,14 +98,14 @@ function DemoConfirmationInner() {
   // When Supabase is configured, reject missing/unauthorized booking
   if (isSupabaseConfigured() && (error || !booking)) {
     return (
-      <div className="max-w-md mx-auto text-center py-16 bg-white rounded-3xl border border-[rgba(55,48,40,0.10)] p-8 shadow-xs">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FDE8E4] text-[#BA5945] mb-4 text-xl font-bold">
+      <div className="max-w-md mx-auto text-center py-16 bg-[var(--tc-surface)] rounded-2xl border border-[var(--tc-border)] p-8 shadow-xs">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--tc-danger)]/10 text-[var(--tc-danger)] mb-4 text-xl font-bold">
           !
         </div>
-        <h2 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[#25231F]">
+        <h2 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[var(--tc-text-primary)]">
           Reservation Not Found
         </h2>
-        <p className="mt-2 text-xs text-[#6F6A62] leading-relaxed">
+        <p className="mt-2 text-xs text-[var(--tc-text-secondary)] leading-relaxed">
           {error || "We could not find an authorized demo booking matching this link."}
         </p>
         <div className="mt-6">
@@ -125,50 +125,50 @@ function DemoConfirmationInner() {
 
   return (
     <div className="container-shell max-w-2xl mx-auto py-10 md:py-16">
-      <div className="rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-7 sm:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.03)] text-center space-y-6">
+      <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-7 sm:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.03)] text-center space-y-6">
         {/* Success Icon */}
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E4EEE9] text-[#244A40] shadow-2xs">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--tc-soft-primary)] text-[var(--tc-primary)] shadow-2xs">
           <IconCheck size={32} />
         </div>
 
         <div>
-          <span className="rounded-full bg-[#E3EADD] px-3.5 py-1 text-xs font-bold text-[#244A40]">
+          <span className="rounded-full bg-[var(--tc-teal)]/10 border border-[var(--tc-teal)]/20 px-3.5 py-1 text-xs font-bold text-[var(--tc-teal)]">
             Free 30-Min Demo Confirmed
           </span>
-          <h1 className="mt-3 font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
+          <h1 className="mt-3 font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[var(--tc-text-primary)]">
             Your 1-on-1 Demo is Scheduled
           </h1>
-          <p className="mt-2 text-xs sm:text-sm text-[#6F6A62]">
+          <p className="mt-2 text-xs sm:text-sm text-[var(--tc-text-secondary)]">
             We have reserved your introductory evaluation session with{" "}
-            <strong className="text-[#25231F]">{displayTutor}</strong>.
+            <strong className="text-[var(--tc-text-primary)]">{displayTutor}</strong>.
           </p>
         </div>
 
         {/* Schedule Dossier */}
-        <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFFBF5] p-5 text-left text-xs space-y-3">
-          <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-2.5">
-            <span className="text-[#9B958C]">Educator:</span>
-            <span className="font-bold text-[#25231F]">{displayTutor}</span>
+        <div className="rounded-2xl border border-[var(--tc-border)] bg-[var(--tc-surface-muted)] p-5 text-left text-xs space-y-3">
+          <div className="flex items-center justify-between border-b border-[var(--tc-border)] pb-2.5">
+            <span className="text-[var(--tc-text-secondary)]">Educator:</span>
+            <span className="font-bold text-[var(--tc-text-primary)]">{displayTutor}</span>
           </div>
 
-          <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-2.5">
-            <span className="text-[#9B958C]">Subject Focus:</span>
-            <span className="font-bold text-[#25231F]">{displaySubject}</span>
+          <div className="flex items-center justify-between border-b border-[var(--tc-border)] pb-2.5">
+            <span className="text-[var(--tc-text-secondary)]">Subject Focus:</span>
+            <span className="font-bold text-[var(--tc-text-primary)]">{displaySubject}</span>
           </div>
 
-          <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-2.5">
-            <span className="text-[#9B958C]">Date &amp; Time:</span>
-            <span className="font-bold text-[#25231F]">{displayDate} &bull; {displayTime}</span>
+          <div className="flex items-center justify-between border-b border-[var(--tc-border)] pb-2.5">
+            <span className="text-[var(--tc-text-secondary)]">Date &amp; Time:</span>
+            <span className="font-bold text-[var(--tc-text-primary)]">{displayDate} &bull; {displayTime}</span>
           </div>
 
-          <div className="flex items-center justify-between border-b border-[rgba(55,48,40,0.06)] pb-2.5">
-            <span className="text-[#9B958C]">Duration &amp; Format:</span>
-            <span className="font-bold text-[#25231F]">30 Minutes &bull; Online Room</span>
+          <div className="flex items-center justify-between border-b border-[var(--tc-border)] pb-2.5">
+            <span className="text-[var(--tc-text-secondary)]">Duration &amp; Format:</span>
+            <span className="font-bold text-[var(--tc-text-primary)]">30 Minutes &bull; Online Room</span>
           </div>
 
           <div className="flex items-center justify-between pt-0.5">
-            <span className="text-[#9B958C]">Amount:</span>
-            <span className="font-extrabold text-[#315F52]">₹0 Demo</span>
+            <span className="text-[var(--tc-text-secondary)]">Amount:</span>
+            <span className="font-extrabold text-[var(--tc-primary)]">₹0 Demo</span>
           </div>
         </div>
 
@@ -184,7 +184,7 @@ function DemoConfirmationInner() {
 
           <Link
             href="/tutors"
-            className="btn btn-outline min-h-[48px] rounded-full text-xs font-bold justify-center border-[rgba(55,48,40,0.15)] hover:border-[#25231F]"
+            className="btn btn-outline min-h-[48px] rounded-full text-xs font-bold justify-center border-[var(--tc-border)] text-[var(--tc-text-primary)] hover:border-[var(--tc-primary)]"
           >
             <span>Explore Other Educators</span>
           </Link>
@@ -196,13 +196,13 @@ function DemoConfirmationInner() {
 
 export default function DemoConfirmationPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[var(--tc-bg)] text-[var(--tc-text-primary)] transition-colors">
+      <header className="border-b border-[var(--tc-border)] bg-[var(--tc-surface)]/80 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href="/tutors"
-            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition-colors min-h-[44px] flex items-center"
+            className="text-xs font-bold text-[var(--tc-text-secondary)] hover:text-[var(--tc-text-primary)] transition-colors min-h-[44px] flex items-center"
           >
             Find More Tutors &rarr;
           </Link>
@@ -210,7 +210,7 @@ export default function DemoConfirmationPage() {
       </header>
 
       <main className="flex-1 flex items-center">
-        <Suspense fallback={<div className="text-center py-20 text-xs text-[#6F6A62]">Loading confirmation...</div>}>
+        <Suspense fallback={<div className="text-center py-20 text-xs text-[var(--tc-text-secondary)]">Loading confirmation...</div>}>
           <DemoConfirmationInner />
         </Suspense>
       </main>

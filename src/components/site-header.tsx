@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "./logo";
+import { ThemeToggle } from "./theme-toggle";
 import { IconArrowRight, IconX } from "./ui/icons";
 
 interface NavLink {
@@ -27,7 +28,7 @@ export function SiteHeader() {
   const closeMenu = () => setIsMenuOpen(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -36,13 +37,13 @@ export function SiteHeader() {
     <>
       <header
         role="banner"
-        className="fixed top-4 sm:top-5 left-0 right-0 z-50 flex justify-center px-4 sm:px-6 lg:px-8 pointer-events-none"
+        className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex justify-center px-4 sm:px-6 lg:px-8 pointer-events-none"
       >
         <div
-          className={`pointer-events-auto w-full max-w-[1280px] mx-auto rounded-full px-5 sm:px-6 py-2.5 transition-all flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] md:items-center ${
+          className={`pointer-events-auto w-full max-w-[1240px] mx-auto rounded-full px-4 sm:px-6 py-2 transition-all flex items-center justify-between md:grid md:grid-cols-[auto_1fr_auto] md:items-center gap-4 ${
             scrolled
-              ? "border border-[rgba(24,33,30,0.09)] bg-white/94 shadow-[0_6px_24px_rgba(24,33,30,0.07)] backdrop-blur-md"
-              : "border border-[rgba(24,33,30,0.07)] bg-white/88 shadow-[0_4px_16px_rgba(24,33,30,0.04)] backdrop-blur-sm"
+              ? "border border-[var(--tc-border)] bg-[var(--tc-surface)]/95 shadow-md backdrop-blur-md"
+              : "border border-[var(--tc-border)] bg-[var(--tc-surface)]/88 shadow-xs backdrop-blur-sm"
           }`}
         >
           {/* Left Column: Logo */}
@@ -50,10 +51,10 @@ export function SiteHeader() {
             <Logo compact={false} />
           </div>
 
-          {/* Center Column: Desktop Navigation Links (mathematically page-centered) */}
+          {/* Center Column: Desktop Navigation Links */}
           <nav
             aria-label="Main Navigation"
-            className="hidden items-center justify-self-center gap-1 md:flex"
+            className="hidden items-center justify-self-center gap-1.5 md:flex"
           >
             {navigationLinks.map((item) => {
               const isActive =
@@ -65,10 +66,10 @@ export function SiteHeader() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors duration-160 ${
                     isActive
-                      ? "bg-[#E2F5EC] text-[#1A5247]"
-                      : "text-[#66716D] hover:bg-[#F4F8FB] hover:text-[#18211E]"
+                      ? "bg-[var(--tc-soft-primary)] text-[var(--tc-primary)] font-bold"
+                      : "text-[var(--tc-text-secondary)] hover:bg-[var(--tc-surface-muted)] hover:text-[var(--tc-text-primary)]"
                   }`}
                 >
                   {item.label}
@@ -77,42 +78,45 @@ export function SiteHeader() {
             })}
           </nav>
 
-          {/* Right Column: CTA Actions (desktop) */}
-          <div className="hidden items-center justify-self-end md:flex">
+          {/* Right Column: Theme Toggle + CTA Actions (desktop) */}
+          <div className="hidden items-center justify-self-end gap-3 md:flex">
+            <ThemeToggle />
             <Link
               href="/tutors"
-              className="btn btn-primary min-h-[38px] px-5 py-2 text-xs font-bold rounded-full gap-1.5"
-              style={{ minHeight: "38px" }}
+              className="btn btn-primary min-h-[38px] px-4 py-2 text-xs font-bold rounded-full gap-1.5"
             >
               <span>Explore Tutors</span>
               <IconArrowRight size={13} />
             </Link>
           </div>
 
-          {/* Mobile Hamburger */}
-          <button
-            type="button"
-            onClick={toggleMenu}
-            aria-expanded={isMenuOpen}
-            aria-controls="mobile-menu-drawer"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(24,33,30,0.09)] bg-white text-[#18211E] shadow-sm hover:bg-[#F4F8FB] transition md:hidden"
-          >
-            <span className="sr-only">Toggle navigation menu</span>
-            {isMenuOpen ? (
-              <IconX size={18} />
-            ) : (
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+          {/* Mobile Right Controls: Theme Toggle + Hamburger */}
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <button
+              type="button"
+              onClick={toggleMenu}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu-drawer"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--tc-border)] bg-[var(--tc-surface)] text-[var(--tc-text-primary)] shadow-xs hover:bg-[var(--tc-surface-muted)] transition cursor-pointer"
+            >
+              <span className="sr-only">Toggle navigation menu</span>
+              {isMenuOpen ? (
+                <IconX size={17} />
+              ) : (
+                <svg
+                  className="h-4.5 w-4.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -126,7 +130,7 @@ export function SiteHeader() {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation"
-          className="fixed inset-0 z-40 flex flex-col bg-[#FCFDFE] pt-24 px-6 pb-8 md:hidden overflow-y-auto"
+          className="fixed inset-0 z-40 flex flex-col bg-[var(--tc-bg)] pt-24 px-6 pb-8 md:hidden overflow-y-auto"
         >
           <nav className="flex flex-col gap-2">
             {navigationLinks.map((item) => (
@@ -134,26 +138,26 @@ export function SiteHeader() {
                 key={item.label}
                 href={item.href}
                 onClick={closeMenu}
-                className="flex items-center justify-between rounded-2xl border border-[rgba(24,33,30,0.09)] bg-white p-4 text-base font-semibold text-[#18211E] hover:border-[#236B5B]/30 hover:bg-[#E2F5EC]/40 transition"
+                className="flex items-center justify-between rounded-xl border border-[var(--tc-border)] bg-[var(--tc-surface)] p-3.5 text-sm font-semibold text-[var(--tc-text-primary)] hover:border-[var(--tc-primary)]/40 hover:bg-[var(--tc-soft-primary)] transition"
               >
                 <span>{item.label}</span>
-                <IconArrowRight size={16} className="text-[#66716D]" />
+                <IconArrowRight size={15} className="text-[var(--tc-text-secondary)]" />
               </Link>
             ))}
 
-            <div className="pt-6 mt-4 border-t border-[rgba(24,33,30,0.09)] flex flex-col gap-3">
+            <div className="pt-5 mt-3 border-t border-[var(--tc-border)] flex flex-col gap-2.5">
               <Link
                 href="/tutors"
                 onClick={closeMenu}
-                className="btn btn-primary w-full min-h-[48px] text-sm font-bold rounded-full justify-center"
+                className="btn btn-primary w-full min-h-[44px] text-xs font-bold rounded-xl justify-center"
               >
                 <span>Explore Tutors</span>
-                <IconArrowRight size={15} />
+                <IconArrowRight size={14} />
               </Link>
               <Link
                 href="/demo/book"
                 onClick={closeMenu}
-                className="btn btn-outline w-full min-h-[48px] text-sm font-bold rounded-full justify-center"
+                className="btn btn-outline w-full min-h-[44px] text-xs font-bold rounded-xl justify-center"
               >
                 Book a Free Demo
               </Link>
