@@ -3,7 +3,6 @@ import Link from "next/link";
 import { getVerifiedAuth, getAccountRoles } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { getStudentJourneySummary, getDefaultJourneyRedirect } from "@/lib/services/entitlement";
 import { Logo } from "@/components/logo";
 import { IconClock, IconArrowRight, IconX } from "@/components/ui/icons";
 import type { TutorApplicationState, TutorProfile } from "@/lib/types/database";
@@ -23,10 +22,6 @@ export default async function TutorPendingPage() {
   // 2. account_roles contains tutor
   const roles = await getAccountRoles(auth.userId);
   if (!roles.includes("tutor")) {
-    if (roles.includes("student") || roles.includes("parent") || roles.includes("admin")) {
-      const summary = await getStudentJourneySummary(auth.userId);
-      redirect(getDefaultJourneyRedirect(summary));
-    }
     redirect("/auth/onboarding?intent=tutor");
   }
 

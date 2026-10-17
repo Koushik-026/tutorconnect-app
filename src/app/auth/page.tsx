@@ -43,14 +43,10 @@ function GoogleIcon() {
 function AuthInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialRole =
-    searchParams.get("role") === "tutor" || searchParams.get("intent") === "tutor"
-      ? "tutor"
-      : "student";
-  const defaultNextForRole =
-    initialRole === "tutor" ? "/dashboard/tutor/pending" : "/tutors";
-  const nextParam = searchParams.get("next") || defaultNextForRole;
+  const explicitNext = searchParams.get("next");
   const intentParam = searchParams.get("intent") || searchParams.get("role");
+  const initialRole: RoleIntent =
+    intentParam === "tutor" ? "tutor" : "student";
   const errorParam = searchParams.get("error");
 
   const [role, setRole] = useState<RoleIntent>(initialRole);
@@ -59,6 +55,24 @@ function AuthInner() {
   const [errorMessage, setErrorMessage] = useState(
     errorParam ? "Authentication attempt could not be completed. Please try again." : ""
   );
+
+  const getDefaultNext = (targetRole: RoleIntent) =>
+    targetRole === "tutor" ? "/dashboard/tutor/pending" : "/tutors";
+
+  const getEffectiveNext = (targetRole: RoleIntent) => {
+    const defaultNext = getDefaultNext(targetRole);
+    if (!explicitNext) return defaultNext;
+    const sanitized = sanitizeInternalRedirect(explicitNext, defaultNext);
+    // If user selected tutor intent, do not let learner defaults override tutor destination
+    if (targetRole === "tutor" && (sanitized === "/tutors" || sanitized.startsWith("/dashboard/student"))) {
+      return defaultNext;
+    }
+    // If user selected student intent, do not let tutor paths override learner destination
+    if (targetRole === "student" && sanitized.startsWith("/dashboard/tutor")) {
+      return defaultNext;
+    }
+    return sanitized;
+  };
 
   // OTP Fallback State (preserved for email flows)
   const [otp, setOtp] = useState("");
@@ -92,8 +106,7 @@ function AuthInner() {
       setStatus("loading");
       setErrorMessage("");
       const supabase = createClient();
-      const defaultNext = role === "tutor" ? "/dashboard/tutor/pending" : "/tutors";
-      const safeNext = sanitizeInternalRedirect(nextParam, defaultNext);
+      const safeNext = getEffectiveNext(role);
       const origin = window.location.origin;
       const redirectTo = origin + "/auth/callback?next=" + encodeURIComponent(safeNext) + "&intent=" + role;
 
@@ -139,7 +152,7 @@ function AuthInner() {
       setResendNotice("");
 
       const supabase = createClient();
-      const safeNext = sanitizeInternalRedirect(nextParam, "/dashboard/student");
+      const safeNext = getEffectiveNext(role);
       const origin = window.location.origin;
       const emailRedirectTo = origin + "/auth/confirm?next=" + encodeURIComponent(safeNext) + "&intent=" + role;
 
@@ -175,7 +188,7 @@ function AuthInner() {
 
     try {
       const supabase = createClient();
-      const safeNext = sanitizeInternalRedirect(nextParam, "/dashboard/student");
+      const safeNext = getEffectiveNext(role);
       const origin = window.location.origin;
       const emailRedirectTo = origin + "/auth/confirm?next=" + encodeURIComponent(safeNext) + "&intent=" + role;
 
@@ -239,29 +252,55 @@ function AuthInner() {
         return;
       }
 
-      // Preserve next, intent, tutor intent, and onboarding flow
-      const safeNext = sanitizeInternalRedirect(nextParam, "/dashboard/student");
+      // Determine post-verification destination obeying canonical routing rules
+      const safeNext = getEffectiveNext(role);
       const userId = data.user?.id;
       let targetUrl = safeNext;
 
       if (userId) {
-        const { data: roles } = await supabase
+        const { data: rolesData } = await supabase
           .from("account_roles")
           .select("role")
           .eq("user_id", userId);
 
-        if (!roles || roles.length === 0) {
-          const onboardingParams = new URLSearchParams();
-          const targetIntent =
-            intentParam === "tutor" || intentParam === "student" || intentParam === "parent"
-              ? intentParam
-              : role === "tutor"
-              ? "tutor"
-              : "student";
+        const roles: string[] = rolesData ? rolesData.map((r: { role: string }) => r.role) : [];
+        const hasTutorRole = roles.includes("tutor");
 
-          onboardingParams.set("intent", targetIntent);
-          onboardingParams.set("next", safeNext);
-          targetUrl = "/auth/onboarding?" + onboardingParams.toString();
+        if (role === "tutor") {
+          if (!hasTutorRole) {
+            targetUrl = "/auth/onboarding?intent=tutor";
+          } else {
+            const { data: profile } = await supabase
+              .from("tutor_profiles")
+              .select("id")
+              .eq("user_id", userId)
+              .maybeSingle();
+
+            if (!profile) {
+              targetUrl = "/auth/onboarding?intent=tutor";
+            } else {
+              const { data: appState } = await supabase
+                .from("tutor_application_states")
+                .select("status")
+                .eq("tutor_profile_id", profile.id)
+                .maybeSingle();
+
+              if (appState?.status === "approved") {
+                targetUrl = "/dashboard/tutor/approved";
+              } else if (appState?.status) {
+                targetUrl = "/dashboard/tutor/pending";
+              } else {
+                targetUrl = "/auth/onboarding?intent=tutor";
+              }
+            }
+          }
+        } else {
+          // Learner intent
+          if (roles.length === 0) {
+            targetUrl = "/auth/onboarding?intent=student";
+          } else {
+            targetUrl = safeNext;
+          }
         }
       }
 
