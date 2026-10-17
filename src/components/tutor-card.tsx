@@ -1,5 +1,12 @@
 import Link from "next/link";
 import type { Tutor } from "@/lib/types";
+import {
+  IconStar,
+  IconShieldCheck,
+  IconVideo,
+  IconHomeTuition,
+  IconArrowRight,
+} from "./ui/icons";
 
 interface TutorCardProps {
   tutor: Tutor;
@@ -25,188 +32,121 @@ function getInitials(name: string) {
 export function TutorCard({ tutor }: TutorCardProps) {
   const offersOnline = tutor.modes.includes("online");
   const offersHome = tutor.modes.includes("home");
+  const isDemo = tutor.isDemoProfile || !tutor.rating || tutor.reviewCount === 0;
+  const startingPrice = tutor.startingPackagePrice || tutor.startingMonthlyFee || 3200;
 
   return (
-    <article className="tc-card tc-card-hover flex h-full flex-col overflow-hidden">
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        {/* Tutor identity */}
-        <div className="mb-5 flex items-start gap-4">
-          <div
-            aria-hidden="true"
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-teal-500 text-lg font-extrabold text-white shadow-md shadow-blue-500/20"
-          >
-            {getInitials(tutor.name)}
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-lg font-extrabold text-slate-900">
-                {tutor.name}
-              </h3>
-
-              {tutor.verification.length > 0 && (
-                <span className="badge badge-green">
-                  <svg
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="m5 12 4 4L19 6" />
-                  </svg>
-
-                  Verified
-                </span>
-              )}
+    <article className="group relative flex h-full flex-col justify-between rounded-3xl border border-[rgba(55,48,40,0.10)] bg-white p-6 sm:p-7 shadow-[0_2px_12px_rgba(55,48,40,0.02)] transition-all duration-200 hover:-translate-y-1 hover:border-[#315F52]/30 hover:shadow-[0_8px_32px_rgba(55,48,40,0.05)]">
+      <div>
+        {/* Header: Identity + Rating / Demo Badge */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div
+              aria-hidden="true"
+              className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-[#E4EEE9] text-base font-extrabold text-[#244A40] shadow-2xs"
+            >
+              {getInitials(tutor.name)}
             </div>
 
-            <p className="mt-1 text-sm font-semibold text-slate-600">
-              {tutor.headline}
-            </p>
-
-            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-              <span className="inline-flex items-center gap-1 font-bold text-amber-600">
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  className="h-4 w-4 fill-current"
-                >
-                  <path d="m12 2.5 2.9 5.88 6.49.94-4.7 4.58 1.11 6.47L12 17.32l-5.8 3.05 1.11-6.47-4.7-4.58 6.49-.94L12 2.5Z" />
-                </svg>
-
-                {tutor.rating}
-              </span>
-
-              <span className="text-slate-500">
-                {tutor.reviewCount} reviews
-              </span>
-
-              <span className="text-slate-500">
-                {tutor.experienceYears} years experience
-              </span>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-[#25231F] group-hover:text-[#315F52] transition-colors">
+                  <Link href={`/tutors/${tutor.id}`}>{tutor.name}</Link>
+                </h3>
+                {!isDemo && (
+                  <span title="Qualification reviewed" className="text-[#315F52]">
+                    <IconShieldCheck size={16} />
+                  </span>
+                )}
+              </div>
+              <p className="text-xs font-semibold text-[#6F6A62]">{tutor.headline}</p>
             </div>
           </div>
+
+          {/* Rating or Sample Profile Badge */}
+          {isDemo ? (
+            <span className="rounded-full bg-[#FFFBF5] px-2.5 py-1 text-[11px] font-semibold text-[#9B958C] border border-[rgba(55,48,40,0.08)]">
+              Sample profile
+            </span>
+          ) : (
+            <div className="flex items-center gap-1 rounded-full bg-[#FFF7ED] px-2.5 py-1 text-xs font-bold text-[#25231F] border border-[rgba(55,48,40,0.08)] shadow-2xs">
+              <IconStar size={13} className="text-[#F1B777]" />
+              <span>{tutor.rating?.toFixed(1)}</span>
+              <span className="text-[#9B958C] font-normal">({tutor.reviewCount})</span>
+            </div>
+          )}
         </div>
 
-        {/* Subjects */}
-        <div className="mb-4 flex flex-wrap gap-2">
-          {tutor.subjects.map((subject) => (
-            <span key={subject} className="badge badge-blue">
-              {subject}
+        {/* Subjects & Curriculum Tags */}
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {tutor.subjects.map((sub) => (
+            <span
+              key={sub}
+              className="rounded-full bg-[#E4EEE9] px-2.5 py-0.5 text-xs font-semibold text-[#244A40]"
+            >
+              {sub}
             </span>
           ))}
+          <span className="rounded-full bg-[#FFF7ED] px-2.5 py-0.5 text-xs font-medium text-[#6F6A62] border border-[rgba(55,48,40,0.08)]">
+            {tutor.classes[0]} &ndash; {tutor.classes[tutor.classes.length - 1]}
+          </span>
         </div>
 
-        {/* Tutor information */}
-        <div className="space-y-3 text-sm text-slate-600">
-          <div className="flex items-start gap-3">
-            <svg
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              className="mt-0.5 h-5 w-5 shrink-0 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M4 19.5V6.75A2.75 2.75 0 0 1 6.75 4H20v13H6.75A2.75 2.75 0 0 0 4 19.75" />
-              <path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5H6.5A2.5 2.5 0 0 0 4 19.5Z" />
-            </svg>
+        {/* Bio snippet */}
+        <p className="mt-3.5 text-xs leading-relaxed text-[#6F6A62] line-clamp-2">
+          {tutor.bio}
+        </p>
 
-            <span>
-              {tutor.classes[0]}–{tutor.classes[tutor.classes.length - 1]}
-              {" • "}
-              {tutor.boards.join(", ")}
-            </span>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <svg
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              className="mt-0.5 h-5 w-5 shrink-0 text-teal-600"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 21s7-4.35 7-11a7 7 0 1 0-14 0c0 6.65 7 11 7 11Z" />
-              <circle cx="12" cy="10" r="2.5" />
-            </svg>
-
-            <span>
-              {tutor.locality}, {tutor.city}
-            </span>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <svg
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              className="mt-0.5 h-5 w-5 shrink-0 text-violet-600"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M4 5h16v14H4z" />
-              <path d="m8 9 4 3 4-3" />
-            </svg>
-
-            <span>{tutor.languages.join(", ")}</span>
-          </div>
-        </div>
-
-        {/* Teaching modes */}
-        <div className="mt-5 flex flex-wrap gap-2">
+        {/* Modes & Location */}
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
           {offersOnline && (
-            <span className="badge badge-teal">Online available</span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#E3EADD] px-2.5 py-0.5 font-bold text-[#2D4F42]">
+              <IconVideo size={12} />
+              <span>Online Demo Available</span>
+            </span>
           )}
-
           {offersHome && (
-            <span className="badge badge-violet">
-              Home tuition within {tutor.travelRadiusKm} km
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#FBE2D8] px-2.5 py-0.5 font-bold text-[#BA5945]">
+              <IconHomeTuition size={12} />
+              <span>Home Tuition ({tutor.locality})</span>
             </span>
           )}
-        </div>
-
-        {/* Price */}
-        <div className="mt-6 border-t border-slate-200 pt-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Plans starting from
-          </p>
-
-          <p className="mt-1 text-2xl font-extrabold text-slate-900">
-            {formatCurrency(tutor.startingMonthlyFee)}
-            <span className="text-sm font-semibold text-slate-500">
-              /month
-            </span>
-          </p>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="grid gap-3 border-t border-slate-200 bg-slate-50/70 p-5 sm:grid-cols-2 sm:p-6">
-        <Link
-          href={`/tutors/${tutor.id}`}
-          className="btn btn-secondary w-full"
-        >
-          View Profile
-        </Link>
+      {/* Footer: Starting Fee & CTAs */}
+      <div className="mt-6 border-t border-[rgba(55,48,40,0.08)] pt-4">
+        <div className="flex items-baseline justify-between mb-3">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9B958C]">
+              Class Packages From
+            </span>
+            <div className="font-[family-name:var(--font-manrope)] text-lg font-extrabold text-[#25231F]">
+              {formatCurrency(startingPrice)}
+              <span className="text-xs font-medium text-[#6F6A62]"> / 8 classes</span>
+            </div>
+          </div>
+          <span className="rounded-full bg-[#E3EADD] px-2 py-0.5 text-[10px] font-bold text-[#2D4F42]">
+            Free 30-Min Demo
+          </span>
+        </div>
 
-        <Link
-          href={`/demo/book?tutor=${tutor.id}`}
-          className="btn btn-primary w-full"
-        >
-          Book Free Demo
-        </Link>
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            href={`/tutors/${tutor.id}`}
+            className="btn btn-action btn-outline min-h-[44px] px-3 text-xs font-bold rounded-2xl justify-center"
+          >
+            <span>View Profile</span>
+          </Link>
+
+          <Link
+            href={`/demo/book?tutor=${tutor.id}`}
+            className="btn btn-action btn-primary min-h-[44px] px-3 text-xs font-bold rounded-2xl justify-center shadow-xs"
+          >
+            <span>Book Demo</span>
+            <IconArrowRight size={13} />
+          </Link>
+        </div>
       </div>
     </article>
   );

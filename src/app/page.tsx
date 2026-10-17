@@ -1,615 +1,543 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
-import { SubjectCard } from "@/components/subject-card";
-import { TutorCard } from "@/components/tutor-card";
+import { SiteFooter } from "@/components/site-footer";
+import { HeroComposer } from "@/components/hero-composer";
+import { tutors } from "@/lib/data";
 import {
-  platformBenefits,
-  student,
-  subjects,
-  tutors,
-} from "@/lib/data";
+  IconArrowRight,
+  IconCheck,
+  IconVideo,
+  IconHomeTuition,
+} from "@/components/ui/icons";
 
-const howItWorksSteps = [
-  {
-    number: "01",
-    title: "Tell us what you need",
-    description:
-      "Choose the student’s class, board, subjects, learning goals and preferred tuition mode.",
-  },
-  {
-    number: "02",
-    title: "Discover suitable tutors",
-    description:
-      "Compare tutor experience, subjects, ratings, languages, prices and location availability.",
-  },
-  {
-    number: "03",
-    title: "Attend a free online demo",
-    description:
-      "Meet the tutor through a 30-minute online demo before choosing a monthly plan.",
-  },
-  {
-    number: "04",
-    title: "Start your monthly tuition",
-    description:
-      "Choose a package, confirm the schedule, pay securely and track progress from one dashboard.",
-  },
-];
-
-const parentBenefits = [
-  "View completed and remaining classes",
-  "Track homework, quizzes and tutor feedback",
-  "Manage schedules, payments and renewals",
-  "Request rescheduling or tutor replacement",
-];
-
-const tutorBenefits = [
-  "Receive relevant student enquiries",
-  "Choose online tuition, home tuition or both",
-  "Manage demos, schedules and students",
-  "Upload notes, assignments and quizzes",
-  "Track earnings and payout status",
-];
+/* ── Scroll-reveal observer hook ────────────────────────────────────────── */
+function useReveal() {
+  const ref = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.querySelectorAll(".reveal, .reveal-fade, .reveal-scale").forEach((node) => {
+            node.classList.add("revealed");
+          });
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.12 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return ref as React.RefObject<HTMLElement>;
+}
 
 export default function HomePage() {
-  const featuredTutors = tutors.slice(0, 3);
+  const sampleTutors = tutors.slice(0, 3);
+
+  const sectionStoryRef = useReveal() as React.RefObject<HTMLDivElement>;
+  const sectionModesRef = useReveal() as React.RefObject<HTMLDivElement>;
+  const sectionDemoRef  = useReveal() as React.RefObject<HTMLDivElement>;
+  const sectionStepsRef = useReveal() as React.RefObject<HTMLDivElement>;
+
+  const quickSubjects = [
+    { name: "Mathematics", href: "/tutors?subject=Mathematics" },
+    { name: "Science", href: "/tutors?subject=Science" },
+    { name: "Physics", href: "/tutors?subject=Physics" },
+    { name: "English", href: "/tutors?subject=English" },
+  ];
 
   return (
-    <main>
+    <div className="flex min-h-screen flex-col" style={{ backgroundColor: "var(--tc-canvas)" }}>
       <SiteHeader />
 
-      {/* =====================================================
-          Hero section
-      ====================================================== */}
-      <section className="relative overflow-hidden py-16 sm:py-20 lg:py-28">
-        <div
-          aria-hidden="true"
-          className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-blue-300/20 blur-3xl"
-        />
+      <main id="main-content" className="flex-1">
 
-        <div
-          aria-hidden="true"
-          className="absolute -right-24 top-0 h-80 w-80 rounded-full bg-teal-300/20 blur-3xl"
-        />
+        {/* ── 1. HERO ──────────────────────────────────────────────────────── */}
+        <section className="relative overflow-hidden pt-12 pb-24 md:pt-20 md:pb-36 atmo-hero">
+          <div className="container-shell relative z-10">
+            <div className="mx-auto max-w-[840px] flex flex-col items-center text-center">
 
-        <div className="container-shell relative">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-            {/* Hero content */}
-            <div className="animate-fade-up">
-              <span className="badge badge-blue mb-5">
-                Verified tutors • Free online demos
-              </span>
+              {/* Eyebrow */}
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B] mb-5 text-center">
+                1-on-1 tutoring &bull; Online &amp; at home &bull; Hyderabad
+              </p>
 
-              <h1 className="page-heading max-w-4xl">
-                Find the right tutor.
-                <span className="gradient-text block">
-                  Learn with confidence.
-                </span>
+              {/* Primary Headline (Deliberate 2-line desktop layout) */}
+              <h1
+                className="mx-auto max-w-2xl text-center font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.035em] text-[#18211E] leading-[1.08]"
+                style={{ fontSize: "clamp(2.4rem, 6vw, 4.1rem)" }}
+              >
+                <span className="sm:block">Find a tutor your child</span>{" "}
+                <span className="sm:block">learns well with.</span>
               </h1>
 
-              <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Connect with verified tutors for online and home tuition,
-                attend a free online demo and manage classes, notes,
-                assignments and progress in one place.
+              {/* Supporting Copy (Deliberate 2-line desktop layout) */}
+              <p
+                className="mt-6 mx-auto max-w-xl text-center text-[#66716D] leading-relaxed"
+                style={{ fontSize: "clamp(1rem, 2.2vw, 1.18rem)" }}
+              >
+                <span className="sm:block">Thoughtful 1-on-1 tutoring, online or at home,</span>{" "}
+                <span className="sm:block">with a free 30-minute online demo.</span>
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              {/* Primary Actions (Centered axis) */}
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
                 <Link
                   href="/tutors"
-                  className="btn btn-primary w-full sm:w-auto"
+                  className="btn btn-primary min-h-[52px] px-8 text-sm font-bold gap-2 shadow-[0_4px_20px_rgba(35,107,91,0.25)]"
                 >
-                  Find a Tutor
-
-                  <svg
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m13 6 6 6-6 6" />
-                  </svg>
+                  <span>Find a Tutor</span>
+                  <IconArrowRight size={15} />
                 </Link>
-
                 <Link
-                  href="/auth?role=tutor"
-                  className="btn btn-secondary w-full sm:w-auto"
+                  href="/demo/book"
+                  className="btn btn-outline min-h-[52px] px-7 text-sm font-bold"
                 >
-                  Become a Tutor
+                  Book a Free Demo
                 </Link>
               </div>
 
-              <div className="mt-8 grid max-w-xl grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-700">
-                    ✓
-                  </span>
-                  Verified profiles
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-700">
-                    ✓
-                  </span>
-                  Free online demo
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-700">
-                    ✓
-                  </span>
-                  Secure payments
-                </div>
-              </div>
-            </div>
-
-            {/* Hero visual */}
-            <div className="hero-gradient glass-card relative min-h-105 overflow-hidden p-5 sm:min-h-120 sm:p-8">
-              <div className="absolute inset-x-6 top-6 rounded-2xl border border-white/80 bg-white/80 p-4 shadow-lg backdrop-blur sm:inset-x-10 sm:top-10">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-teal-500 font-extrabold text-white">
-                    AS
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="font-extrabold text-slate-900">
-                      Ananya Sharma
-                    </p>
-                    <p className="text-sm text-slate-600">
-                      Mathematics and Science Tutor
-                    </p>
-                  </div>
-
-                  <span className="badge badge-green hidden sm:inline-flex">
-                    Verified
-                  </span>
-                </div>
+              {/* Search Dock (Centered axis) */}
+              <div className="mt-12 w-full flex justify-center">
+                <HeroComposer />
               </div>
 
-              <div className="absolute left-5 top-31 w-[65%] rounded-3xl bg-slate-900 p-5 text-white shadow-2xl sm:left-10 sm:top-35 sm:w-[62%] sm:p-7">
-                <div className="mb-6 flex items-center justify-between">
-                  <span className="badge bg-white/10 text-white">
-                    Free online demo
-                  </span>
-
-                  <span className="text-xs text-slate-300">30 min</span>
-                </div>
-
-                <div className="flex h-32 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/30 to-teal-500/30 sm:h-40">
-                  <div className="text-center">
-                    <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/15 text-xl font-extrabold">
-                      AS
-                    </div>
-                    <p className="font-bold">Concept explanation</p>
-                    <p className="mt-1 text-sm text-slate-300">
-                      Mathematics • Class 9
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-5 flex justify-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10">
-                    🎤
-                  </span>
-
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10">
-                    📹
-                  </span>
-
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500">
-                    ✕
-                  </span>
-                </div>
-              </div>
-
-              <div className="animate-float absolute bottom-10 right-5 w-46 rounded-2xl border border-white/90 bg-white/90 p-4 shadow-xl backdrop-blur sm:right-8 sm:w-52">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                    Student progress
-                  </span>
-
-                  <span className="badge badge-teal">On track</span>
-                </div>
-
-                <p className="mt-4 text-2xl font-extrabold text-slate-900">
-                  4 of 15
-                </p>
-
-                <p className="text-sm text-slate-500">Classes completed</p>
-
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
-                  <div className="h-full w-[27%] rounded-full bg-gradient-to-r from-blue-600 to-teal-500" />
-                </div>
-              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* =====================================================
-          Tutor search panel
-      ====================================================== */}
-      <section className="pb-12">
-        <div className="container-shell">
-          <form
-            action="/tutors"
-            className="tc-card grid gap-4 p-5 md:grid-cols-2 md:p-7 lg:grid-cols-[1fr_1fr_1fr_auto]"
-          >
-            <div>
-              <label htmlFor="subject" className="form-label">
-                Subject
-              </label>
+        {/* ── 2. PERSONAL TUTOR EXPLORATION STORY ───────────────────────────── */}
+        <section
+          id="subjects"
+          ref={sectionStoryRef}
+          className="py-28 md:py-40 bg-white border-y border-[rgba(24,33,30,0.06)]"
+        >
+          <div className="container-shell">
+            <div className="grid items-center gap-16 lg:grid-cols-12">
 
-              <select
-                id="subject"
-                name="subject"
-                defaultValue=""
-                className="form-input"
-              >
-                <option value="" disabled>
-                  Select a subject
-                </option>
-
-                {subjects.map((subject) => (
-                  <option key={subject.id} value={subject.name}>
-                    {subject.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="class" className="form-label">
-                Student class
-              </label>
-
-              <select
-                id="class"
-                name="class"
-                defaultValue=""
-                className="form-input"
-              >
-                <option value="" disabled>
-                  Select class
-                </option>
-
-                {Array.from({ length: 7 }, (_, index) => index + 6).map(
-                  (classNumber) => (
-                    <option
-                      key={classNumber}
-                      value={`Class ${classNumber}`}
-                    >
-                      Class {classNumber}
-                    </option>
-                  ),
-                )}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="location" className="form-label">
-                Locality
-              </label>
-
-              <input
-                id="location"
-                name="location"
-                type="text"
-                defaultValue={`${student.locality}, ${student.city}`}
-                className="form-input"
-              />
-            </div>
-
-            <div className="flex items-end">
-              <button type="submit" className="btn btn-primary w-full">
-                Search Tutors
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      {/* =====================================================
-          How it works
-      ====================================================== */}
-      <section id="how-it-works" className="section-spacing">
-        <div className="container-shell">
-          <div className="mb-10">
-            <span className="badge badge-teal mb-4">Simple process</span>
-
-            <h2 className="section-heading">
-              From tutor search to learning in four steps
-            </h2>
-
-            <p className="section-description mt-4">
-              TutorConnect keeps tutor discovery, demos, monthly packages and
-              learning management inside one connected platform.
-            </p>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-            {howItWorksSteps.map((step) => (
-              <article
-                key={step.number}
-                className="tc-card tc-card-hover p-6"
-              >
-                <span className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 font-extrabold text-blue-700">
-                  {step.number}
-                </span>
-
-                <h3 className="text-lg font-extrabold text-slate-900">
-                  {step.title}
-                </h3>
-
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  {step.description}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================
-          Subjects
-      ====================================================== */}
-      <section id="subjects" className="section-spacing bg-white/55">
-        <div className="container-shell">
-          <div className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-            <div>
-              <span className="badge badge-violet mb-4">
-                Popular subjects
-              </span>
-
-              <h2 className="section-heading">
-                Find support for every important subject
-              </h2>
-
-              <p className="section-description mt-4">
-                Browse tutors by subject and choose someone who understands
-                the student’s class, board and learning goals.
-              </p>
-            </div>
-
-            <Link href="/tutors" className="btn btn-secondary">
-              View all tutors
-            </Link>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {subjects.map((subject) => (
-              <SubjectCard key={subject.id} subject={subject} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================
-          Featured tutors
-      ====================================================== */}
-      <section className="section-spacing">
-        <div className="container-shell">
-          <div className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-            <div>
-              <span className="badge badge-blue mb-4">
-                Featured tutors
-              </span>
-
-              <h2 className="section-heading">
-                Meet tutors ready to help students improve
-              </h2>
-
-              <p className="section-description mt-4">
-                Compare verified information, subjects, experience,
-                availability and monthly plan prices before booking a demo.
-              </p>
-            </div>
-
-            <Link href="/tutors" className="btn btn-secondary">
-              Explore all tutors
-            </Link>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-3">
-            {featuredTutors.map((tutor) => (
-              <TutorCard key={tutor.id} tutor={tutor} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================
-          Platform benefits
-      ====================================================== */}
-      <section className="section-spacing bg-slate-950 text-white">
-        <div className="container-shell">
-          <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-            <div>
-              <span className="badge bg-white/10 text-white">
-                One connected platform
-              </span>
-
-              <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                More than just finding a tutor
-              </h2>
-
-              <p className="mt-5 max-w-xl leading-8 text-slate-300">
-                TutorConnect helps families manage the complete tuition
-                relationship—from the first demo to classes, learning
-                materials and progress.
-              </p>
-
-              <Link
-                href="/tutors"
-                className="btn mt-7 bg-white text-slate-950 hover:bg-slate-100"
-              >
-                Find your tutor
-              </Link>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {platformBenefits.map((benefit) => (
-                <article
-                  key={benefit.title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-5"
-                >
-                  <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 font-bold text-white">
-                    ✓
-                  </span>
-
-                  <h3 className="font-extrabold text-white">
-                    {benefit.title}
-                  </h3>
-
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
-                    {benefit.description}
+              {/* Left Column: Narrative */}
+              <div className="space-y-6 lg:col-span-6">
+                <div>
+                  <p className="reveal text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B]">
+                    01 &bull; Personal Fit
                   </p>
-                </article>
+                  <h2
+                    className="reveal reveal-delay-1 mt-4 font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.03em] text-[#18211E] leading-[1.12]"
+                    style={{ fontSize: "clamp(2rem, 4.5vw, 3rem)" }}
+                  >
+                    Every student learns at their own pace.
+                  </h2>
+                </div>
+                <p className="reveal reveal-delay-2 text-[#66716D] leading-relaxed max-w-md text-base">
+                  Explore tutor profiles, teaching approach, and subject expertise
+                  across Classes 6 to 12. Filter by curriculum, syllabus goals, and
+                  preferred schedule to find a tutor suited to your child.
+                </p>
+
+                {/* Lightweight Subject Examples */}
+                <div className="reveal reveal-delay-3 pt-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#9BAAA5] mb-3">Explore Subjects</p>
+                  <div className="flex flex-wrap gap-2">
+                    {quickSubjects.map((sub) => (
+                      <Link
+                        key={sub.name}
+                        href={sub.href}
+                        className="rounded-full border border-[rgba(24,33,30,0.08)] bg-[#F4F8FB] px-3.5 py-1.5 text-xs font-semibold text-[#18211E] hover:border-[#236B5B]/30 hover:bg-[#E2F5EC] hover:text-[#1A5247] transition-all"
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="reveal reveal-delay-4 pt-3">
+                  <Link
+                    href="/tutors"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-[#236B5B] hover:text-[#1A5247] transition-colors group"
+                  >
+                    <span>Browse all tutor profiles</span>
+                    <IconArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Column: Sample Tutor Profile Previews */}
+              <div className="reveal-scale space-y-3.5 lg:col-span-6">
+                {sampleTutors.map((tutor) => (
+                  <Link
+                    key={tutor.id}
+                    href={`/tutors/${tutor.id}`}
+                    className="group block rounded-2xl border border-[rgba(24,33,30,0.08)] bg-[#FCFDFE] p-5 shadow-[0_2px_12px_rgba(24,33,30,0.03)] hover:border-[#236B5B]/30 hover:shadow-[0_8px_24px_rgba(24,33,30,0.06)] transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E2F5EC] text-sm font-extrabold text-[#1A5247]">
+                          {tutor.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-sm text-[#18211E] group-hover:text-[#236B5B] transition-colors truncate">
+                              {tutor.name}
+                            </p>
+                            <span className="rounded-full bg-[rgba(24,33,30,0.06)] px-2 py-0.5 text-[10px] font-medium text-[#66716D] shrink-0">
+                              Demo profile
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#66716D] truncate mt-0.5">
+                            {tutor.headline}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="shrink-0 text-right">
+                        <span className="text-xs font-bold text-[#18211E] tabular-nums">From &#8377;{tutor.startingPackagePrice || 3200}</span>
+                        <span className="text-[11px] text-[#9BAAA5]"> / pkg</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[rgba(24,33,30,0.05)] pt-3 text-xs">
+                      <span className="text-[#66716D]">
+                        {tutor.subjects.slice(0, 2).join(" &bull; ")}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        {tutor.modes.includes("online") && (
+                          <span className="rounded-full bg-[#E3F2FF] px-2.5 py-0.5 text-[10px] font-bold text-[#1D4ED8]">
+                            Online
+                          </span>
+                        )}
+                        {tutor.modes.includes("home") && (
+                          <span className="rounded-full bg-[#E2F5EC] px-2.5 py-0.5 text-[10px] font-bold text-[#1A5247]">
+                            Home
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ── 3. ONLINE VS HOME TUITION ─────────────────────────────────────── */}
+        <section
+          ref={sectionModesRef}
+          className="py-28 md:py-40 atmo-alt"
+        >
+          <div className="container-shell">
+            <div className="mx-auto max-w-xl text-center mb-16">
+              <p className="reveal text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B]">
+                02 &bull; Delivery Formats
+              </p>
+              <h2
+                className="reveal reveal-delay-1 mt-4 font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.03em] text-[#18211E] leading-[1.12]"
+                style={{ fontSize: "clamp(2rem, 4.5vw, 3rem)" }}
+              >
+                Online, at home, or both.
+              </h2>
+              <p className="reveal reveal-delay-2 mt-4 text-[#66716D] leading-relaxed text-base">
+                Choose the mode that best fits your child&apos;s learning environment and weekly schedule.
+              </p>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-2">
+
+              {/* Card 1: Online Tuition */}
+              <div className="reveal rounded-3xl border border-[rgba(24,33,30,0.08)] bg-white p-8 md:p-10 shadow-[0_4px_20px_rgba(24,33,30,0.04)] flex flex-col justify-between space-y-6">
+                <div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E3F2FF] text-[#1D4ED8] mb-6">
+                    <IconVideo size={24} />
+                  </div>
+                  <h3 className="font-[family-name:var(--font-manrope)] font-bold text-xl text-[#18211E]">
+                    1-on-1 Online Tuition
+                  </h3>
+                  <p className="mt-3 text-sm text-[#66716D] leading-relaxed">
+                    1-on-1 online tutoring with flexible scheduling and focused attention from your selected tutor.
+                  </p>
+                  <ul className="mt-6 space-y-3 text-xs text-[#18211E]">
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      1-on-1 attention from your selected tutor
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      Flexible online scheduling
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      Learn from home without travel
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <Link
+                    href="/tutors?mode=online"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-[#1D4ED8] hover:text-[#1E40AF] transition-colors group"
+                  >
+                    <span>Browse online tutors</span>
+                    <IconArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Card 2: Home Tuition */}
+              <div className="reveal reveal-delay-1 rounded-3xl border border-[rgba(24,33,30,0.08)] bg-white p-8 md:p-10 shadow-[0_4px_20px_rgba(24,33,30,0.04)] flex flex-col justify-between space-y-6">
+                <div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E2F5EC] text-[#1A5247] mb-6">
+                    <IconHomeTuition size={24} />
+                  </div>
+                  <h3 className="font-[family-name:var(--font-manrope)] font-bold text-xl text-[#18211E]">
+                    In-Person Home Tuition
+                  </h3>
+                  <p className="mt-3 text-sm text-[#66716D] leading-relaxed">
+                    Tutors can teach at your home in eligible Hyderabad areas.
+                    Personalized in-person guidance at the student&apos;s own study desk.
+                  </p>
+                  <ul className="mt-6 space-y-3 text-xs text-[#18211E]">
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      Direct in-person guidance and study routines
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      Scheduled weekly slots in eligible Hyderabad localities
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247]">
+                        <IconCheck size={10} />
+                      </span>
+                      Comfortable, distraction-free home learning environment
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <Link
+                    href="/tutors?mode=home"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-[#236B5B] hover:text-[#1A5247] transition-colors group"
+                  >
+                    <span>Browse home tutors in Hyderabad</span>
+                    <IconArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ── 4. FREE DEMO ─────────────────────────────────────────────────── */}
+        <section
+          ref={sectionDemoRef}
+          className="py-28 md:py-40 bg-white border-y border-[rgba(24,33,30,0.06)]"
+        >
+          <div className="container-shell">
+            <div className="grid items-center gap-16 lg:grid-cols-12">
+
+              {/* Narrative */}
+              <div className="space-y-6 lg:col-span-7">
+                <div>
+                  <p className="reveal text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B]">
+                    03 &bull; Free Demo
+                  </p>
+                  <h2
+                    className="reveal reveal-delay-1 mt-4 font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.03em] text-[#18211E] leading-[1.12]"
+                    style={{ fontSize: "clamp(2rem, 4.5vw, 3rem)" }}
+                  >
+                    Experience the teaching style before you commit.
+                  </h2>
+                </div>
+                <p className="reveal reveal-delay-2 text-[#66716D] leading-relaxed max-w-lg text-base">
+                  A free 30-minute online demo lets your child and tutor meet, assess
+                  current coursework, and understand communication style — before choosing any class package.
+                </p>
+
+                <div className="reveal reveal-delay-3 space-y-3.5 pt-2">
+                  <div className="flex items-start gap-3 text-sm text-[#18211E]">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247] mt-0.5">
+                      <IconCheck size={11} />
+                    </span>
+                    <span>Free 30-minute online demo with your selected tutor</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-sm text-[#18211E]">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247] mt-0.5">
+                      <IconCheck size={11} />
+                    </span>
+                    <span>No upfront fee or payment details required to book</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-sm text-[#18211E]">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E2F5EC] text-[#1A5247] mt-0.5">
+                      <IconCheck size={11} />
+                    </span>
+                    <span>Decide on an 8, 12, or 15 class package only after the trial</span>
+                  </div>
+                </div>
+
+                <div className="reveal reveal-delay-4 pt-4">
+                  <Link
+                    href="/demo/book"
+                    className="btn btn-primary min-h-[50px] px-8 text-sm font-bold gap-2"
+                  >
+                    <span>Book a Free Demo</span>
+                    <IconArrowRight size={15} />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Visual Card */}
+              <div className="reveal-scale lg:col-span-5">
+                <div className="rounded-3xl border border-[rgba(24,33,30,0.08)] bg-[#F4F8FB] p-8 md:p-10 space-y-6">
+                  <div className="border-b border-[rgba(24,33,30,0.07)] pb-6">
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#9BAAA5]">Demo Session Structure</p>
+                    <p className="mt-2 font-[family-name:var(--font-manrope)] font-extrabold text-3xl text-[#18211E]">
+                      30 Minutes
+                    </p>
+                    <p className="text-xs text-[#66716D] mt-1">30-minute online demo</p>
+                  </div>
+
+                  <div className="space-y-4 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#66716D]">Session Fee</span>
+                      <span className="font-bold text-[#236B5B]">&#8377;0 (Free)</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#66716D]">Mode</span>
+                      <span className="font-semibold text-[#18211E]">Online</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#66716D]">Syllabus Discussion</span>
+                      <span className="font-semibold text-[#18211E]">Included</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#66716D]">Commitment</span>
+                      <span className="font-semibold text-[#18211E]">Zero Obligation</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ── 5. VERY SMALL HOW IT WORKS ─────────────────────────────────────── */}
+        <section
+          id="how-it-works"
+          ref={sectionStepsRef}
+          className="py-24 md:py-36 atmo-alt border-t border-[rgba(24,33,30,0.06)]"
+        >
+          <div className="container-shell">
+            <div className="mx-auto max-w-xl text-center mb-14">
+              <p className="reveal text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B]">
+                04 &bull; How It Works
+              </p>
+              <h2
+                className="reveal reveal-delay-1 mt-4 font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.03em] text-[#18211E]"
+                style={{ fontSize: "clamp(1.85rem, 4vw, 2.75rem)" }}
+              >
+                Three simple steps.
+              </h2>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  step: "01",
+                  title: "Find your tutor",
+                  text: "Filter profiles by subject, grade level (Classes 6–12), and delivery mode.",
+                },
+                {
+                  step: "02",
+                  title: "Book a free demo",
+                  text: "Attend a 30-minute online trial to assess mutual comfort, teaching pace, and style.",
+                },
+                {
+                  step: "03",
+                  title: "Start regular lessons",
+                  text: "Select a package (8, 12, or 15 sessions) and track lesson logs in your Class Ledger.",
+                },
+              ].map((item, i) => (
+                <div
+                  key={item.step}
+                  className={`reveal reveal-delay-${i + 1} rounded-2xl border border-[rgba(24,33,30,0.07)] bg-white p-7 flex flex-col justify-between space-y-5`}
+                >
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#E2F5EC] text-xs font-black text-[#1A5247]">
+                    {item.step}
+                  </span>
+                  <div>
+                    <h3 className="font-[family-name:var(--font-manrope)] font-bold text-base text-[#18211E]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-xs text-[#66716D] leading-relaxed">
+                      {item.text}
+                    </p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* =====================================================
-          Parents and tutors
-      ====================================================== */}
-      <section className="section-spacing">
-        <div className="container-shell">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <article className="tc-card overflow-hidden">
-              <div className="border-b border-slate-200 bg-gradient-to-br from-blue-50 to-violet-50 p-7">
-                <span className="badge badge-blue">For parents</span>
-
-                <h2 className="mt-5 text-2xl font-extrabold text-slate-900 sm:text-3xl">
-                  Stay informed about every class
-                </h2>
-
-                <p className="mt-3 leading-7 text-slate-600">
-                  Manage tutor selection, packages, payments and learning
-                  progress without depending on scattered messages.
-                </p>
-              </div>
-
-              <ul className="space-y-4 p-7">
-                {parentBenefits.map((benefit) => (
-                  <li
-                    key={benefit}
-                    className="flex items-start gap-3 text-slate-700"
-                  >
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
-                      ✓
-                    </span>
-
-                    <span>{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-
-            <article className="tc-card overflow-hidden">
-              <div className="border-b border-slate-200 bg-gradient-to-br from-teal-50 to-blue-50 p-7">
-                <span className="badge badge-teal">For tutors</span>
-
-                <h2 className="mt-5 text-2xl font-extrabold text-slate-900 sm:text-3xl">
-                  Grow your tutoring career
-                </h2>
-
-                <p className="mt-3 leading-7 text-slate-600">
-                  Receive relevant requests, organise classes and build a
-                  trusted professional profile.
-                </p>
-              </div>
-
-              <ul className="space-y-4 p-7">
-                {tutorBenefits.map((benefit) => (
-                  <li
-                    key={benefit}
-                    className="flex items-start gap-3 text-slate-700"
-                  >
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 text-sm font-bold text-teal-700">
-                      ✓
-                    </span>
-
-                    <span>{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================
-          Final CTA
-      ====================================================== */}
-      <section className="pb-20 pt-6">
-        <div className="container-shell">
-          <div className="overflow-hidden rounded-4xl bg-gradient-to-br from-blue-600 via-blue-600 to-teal-500 p-7 text-center text-white shadow-2xl shadow-blue-500/20 sm:p-12">
-            <span className="badge bg-white/15 text-white">
-              Your next tutor is one demo away
-            </span>
-
-            <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
-              Find a tutor who matches the student’s needs
+        {/* ── 6. FINAL CTA (Identical Typography Pattern) ──────────────────── */}
+        <section className="py-36 md:py-48 atmo-cta border-t border-[rgba(24,33,30,0.06)]">
+          <div className="container-tight flex flex-col items-center text-center">
+            {/* Headline with exact 2-line desktop control */}
+            <h2
+              className="mx-auto max-w-2xl text-center font-[family-name:var(--font-manrope)] font-extrabold tracking-[-0.035em] text-[#18211E] leading-[1.08]"
+              style={{ fontSize: "clamp(2.25rem, 5.5vw, 3.75rem)" }}
+            >
+              <span className="sm:block">Find a tutor your child</span>{" "}
+              <span className="sm:block">learns well with.</span>
             </h2>
 
-            <p className="mx-auto mt-5 max-w-2xl leading-8 text-blue-50">
-              Explore tutor profiles, attend a free online demo and continue
-              only when you are satisfied with the teaching experience.
+            {/* Subtitle with exact 2-line desktop control */}
+            <p
+              className="mt-6 mx-auto max-w-xl text-center text-[#66716D] leading-relaxed text-base"
+            >
+              <span className="sm:block">Thoughtful 1-on-1 tutoring, online or at home,</span>{" "}
+              <span className="sm:block">with a free 30-minute online demo.</span>
             </p>
 
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5">
               <Link
                 href="/tutors"
-                className="btn bg-white text-blue-700 hover:bg-blue-50"
+                className="btn btn-primary min-h-[54px] px-9 text-sm font-bold gap-2 shadow-[0_6px_24px_rgba(35,107,91,0.28)]"
               >
-                Find a Tutor
+                <span>Find a Tutor</span>
+                <IconArrowRight size={15} />
               </Link>
-
               <Link
-                href="/auth?role=tutor"
-                className="btn border border-white/40 bg-white/10 text-white hover:bg-white/20"
+                href="/demo/book"
+                className="btn btn-outline min-h-[54px] px-8 text-sm font-bold"
               >
-                Become a Tutor
+                Book a Free Demo
               </Link>
             </div>
+
+            <p className="mt-8 text-xs text-[#9BAAA5] text-center">
+              Free 30-minute demo &bull; 1-on-1 dedicated attention &bull; No subscription lock-in
+            </p>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* =====================================================
-          Footer
-      ====================================================== */}
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="container-shell py-8">
-          <div className="flex flex-col justify-between gap-5 text-sm text-slate-500 md:flex-row md:items-center">
-            <p>© 2026 TutorConnect. All rights reserved.</p>
+      </main>
 
-            <div className="flex flex-wrap gap-x-5 gap-y-2">
-              <Link href="#" className="hover:text-blue-600">
-                Privacy
-              </Link>
-
-              <Link href="#" className="hover:text-blue-600">
-                Terms
-              </Link>
-
-              <Link href="#" className="hover:text-blue-600">
-                Refund Policy
-              </Link>
-
-              <Link href="#" className="hover:text-blue-600">
-                Contact
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </main>
+      <SiteFooter />
+    </div>
   );
 }

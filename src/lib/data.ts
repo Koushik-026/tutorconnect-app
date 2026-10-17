@@ -7,11 +7,9 @@ import type {
 } from "./types";
 
 /*
-  This file temporarily stores mock data.
-
-  Later, Supabase will provide this information.
-  For now, every page imports data from this file so tutor names,
-  prices, subjects and dates remain consistent.
+  Canonical Sample/Demo Data for TutorConnect
+  Provides consistent sample personas, packages, and subjects.
+  Note: Seed tutors are illustrative demo profiles, not verified KYC professionals.
 */
 
 export const student: Student = {
@@ -29,9 +27,9 @@ export const tutors: Tutor[] = [
   {
     id: "ananya-sharma",
     name: "Ananya Sharma",
-    profileImage: "/images/tutors/ananya-sharma.jpg",
-    headline: "Mathematics and Science Tutor",
-    bio: "Patient and result-focused tutor who helps students understand concepts clearly instead of memorising answers. Experienced in teaching CBSE and ICSE students from Classes 6 to 12.",
+    profileImage: "",
+    headline: "Mathematics & Science Educator",
+    bio: "Concept-first educator who builds intuitive understanding. Guiding CBSE & ICSE learners across Classes 6 to 12 in foundation and exam preparation.",
 
     subjects: ["Mathematics", "Science"],
     classes: [
@@ -47,8 +45,9 @@ export const tutors: Tutor[] = [
     languages: ["English", "Hindi", "Telugu"],
 
     experienceYears: 8,
-    rating: 4.9,
-    reviewCount: 124,
+    rating: null,
+    reviewCount: 0,
+    isDemoProfile: true,
 
     modes: ["online", "home"],
 
@@ -56,13 +55,10 @@ export const tutors: Tutor[] = [
     city: "Hyderabad",
     travelRadiusKm: 5,
 
+    startingPackagePrice: 3200,
     startingMonthlyFee: 3200,
 
-    verification: [
-      "Identity verified",
-      "Qualification verified",
-      "Teaching profile reviewed",
-    ],
+    verification: [],
 
     availableDays: ["Monday", "Wednesday", "Friday", "Saturday"],
     availableTimes: ["4:00 PM", "5:00 PM", "6:00 PM"],
@@ -71,224 +67,186 @@ export const tutors: Tutor[] = [
   {
     id: "rahul-verma",
     name: "Rahul Verma",
-    profileImage: "/images/tutors/rahul-verma.jpg",
-    headline: "English and Social Studies Tutor",
-    bio: "Friendly tutor specialising in English communication, grammar and Social Studies for middle-school and secondary-school students.",
+    profileImage: "",
+    headline: "Physics & Mathematics Specialist",
+    bio: "Engaging problem-solver who breaks down numerical difficulties into structured analytical steps. Specializes in secondary school Physics and Higher Mathematics.",
 
-    subjects: ["English", "Social Studies"],
+    subjects: ["Physics", "Mathematics"],
     classes: [
-      "Class 6",
-      "Class 7",
       "Class 8",
       "Class 9",
       "Class 10",
+      "Class 11",
+      "Class 12",
     ],
-    boards: ["CBSE", "ICSE", "State Board"],
+    boards: ["CBSE", "State Board"],
     languages: ["English", "Hindi"],
 
-    experienceYears: 5,
-    rating: 4.7,
-    reviewCount: 86,
-
-    modes: ["online"],
-
-    locality: "Dilsukhnagar",
-    city: "Hyderabad",
-    travelRadiusKm: 0,
-
-    startingMonthlyFee: 2800,
-
-    verification: ["Identity verified", "Qualification verified"],
-
-    availableDays: ["Tuesday", "Thursday", "Saturday"],
-    availableTimes: ["5:00 PM", "6:00 PM", "7:00 PM"],
-  },
-
-  {
-    id: "meera-reddy",
-    name: "Meera Reddy",
-    profileImage: "/images/tutors/meera-reddy.jpg",
-    headline: "Physics and Chemistry Tutor",
-    bio: "Concept-oriented tutor helping students build strong foundations in Physics and Chemistry through examples, problem solving and regular assessments.",
-
-    subjects: ["Physics", "Chemistry"],
-    classes: ["Class 9", "Class 10", "Class 11", "Class 12"],
-    boards: ["CBSE", "State Board"],
-    languages: ["English", "Telugu"],
-
-    experienceYears: 7,
-    rating: 4.8,
-    reviewCount: 103,
+    experienceYears: 6,
+    rating: null,
+    reviewCount: 0,
+    isDemoProfile: true,
 
     modes: ["online", "home"],
 
-    locality: "Vanasthalipuram",
+    locality: "Madhapur",
     city: "Hyderabad",
-    travelRadiusKm: 6,
+    travelRadiusKm: 7,
 
-    startingMonthlyFee: 4000,
+    startingPackagePrice: 3200,
+    startingMonthlyFee: 3200,
 
-    verification: [
-      "Identity verified",
-      "Qualification verified",
-      "Teaching profile reviewed",
-    ],
+    verification: [],
 
-    availableDays: ["Monday", "Tuesday", "Thursday", "Saturday"],
+    availableDays: ["Tuesday", "Thursday", "Saturday", "Sunday"],
     availableTimes: ["4:30 PM", "5:30 PM", "7:00 PM"],
   },
 
   {
-    id: "arjun-nair",
-    name: "Arjun Nair",
-    profileImage: "/images/tutors/arjun-nair.jpg",
-    headline: "Computer Science Tutor",
-    bio: "Practical Computer Science tutor teaching programming fundamentals, Python, web development and logical problem solving.",
+    id: "priya-nair",
+    name: "Priya Nair",
+    profileImage: "",
+    headline: "Chemistry & Biology Mentor",
+    bio: "Dedicated science educator specializing in organic mechanisms, cell biology, and diagrammatic clarity for ICSE & CBSE boards.",
 
-    subjects: ["Computer Science", "Python"],
-    classes: ["Class 8", "Class 9", "Class 10", "Class 11", "Class 12"],
-    boards: ["CBSE", "ICSE"], 
-    languages: ["English", "Hindi"],
+    subjects: ["Chemistry", "Biology", "Science"],
+    classes: ["Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"],
+    boards: ["ICSE", "CBSE"],
+    languages: ["English", "Telugu"],
 
-    experienceYears: 4,
-    rating: 4.6,
-    reviewCount: 58,
+    experienceYears: 5,
+    rating: null,
+    reviewCount: 0,
+    isDemoProfile: true,
 
     modes: ["online"],
 
-    locality: "Madhapur",
+    locality: "Gachibowli",
     city: "Hyderabad",
     travelRadiusKm: 0,
 
-    startingMonthlyFee: 3500,
+    startingPackagePrice: 3200,
+    startingMonthlyFee: 3200,
 
-    verification: ["Identity verified", "Qualification verified"],
+    verification: [],
 
-    availableDays: ["Wednesday", "Friday", "Saturday", "Sunday"],
-    availableTimes: ["5:00 PM", "6:30 PM", "8:00 PM"],
+    availableDays: ["Monday", "Tuesday", "Thursday", "Friday"],
+    availableTimes: ["5:00 PM", "6:00 PM", "7:30 PM"],
+  },
+
+  {
+    id: "vikram-reddy",
+    name: "Vikram Reddy",
+    profileImage: "",
+    headline: "Computer Science & English Instructor",
+    bio: "Focuses on systematic coding fundamentals in Python/Java and precise communicative English for middle and high school students.",
+
+    subjects: ["Computer Science", "English"],
+    classes: ["Class 6", "Class 7", "Class 8", "Class 9", "Class 10"],
+    boards: ["CBSE", "ICSE", "State Board"],
+    languages: ["English", "Telugu"],
+
+    experienceYears: 4,
+    rating: null,
+    reviewCount: 0,
+    isDemoProfile: true,
+
+    modes: ["online", "home"],
+
+    locality: "Kukatpally",
+    city: "Hyderabad",
+    travelRadiusKm: 6,
+
+    startingPackagePrice: 3200,
+    startingMonthlyFee: 3200,
+
+    verification: [],
+
+    availableDays: ["Monday", "Wednesday", "Friday", "Sunday"],
+    availableTimes: ["3:30 PM", "5:00 PM", "6:30 PM"],
   },
 ];
-
-export const featuredTutor = tutors[0];
 
 export const subjects: Subject[] = [
   {
     id: "mathematics",
     name: "Mathematics",
-    icon: "∑",
+    icon: "pi",
     tutorCount: 42,
-    description: "Build strong foundations and improve problem-solving skills.",
-  },
-  {
-    id: "science",
-    name: "Science",
-    icon: "⚗",
-    tutorCount: 36,
-    description: "Understand scientific concepts through clear explanations.",
-  },
-  {
-    id: "english",
-    name: "English",
-    icon: "A",
-    tutorCount: 31,
-    description: "Improve grammar, vocabulary, writing and communication.",
+    description: "Arithmetic, Algebra, Geometry, Trigonometry, Calculus",
   },
   {
     id: "physics",
     name: "Physics",
-    icon: "⚛",
-    tutorCount: 24,
-    description: "Learn concepts, formulas and numerical problem solving.",
+    icon: "atom",
+    tutorCount: 28,
+    description: "Mechanics, Thermodynamics, Optics, Electricity, Magnetism",
   },
   {
     id: "chemistry",
     name: "Chemistry",
-    icon: "◉",
-    tutorCount: 22,
-    description: "Master reactions, equations and important concepts.",
+    icon: "flask-conical",
+    tutorCount: 24,
+    description: "Physical, Inorganic, and Organic Chemistry with Lab Intuition",
+  },
+  {
+    id: "biology",
+    name: "Biology",
+    icon: "dna",
+    tutorCount: 19,
+    description: "Botany, Zoology, Human Physiology, Genetics, Ecology",
+  },
+  {
+    id: "english",
+    name: "English",
+    icon: "book-open",
+    tutorCount: 31,
+    description: "Grammar, Literature, Reading Comprehension, Writing Skills",
   },
   {
     id: "computer-science",
     name: "Computer Science",
-    icon: "</>",
-    tutorCount: 18,
-    description: "Learn programming, logic and modern computing skills.",
+    icon: "code",
+    tutorCount: 16,
+    description: "Python, Java, Data Structures, Web Fundamentals, CBSE CS",
   },
 ];
 
 export const tuitionPackages: TuitionPackage[] = [
   {
     id: "package-8",
-    title: "Starter Plan",
+    title: "Starter Plan (8 Classes)",
     numberOfClasses: 8,
     price: 3200,
-    validityDays: 30,
+    validityDays: 45,
+    description: "Ideal for concept reinforcement, targeted doubt clearing, and bridging specific subject gaps.",
     classDurationMinutes: 60,
-    description: "Suitable for students who need weekly academic support.",
   },
   {
     id: "package-12",
-    title: "Regular Plan",
+    title: "Regular Plan (12 Classes)",
     numberOfClasses: 12,
     price: 4500,
-    validityDays: 40,
+    validityDays: 45,
+    description: "Recommended for continuous syllabus coverage, exam preparation, and building problem-solving velocity.",
     classDurationMinutes: 60,
-    description: "Regular learning support with three classes per week.",
   },
   {
     id: "package-15",
-    title: "Intensive Plan",
+    title: "Intensive Plan (15 Classes)",
     numberOfClasses: 15,
     price: 5400,
     validityDays: 45,
+    description: "Comprehensive coverage for dual-subject learners and accelerated exam preparation.",
     classDurationMinutes: 60,
-    description: "Intensive monthly learning for stronger improvement.",
   },
 ];
 
-export const demoBooking: DemoBooking = {
+export const sampleDemoBooking: DemoBooking = {
   id: "demo-aarav-ananya",
-  studentId: student.id,
-  tutorId: featuredTutor.id,
-  subjects: ["Mathematics", "Science"],
-
-  date: "4 August 2026",
-  startTime: "4:00 PM",
-  endTime: "4:30 PM",
-  timezone: "India Standard Time",
-
-  durationMinutes: 30,
-  mode: "online",
+  studentId: "student-aarav-reddy",
+  tutorId: "ananya-sharma",
+  scheduledAt: "2026-10-05T16:30:00+05:30",
   status: "confirmed",
+  mode: "online",
 };
-
-export const demoTimeSlots = [
-  "10:00 AM",
-  "11:30 AM",
-  "4:00 PM",
-  "5:30 PM",
-  "7:00 PM",
-];
-
-export const platformBenefits = [
-  {
-    title: "Verified tutor profiles",
-    description:
-      "Review tutor identity, qualifications, subjects and experience before booking.",
-  },
-  {
-    title: "Free online demo",
-    description:
-      "Understand the tutor's teaching style through a 30-minute online demo.",
-  },
-  {
-    title: "Online and home tuition",
-    description:
-      "Choose online classes or nearby home tuition depending on availability.",
-  },
-  {
-    title: "Progress in one place",
-    description:
-      "Track classes, homework, notes, quizzes and tutor feedback.",
-  },
-];

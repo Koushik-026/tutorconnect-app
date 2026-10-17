@@ -1,9 +1,10 @@
 export type TeachingMode = "online" | "home";
 
 export type VerificationType =
+  | "Qualification reviewed"
+  | "Teaching profile reviewed"
   | "Identity verified"
-  | "Qualification verified"
-  | "Teaching profile reviewed";
+  | "Qualification verified";
 
 export interface Tutor {
   id: string;
@@ -18,8 +19,9 @@ export interface Tutor {
   languages: string[];
 
   experienceYears: number;
-  rating: number;
+  rating?: number | null;
   reviewCount: number;
+  isDemoProfile?: boolean;
 
   modes: TeachingMode[];
 
@@ -27,7 +29,9 @@ export interface Tutor {
   city: string;
   travelRadiusKm: number;
 
-  startingMonthlyFee: number;
+  startingPackagePrice: number;
+  /** @deprecated Use startingPackagePrice */
+  startingMonthlyFee?: number;
 
   verification: VerificationType[];
 
@@ -60,28 +64,15 @@ export interface TuitionPackage {
   numberOfClasses: number;
   price: number;
   validityDays: number;
-  classDurationMinutes: number;
   description: string;
+  classDurationMinutes: number;
 }
 
 export interface DemoBooking {
   id: string;
   studentId: string;
   tutorId: string;
-  subjects: string[];
-
-  date: string;
-  startTime: string;
-  endTime: string;
-  timezone: string;
-
-  durationMinutes: number;
-  mode: "online";
-
-  status:
-    | "requested"
-    | "confirmed"
-    | "completed"
-    | "cancelled"
-    | "no-show";
+  scheduledAt: string;
+  status: "pending" | "confirmed" | "completed" | "cancelled";
+  mode: TeachingMode;
 }

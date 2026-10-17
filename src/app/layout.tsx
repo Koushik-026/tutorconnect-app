@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | TutorConnect",
   },
   description:
-    "Find verified online and home tutors, attend a free online demo, and manage classes, notes, quizzes and progress in one place.",
+    "Find verified online and home tutors, attend a free online demo, and manage classes, study notes, and learning progress in one place.",
   applicationName: "TutorConnect",
   keywords: [
     "TutorConnect",
