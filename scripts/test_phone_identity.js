@@ -239,17 +239,41 @@ async function runTestSuite() {
 
   console.log("--- TIER 3: [DEPLOYMENT READINESS & LIVE REGRESSION] ---\n");
 
-  // TEST 13: Honest Deployment Readiness & Live Regression Checks
-  console.log("Running [DEPLOYMENT READINESS & LIVE REGRESSION] Test 13...");
+  // TEST 13: Deployment-Aware Phone Identity & Live Regression Checks
+  console.log("Running Test 13: Deployment-aware phone identity & live regression checks...");
   const supabase = createClient(
     "https://veiwcumnykvgtszdkpix.supabase.co",
     "sb_publishable_83o1t8Qt7AIwabmJfWI0AA_G7eJDl29"
   );
 
-  // 13a: Deployment readiness verification: Confirm table is not yet deployed remotely
-  const { error: liveTableErr, status: liveTableStatus } = await supabase.from("verified_phone_identities").select("*");
-  assert(liveTableStatus === 404 || liveTableErr, "verified_phone_identities is not yet deployed to remote Supabase (expected 404/PGRST205)");
-  console.log("   [DEPLOYMENT READINESS] Remote verified_phone_identities status: HTTP " + liveTableStatus + " (not yet deployed, as specified).");
+  // 13a: Check table state (UNDEPLOYED vs DEPLOYED)
+  const { data: liveTableData, error: liveTableErr, status: liveTableStatus } = await supabase
+    .from("verified_phone_identities")
+    .select("*");
+
+  const isUndeployed = liveTableStatus === 404 || (liveTableErr && (liveTableErr.code === "PGRST205" || liveTableErr.message?.includes("relation \"public.verified_phone_identities\" does not exist")));
+
+  if (isUndeployed) {
+    console.log("   [DEPLOYMENT READINESS] Remote verified_phone_identities status: HTTP " + liveTableStatus + " (not yet deployed, as specified).");
+  } else {
+    // DEPLOYED STATE: Verify LIVE PHONE RLS
+    assert.strictEqual(liveTableStatus, 200, "Remote verified_phone_identities should return HTTP 200 when deployed");
+    assert(Array.isArray(liveTableData) && liveTableData.length === 0, "Anonymous SELECT must return 0 rows on verified_phone_identities");
+
+    // Verify anonymous direct INSERT is rejected by RLS with synthetic test data
+    const syntheticId = "00000000-0000-0000-0000-000000000001";
+    const { error: insertErr, status: insertStatus } = await supabase.from("verified_phone_identities").insert({
+      id: syntheticId,
+      user_id: syntheticId,
+      phone_fingerprint: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      fingerprint_version: 1,
+      phone_last4: "9999",
+      provider: "synthetic-test",
+    });
+    assert(insertErr, "Anonymous direct INSERT must be rejected by RLS");
+    console.log("   [LIVE PHONE RLS] Anonymous direct INSERT rejected: " + (insertErr.code || insertErr.message || insertStatus));
+    console.log("   [LIVE PHONE RLS] Remote verified_phone_identities exists with fail-closed RLS (0 rows exposed to anon).");
+  }
 
   // 13b: Live regression verification: Confirm existing live tables maintain active anonymous isolation
   const { data: anonBookings } = await supabase.from("demo_bookings").select("*");
@@ -261,7 +285,11 @@ async function runTestSuite() {
   const { data: anonPurchases } = await supabase.from("package_purchases").select("*");
   assert(Array.isArray(anonPurchases) && anonPurchases.length === 0, "Anonymous must not read package purchases");
 
-  console.log("✓ [DEPLOYMENT READINESS & LIVE REGRESSION] Test 13 PASS: Undeployed table verified honestly; live anonymous isolation maintained on existing tables.\n");
+  if (isUndeployed) {
+    console.log("✓ [DEPLOYMENT READINESS] Test 13 PASS: Undeployed table verified honestly; live anonymous isolation maintained on existing tables.\n");
+  } else {
+    console.log("✓ [LIVE PHONE RLS] Test 13 PASS: Table deployed securely; anonymous SELECT exposes zero rows, direct INSERT rejected by RLS; live anonymous isolation maintained on existing tables.\n");
+  }
 
   console.log("===============================================================================");
   console.log("       ALL PHASE 2 FINAL FOUNDATION TESTS PASSED (13/13 SUITES)                ");
