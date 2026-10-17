@@ -214,3 +214,16 @@ export interface ClassLedgerEntryRow {
   notes?: string | null;
   created_at: string;
 }
+
+export interface VerifiedPhoneIdentityRow {
+  id: string;
+  user_id: string;
+  phone_fingerprint: string;
+  fingerprint_version: number;
+  phone_last4: string;
+  verified_at: string;
+  provider: string;
+  provider_reference?: string | null;
+  created_at: string;
+  updated_at: string;
+}
