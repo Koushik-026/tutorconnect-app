@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -8,6 +8,10 @@ import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { DemoBookingRow } from "@/lib/types/database";
 import {
+  evaluateDemoJoinWindow,
+  type DemoJoinWindowEvaluation,
+} from "@/lib/utils/timing";
+import {
   IconVideo,
   IconVideoOff,
   IconMic,
@@ -16,6 +20,7 @@ import {
   IconArrowRight,
   IconClock,
   IconArrowLeft,
+  IconLock,
 } from "@/components/ui/icons";
 
 function WaitingRoomInner() {
@@ -24,7 +29,7 @@ function WaitingRoomInner() {
 
   const [booking, setBooking] = useState<DemoBookingRow | null>(null);
   const [studentName, setStudentName] = useState<string>("Student");
-  const [minutesUntilStart, setMinutesUntilStart] = useState<number | null>(null);
+  const [joinEvaluation, setJoinEvaluation] = useState<DemoJoinWindowEvaluation | null>(null);
 
   const [microphoneOn, setMicrophoneOn] = useState(true);
   const [cameraOn, setCameraOn] = useState(true);
@@ -43,11 +48,8 @@ function WaitingRoomInner() {
           const row = data as DemoBookingRow;
           setBooking(row);
 
-          // Calculate time until start
-          const startMs = new Date(row.scheduled_start_at).getTime();
-          const diffMs = startMs - Date.now();
-          const mins = Math.max(0, Math.round(diffMs / 60000));
-          setMinutesUntilStart(mins);
+          const evaluation = evaluateDemoJoinWindow(row.scheduled_start_at, row.scheduled_end_at);
+          setJoinEvaluation(evaluation);
 
           // Fetch student name
           supabase
@@ -64,8 +66,32 @@ function WaitingRoomInner() {
       });
   }, [bookingId]);
 
+  // Periodic refresh to update countdown & enable button as window approaches
+  useEffect(() => {
+    if (!booking) return;
+    const interval = setInterval(() => {
+      const evaluation = evaluateDemoJoinWindow(booking.scheduled_start_at, booking.scheduled_end_at);
+      setJoinEvaluation(evaluation);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [booking]);
+
   const tutorName = booking?.tutor_name || "Assigned Educator";
   const subjectName = booking?.subject || "Subject Diagnostic";
+
+  // Countdown text derivation
+  let timingLabel = "Demo Room Check";
+  if (joinEvaluation) {
+    if (joinEvaluation.canJoin) {
+      timingLabel = "Demo Room Open - Ready to Enter";
+    } else if (joinEvaluation.reason === "too_early") {
+      timingLabel = "Demo starts in " + joinEvaluation.minutesUntilStart + "m (Room opens 10m before)";
+    } else if (joinEvaluation.reason === "expired") {
+      timingLabel = "Scheduled demo time has concluded";
+    } else if (joinEvaluation.reason === "invalid_timing") {
+      timingLabel = "Demo schedule details unavailable";
+    }
+  }
 
   return (
     <div className="container-shell max-w-4xl mx-auto w-full py-8">
@@ -77,13 +103,7 @@ function WaitingRoomInner() {
       <div className="text-center max-w-xl mx-auto mb-8">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3EADD] px-3.5 py-1 text-xs font-bold text-[#244A40] mb-3">
           <IconClock size={13} />
-          <span>
-            {minutesUntilStart !== null
-              ? minutesUntilStart > 0
-                ? "Demo starts in approximately " + minutesUntilStart + " minutes"
-                : "Scheduled start time reached"
-              : "Demo Room Check"}
-          </span>
+          <span>{timingLabel}</span>
         </span>
         <h1 className="font-[family-name:var(--font-manrope)] text-2xl sm:text-3xl font-extrabold text-[#25231F]">
           Online Demo Waiting Room
@@ -184,13 +204,66 @@ function WaitingRoomInner() {
               </div>
             </div>
 
-            <Link
-              href={bookingId ? "/demo/session?booking_id=" + bookingId : "/demo/session"}
-              className="btn btn-primary w-full min-h-[50px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2 mt-2"
-            >
-              <span>Enter Demo Room</span>
-              <IconArrowRight size={16} />
-            </Link>
+            {/* Canonical Join Window Action */}
+            {joinEvaluation?.canJoin ? (
+              <Link
+                href={bookingId ? "/demo/session?booking_id=" + bookingId : "/demo/session"}
+                className="btn btn-primary w-full min-h-[50px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2 mt-2"
+              >
+                <span>Enter Demo Room</span>
+                <IconArrowRight size={16} />
+              </Link>
+            ) : joinEvaluation?.reason === "expired" ? (
+              <div className="space-y-2 mt-2">
+                <button
+                  type="button"
+                  disabled
+                  className="btn btn-primary w-full min-h-[50px] rounded-full text-sm font-bold opacity-60 cursor-not-allowed justify-center gap-2"
+                >
+                  <span>Demo Room Closed (Expired)</span>
+                </button>
+                <Link
+                  href={bookingId ? "/demo/confirmation?booking_id=" + bookingId : "/demo/confirmation"}
+                  className="block text-center text-xs font-bold text-[#315F52] hover:underline"
+                >
+                  View Demo Details &rarr;
+                </Link>
+              </div>
+            ) : joinEvaluation?.reason === "invalid_timing" ? (
+              <div className="space-y-2 mt-2">
+                <button
+                  type="button"
+                  disabled
+                  className="btn btn-primary w-full min-h-[50px] rounded-full text-sm font-bold opacity-60 cursor-not-allowed justify-center gap-2"
+                >
+                  <IconLock size={15} />
+                  <span>Scheduling Verification Issue</span>
+                </button>
+                <p className="text-[11px] text-center text-[#9B958C]">
+                  Unable to verify demo schedule. Please check demo confirmation or contact support.
+                </p>
+                <Link
+                  href={bookingId ? "/demo/confirmation?booking_id=" + bookingId : "/demo/confirmation"}
+                  className="block text-center text-xs font-bold text-[#315F52] hover:underline"
+                >
+                  View Demo Details &rarr;
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-1.5 mt-2">
+                <button
+                  type="button"
+                  disabled
+                  className="btn btn-primary w-full min-h-[50px] rounded-full text-sm font-bold opacity-60 cursor-not-allowed justify-center gap-2"
+                >
+                  <IconLock size={15} />
+                  <span>Enter Demo Room</span>
+                </button>
+                <p className="text-[11px] text-center text-[#9B958C]">
+                  Room opens exactly 10 minutes before start time
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="rounded-2xl border border-[rgba(55,48,40,0.08)] bg-[#FFF7ED] p-4 text-xs text-[#6F6A62]">
@@ -215,7 +288,7 @@ export default function DemoWaitingRoomPage() {
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
-            href="/dashboard/student"
+            href="/tutors"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition-colors min-h-[44px]"
           >
             <IconArrowLeft size={14} />

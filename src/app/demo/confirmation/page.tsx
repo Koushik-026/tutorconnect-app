@@ -183,10 +183,10 @@ function DemoConfirmationInner() {
           </Link>
 
           <Link
-            href="/dashboard/student"
+            href="/tutors"
             className="btn btn-outline min-h-[48px] rounded-full text-xs font-bold justify-center border-[rgba(55,48,40,0.15)] hover:border-[#25231F]"
           >
-            <span>Go to Student Dashboard</span>
+            <span>Explore Other Educators</span>
           </Link>
         </div>
       </div>
@@ -201,10 +201,10 @@ export default function DemoConfirmationPage() {
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
-            href="/dashboard/student"
+            href="/tutors"
             className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition-colors min-h-[44px] flex items-center"
           >
-            Student Workspace &rarr;
+            Find More Tutors &rarr;
           </Link>
         </div>
       </header>

@@ -14,9 +14,9 @@ type ChosenRole = "parent" | "student" | "tutor";
 function OnboardingInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextParam = searchParams.get("next") || "/dashboard/student";
-
   const intentParam = searchParams.get("intent") || searchParams.get("role");
+  const defaultFallback = intentParam === "tutor" ? "/dashboard/tutor/pending" : "/tutors";
+  const nextParam = searchParams.get("next") || defaultFallback;
   const initialRole: ChosenRole =
     intentParam === "tutor" ? "tutor" : intentParam === "student" ? "student" : "parent";
   const [selectedRole, setSelectedRole] = useState<ChosenRole>(initialRole);
@@ -31,7 +31,7 @@ function OnboardingInner() {
     setIsSubmitting(true);
     setErrorMsg("");
 
-    const safeNext = sanitizeInternalRedirect(nextParam, "/dashboard/student");
+    const safeNext = sanitizeInternalRedirect(nextParam, defaultFallback);
 
     if (!isSupabaseConfigured()) {
       // In preview mode without Supabase connection, route cleanly to destination

@@ -6,8 +6,6 @@ import { FormEvent, Suspense, useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
 import {
   IconArrowRight,
-  IconShieldCheck,
-  IconVideo,
   IconCheck,
 } from "@/components/ui/icons";
 import { createClient } from "@/lib/supabase/client";
@@ -15,6 +13,9 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { sanitizeInternalRedirect } from "@/lib/utils/redirect";
 
 type RoleIntent = "student" | "tutor";
+
+// Feature flag: Google is primary authentication for demo. Email/magic-link UI is hidden from normal flow.
+const SHOW_EMAIL_AUTH = false;
 
 function GoogleIcon() {
   return (
@@ -42,8 +43,13 @@ function GoogleIcon() {
 function AuthInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialRole = searchParams.get("role") === "tutor" ? "tutor" : "student";
-  const nextParam = searchParams.get("next") || "/dashboard/student";
+  const initialRole =
+    searchParams.get("role") === "tutor" || searchParams.get("intent") === "tutor"
+      ? "tutor"
+      : "student";
+  const defaultNextForRole =
+    initialRole === "tutor" ? "/dashboard/tutor/pending" : "/tutors";
+  const nextParam = searchParams.get("next") || defaultNextForRole;
   const intentParam = searchParams.get("intent") || searchParams.get("role");
   const errorParam = searchParams.get("error");
 
@@ -54,7 +60,7 @@ function AuthInner() {
     errorParam ? "Authentication attempt could not be completed. Please try again." : ""
   );
 
-  // OTP Fallback State
+  // OTP Fallback State (preserved for email flows)
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState("");
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
@@ -77,7 +83,7 @@ function AuthInner() {
     if (!isConfigured) {
       setStatus("error");
       setErrorMessage(
-        "Supabase credentials are not yet configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in .env.local to activate live Google authentication."
+        "Supabase credentials are not configured. Please check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
       );
       return;
     }
@@ -86,7 +92,8 @@ function AuthInner() {
       setStatus("loading");
       setErrorMessage("");
       const supabase = createClient();
-      const safeNext = sanitizeInternalRedirect(nextParam, "/dashboard/student");
+      const defaultNext = role === "tutor" ? "/dashboard/tutor/pending" : "/tutors";
+      const safeNext = sanitizeInternalRedirect(nextParam, defaultNext);
       const origin = window.location.origin;
       const redirectTo = origin + "/auth/callback?next=" + encodeURIComponent(safeNext) + "&intent=" + role;
 
@@ -113,7 +120,7 @@ function AuthInner() {
     if (!isConfigured) {
       setStatus("error");
       setErrorMessage(
-        "Supabase authentication runtime is not yet configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in .env.local to activate live magic link sign-in."
+        "Supabase authentication runtime is not configured."
       );
       return;
     }
@@ -267,13 +274,13 @@ function AuthInner() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FFFBF5] text-[#25231F]">
-      <header className="border-b border-[rgba(55,48,40,0.08)] bg-white/80 py-4 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[#FCFDFE] text-[#18211E]">
+      <header className="border-b border-[rgba(24,33,30,0.08)] bg-white/88 py-4 backdrop-blur-md">
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
             href="/"
-            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
+            className="text-xs font-bold text-[#66716D] hover:text-[#18211E] transition"
           >
             &larr; Back to Home
           </Link>
@@ -283,46 +290,45 @@ function AuthInner() {
       <main className="flex-1 py-12 md:py-20 flex items-center">
         <div className="container-shell max-w-4xl">
           <div className="grid gap-12 lg:grid-cols-12 items-center">
-            {/* Left Column: Context & Trust */}
+            {/* Left Column: Context & Simple Factual Messaging */}
             <div className="lg:col-span-5 space-y-6">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#315F52]/20 bg-[#E4EEE9] px-3.5 py-1 text-xs font-bold text-[#244A40]">
-                <IconShieldCheck size={14} className="text-[#315F52]" />
-                <span>Verified Educational Access</span>
-              </span>
-
-              <h1 className="font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#25231F]">
-                {role === "student"
-                  ? "Welcome to your student learning space."
-                  : "Educator portal & application hub."}
-              </h1>
-
-              <p className="text-sm leading-relaxed text-[#6F6A62]">
-                {role === "student"
-                  ? "Sign in to manage your tuition routine, access lesson notes shared by your tutor, and attend 1-on-1 classes."
-                  : "Sign in to manage your teaching calendar, demo inquiries, and student routines in Hyderabad."}
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#236B5B]">
+                {role === "student" ? "Student & Parent" : "Tutor Portal"}
               </p>
 
-              <div className="space-y-3 pt-2 text-xs font-medium text-[#6F6A62]">
+              <h1 className="font-[family-name:var(--font-manrope)] text-3xl sm:text-4xl font-extrabold tracking-tight text-[#18211E] leading-[1.15]">
+                {role === "student"
+                  ? "Manage your tutoring journey in one place."
+                  : "Join TutorConnect as a tutor."}
+              </h1>
+
+              <p className="text-sm leading-relaxed text-[#66716D]">
+                {role === "student"
+                  ? "Sign in to explore tutors, book demos, and manage your learning schedule."
+                  : "Sign in to continue your tutor profile and application."}
+              </p>
+
+              <div className="space-y-3 pt-2 text-xs font-medium text-[#66716D]">
                 <div className="flex items-center gap-2">
-                  <IconCheck size={14} className="text-[#315F52]" />
-                  <span>Passwordless, secure authentication via Google or Magic Link</span>
+                  <IconCheck size={14} className="text-[#236B5B]" />
+                  <span>Quick, secure sign-in with your Google account</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <IconShieldCheck size={14} className="text-[#315F52]" />
-                  <span>Minor-safe authorization with parent-controlled student profiles</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconVideo size={14} className="text-[#315F52]" />
-                  <span>Direct connection to your scheduled learning sessions</span>
+                  <IconCheck size={14} className="text-[#236B5B]" />
+                  <span>
+                    {role === "student"
+                      ? "Book 30-minute demos and manage your lesson calendar"
+                      : "Manage your teaching profile, demo availability, and hourly rates"}
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Right Column: Focused Auth Card */}
             <div className="lg:col-span-7">
-              <div className="rounded-3xl border border-[rgba(55,48,40,0.12)] bg-white p-7 sm:p-9 shadow-[0_12px_40px_rgba(55,48,40,0.04)]">
+              <div className="rounded-3xl border border-[rgba(24,33,30,0.08)] bg-white p-7 sm:p-9 shadow-[0_8px_32px_rgba(24,33,30,0.04)]">
                 {/* Role Intent Switcher */}
-                <div className="flex rounded-full bg-[#FFFBF5] p-1 border border-[rgba(55,48,40,0.10)] mb-6">
+                <div className="flex rounded-full bg-[#F4F8FB] p-1 border border-[rgba(24,33,30,0.08)] mb-6">
                   <button
                     type="button"
                     onClick={() => {
@@ -332,10 +338,10 @@ function AuthInner() {
                       setOtpError("");
                     }}
                     className={
-                      "flex-1 rounded-full py-2 text-xs font-bold transition-all text-center " +
+                      "flex-1 rounded-full py-2.5 text-xs font-bold transition-all text-center " +
                       (role === "student"
-                        ? "bg-[#315F52] text-white shadow-xs"
-                        : "text-[#6F6A62] hover:text-[#25231F]")
+                        ? "bg-[#236B5B] text-white shadow-xs"
+                        : "text-[#66716D] hover:text-[#18211E]")
                     }
                   >
                     Student / Parent
@@ -349,10 +355,10 @@ function AuthInner() {
                       setOtpError("");
                     }}
                     className={
-                      "flex-1 rounded-full py-2 text-xs font-bold transition-all text-center " +
+                      "flex-1 rounded-full py-2.5 text-xs font-bold transition-all text-center " +
                       (role === "tutor"
-                        ? "bg-[#315F52] text-white shadow-xs"
-                        : "text-[#6F6A62] hover:text-[#25231F]")
+                        ? "bg-[#236B5B] text-white shadow-xs"
+                        : "text-[#66716D] hover:text-[#18211E]")
                     }
                   >
                     Educator / Tutor
@@ -360,13 +366,13 @@ function AuthInner() {
                 </div>
 
                 <div className="mb-6">
-                  <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#25231F]">
-                    {role === "student" ? "Sign in to Student Space" : "Educator Portal Access"}
+                  <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold text-[#18211E]">
+                    {role === "student" ? "Sign in as Student or Parent" : "Sign in as Tutor"}
                   </h2>
-                  <p className="mt-1 text-xs text-[#6F6A62]">
+                  <p className="mt-1 text-xs text-[#66716D]">
                     {role === "student"
-                      ? "Track your tuition routine, upcoming classes, and digital lesson notes."
-                      : "Manage your student inquiries, demo slots, and teaching schedule."}
+                      ? "Explore tutors, book demo sessions, and manage your tuition schedule."
+                      : "Access your teaching profile, availability, and inquiries."}
                   </p>
                 </div>
 
@@ -374,30 +380,30 @@ function AuthInner() {
                 {errorMessage && (
                   <div
                     role="alert"
-                    className="mb-5 rounded-2xl border border-[#C84B31]/25 bg-[#FCEEEA] p-4 text-xs font-medium text-[#A6361E]"
+                    className="mb-5 rounded-2xl border border-[#C84B31]/25 bg-[#FCEEEA] p-4 text-xs font-medium text-[#C84B31]"
                   >
                     {errorMessage}
                   </div>
                 )}
 
-                {/* State: Email Sent with OTP Fallback */}
+                {/* State: Email Sent with OTP Fallback (retained internally for email flows) */}
                 {status === "email_sent" ? (
                   <div className="space-y-6">
-                    <div className="rounded-2xl border border-[#315F52]/20 bg-[#E4EEE9]/50 p-6 text-center space-y-3">
-                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#315F52] text-white">
+                    <div className="rounded-2xl border border-[#236B5B]/20 bg-[#E2F5EC]/50 p-6 text-center space-y-3">
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#236B5B] text-white">
                         <IconCheck size={20} />
                       </div>
-                      <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-[#25231F]">
+                      <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-[#18211E]">
                         Check your email
                       </h3>
-                      <p className="text-xs text-[#6F6A62] leading-relaxed max-w-sm mx-auto">
-                        We sent a secure magic link and 6-digit verification code to <strong className="text-[#25231F]">{email}</strong>. Click the link in your email to sign in immediately.
+                      <p className="text-xs text-[#66716D] leading-relaxed max-w-sm mx-auto">
+                        We sent a secure magic link and 6-digit verification code to <strong className="text-[#18211E]">{email}</strong>. Click the link in your email to sign in immediately.
                       </p>
                     </div>
 
-                    <div className="rounded-2xl border border-[rgba(55,48,40,0.10)] bg-white p-5 sm:p-6 space-y-4">
+                    <div className="rounded-2xl border border-[rgba(24,33,30,0.08)] bg-white p-5 sm:p-6 space-y-4">
                       <div className="text-center space-y-1">
-                        <p className="text-xs font-semibold text-[#25231F]">
+                        <p className="text-xs font-semibold text-[#18211E]">
                           Link not working? Enter the 6-digit code from the email.
                         </p>
                       </div>
@@ -407,7 +413,7 @@ function AuthInner() {
                         <div>
                           <label
                             htmlFor="auth-otp"
-                            className="text-xs font-bold text-[#6F6A62] block mb-2 text-center"
+                            className="text-xs font-bold text-[#66716D] block mb-2 text-center"
                           >
                             6-Digit Verification Code
                           </label>
@@ -427,14 +433,14 @@ function AuthInner() {
                               setOtpError("");
                             }}
                             placeholder="------"
-                            className="w-full max-w-xs mx-auto block rounded-2xl border border-[rgba(55,48,40,0.15)] bg-[#FFF7ED] px-4 py-3 text-center text-xl sm:text-2xl font-mono font-bold tracking-[0.35em] text-[#25231F] placeholder:text-[#9B958C] focus:border-[#315F52] focus:outline-hidden focus:ring-2 focus:ring-[#315F52]/15 transition min-h-[48px]"
+                            className="w-full max-w-xs mx-auto block rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-center text-xl sm:text-2xl font-mono font-bold tracking-[0.35em] text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition min-h-[48px]"
                           />
                         </div>
 
                         {otpError && (
                           <div
                             role="alert"
-                            className="rounded-xl border border-[#C84B31]/25 bg-[#FCEEEA] p-3 text-xs font-medium text-[#A6361E] text-center"
+                            className="rounded-xl border border-[#C84B31]/25 bg-[#FCEEEA] p-3 text-xs font-medium text-[#C84B31] text-center"
                           >
                             {otpError}
                           </div>
@@ -443,7 +449,7 @@ function AuthInner() {
                         {resendNotice && (
                           <div
                             role="status"
-                            className="rounded-xl border border-[#315F52]/20 bg-[#E4EEE9] p-3 text-xs font-medium text-[#244A40] text-center"
+                            className="rounded-xl border border-[#236B5B]/20 bg-[#E2F5EC] p-3 text-xs font-medium text-[#1A5247] text-center"
                           >
                             {resendNotice}
                           </div>
@@ -452,7 +458,7 @@ function AuthInner() {
                         <button
                           type="submit"
                           disabled={isVerifyingOtp || otp.length !== 6}
-                          className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2 disabled:opacity-50 transition"
+                          className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(35,107,91,0.22)] justify-center gap-2 disabled:opacity-50 transition"
                         >
                           <span>{isVerifyingOtp ? "Verifying code..." : "Verify code"}</span>
                           <IconArrowRight size={15} />
@@ -460,12 +466,12 @@ function AuthInner() {
                       </form>
 
                       {/* Manual Resend & Different Email options */}
-                      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs border-t border-[rgba(55,48,40,0.06)] pt-4">
+                      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs border-t border-[rgba(24,33,30,0.06)] pt-4">
                         <button
                           type="button"
                           disabled={isResending || resendCooldown > 0}
                           onClick={handleResendOtp}
-                          className="font-bold text-[#315F52] hover:underline disabled:opacity-50 disabled:no-underline min-h-[44px] inline-flex items-center"
+                          className="font-bold text-[#236B5B] hover:underline disabled:opacity-50 disabled:no-underline min-h-[44px] inline-flex items-center"
                         >
                           {resendCooldown > 0
                             ? ("Resend code in " + resendCooldown + "s")
@@ -483,7 +489,7 @@ function AuthInner() {
                             setResendNotice("");
                             setErrorMessage("");
                           }}
-                          className="font-semibold text-[#6F6A62] hover:text-[#25231F] min-h-[44px] inline-flex items-center"
+                          className="font-semibold text-[#66716D] hover:text-[#18211E] min-h-[44px] inline-flex items-center"
                         >
                           Use a different email
                         </button>
@@ -492,58 +498,60 @@ function AuthInner() {
                   </div>
                 ) : (
                   <>
-                    {/* Google OAuth Button */}
+                    {/* Primary: Google OAuth Button */}
                     <button
                       type="button"
                       disabled={status === "loading"}
                       onClick={handleGoogleSignIn}
-                      className="btn btn-outline w-full min-h-[48px] rounded-full text-xs font-bold gap-2.5 justify-center mb-5 hover:border-[#315F52]/40 transition disabled:opacity-50"
+                      className="btn btn-outline w-full min-h-[50px] rounded-full text-sm font-bold gap-3 justify-center border border-[rgba(24,33,30,0.12)] bg-white text-[#18211E] hover:border-[#236B5B]/40 hover:bg-[#F4F8FB] transition disabled:opacity-50 shadow-xs"
                     >
                       <GoogleIcon />
-                      <span>Continue with Google</span>
+                      <span>{status === "loading" ? "Connecting to Google..." : "Continue with Google"}</span>
                     </button>
 
-                    <div className="relative mb-5 text-center">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-[rgba(55,48,40,0.10)]" />
+                    <p className="mt-4 text-center text-xs text-[#9BAAA5]">
+                      Secure, fast sign-in using your Google account.
+                    </p>
+
+                    {/* Email / Magic Link UI (hidden for demo, underlying implementation preserved) */}
+                    {SHOW_EMAIL_AUTH && (
+                      <div className="mt-6 pt-6 border-t border-[rgba(24,33,30,0.08)]">
+                        <div className="relative mb-5 text-center">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-[rgba(24,33,30,0.08)]" />
+                          </div>
+                          <span className="relative bg-white px-3 text-[11px] font-semibold text-[#9BAAA5]">
+                            or with email magic link
+                          </span>
+                        </div>
+
+                        <form onSubmit={handleMagicLinkSubmit} className="space-y-4">
+                          <div>
+                            <label htmlFor="auth-email" className="text-xs font-bold text-[#66716D] block mb-1">
+                              Email Address
+                            </label>
+                            <input
+                              id="auth-email"
+                              type="email"
+                              required
+                              disabled={status === "loading"}
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              placeholder="name@example.com"
+                              className="w-full rounded-2xl border border-[rgba(24,33,30,0.12)] bg-[#F4F8FB] px-4 py-3 text-sm font-semibold text-[#18211E] placeholder:text-[#9BAAA5] focus:border-[#236B5B] focus:outline-hidden focus:ring-2 focus:ring-[#236B5B]/15 transition"
+                            />
+                          </div>
+
+                          <button
+                            type="submit"
+                            disabled={status === "loading"}
+                            className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(35,107,91,0.22)] justify-center gap-2 mt-2 disabled:opacity-50"
+                          >
+                            <span>{status === "loading" ? "Sending Link..." : "Send Magic Link"}</span>
+                            <IconArrowRight size={15} />
+                          </button>
+                        </form>
                       </div>
-                      <span className="relative bg-white px-3 text-[11px] font-semibold text-[#9B958C]">
-                        or with email magic link
-                      </span>
-                    </div>
-
-                    {/* Email Magic Link Form */}
-                    <form onSubmit={handleMagicLinkSubmit} className="space-y-4">
-                      <div>
-                        <label htmlFor="auth-email" className="text-xs font-bold text-[#6F6A62] block mb-1">
-                          Email Address
-                        </label>
-                        <input
-                          id="auth-email"
-                          type="email"
-                          required
-                          disabled={status === "loading"}
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="name@example.com"
-                          className="w-full rounded-2xl border border-[rgba(55,48,40,0.12)] bg-[#FFF7ED] px-4 py-3 text-sm font-semibold text-[#25231F] placeholder:text-[#9B958C] focus:border-[#315F52] focus:outline-hidden focus:ring-2 focus:ring-[#315F52]/15 transition"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={status === "loading"}
-                        className="btn btn-primary w-full min-h-[48px] rounded-full text-sm font-bold shadow-[0_4px_16px_rgba(49,95,82,0.22)] justify-center gap-2 mt-2 disabled:opacity-50"
-                      >
-                        <span>{status === "loading" ? "Sending Link..." : "Send Magic Link"}</span>
-                        <IconArrowRight size={15} />
-                      </button>
-                    </form>
-
-                    {!isSupabaseConfigured && (
-                      <p className="mt-4 text-center text-[11px] text-[#9B958C]">
-                        Supabase credentials can be configured via <code className="bg-[#FFF7ED] px-1 py-0.5 rounded">.env.local</code>.
-                      </p>
                     )}
                   </>
                 )}
@@ -558,7 +566,7 @@ function AuthInner() {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FFFBF5]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FCFDFE]" />}>
       <AuthInner />
     </Suspense>
   );

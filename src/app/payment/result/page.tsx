@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -27,32 +27,45 @@ function formatCurrency(amount: number) {
 function PaymentResultContent() {
   const searchParams = useSearchParams();
   const purchaseId = searchParams.get("purchase_id");
-  const rawStatus = searchParams.get("status");
   const queryTutor = searchParams.get("tutor") || "ananya-sharma";
   const queryClasses = searchParams.get("classes") || "12";
   const queryAmount = Number(searchParams.get("amount")) || 4500;
   const queryTransaction = searchParams.get("transaction") || "TC-DEMO-849201";
 
   const [purchase, setPurchase] = useState<PackagePurchaseRow | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!purchaseId || !isSupabaseConfigured()) return;
 
     const supabase = createClient();
-    supabase
-      .from("package_purchases")
-      .select("*")
-      .eq("id", purchaseId)
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          setPurchase(data as PackagePurchaseRow);
-        }
-      });
+    supabase.auth.getUser().then(({ data: authData }) => {
+      const user = authData?.user;
+      if (!user) return;
+      setCurrentUserId(user.id);
+
+      // Defense-in-depth: Enforce both client query filtering by user_id and Supabase RLS
+      supabase
+        .from("package_purchases")
+        .select("*")
+        .eq("id", purchaseId)
+        .eq("user_id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setPurchase(data as PackagePurchaseRow);
+          }
+        });
+    });
   }, [purchaseId]);
 
-  const isSuccess =
-    purchase?.status === "activated" || rawStatus === "success";
+  // Authoritative: Success strictly requires BOTH verified authenticated user ownership AND database status === "activated"
+  const isSuccess = Boolean(
+    purchase &&
+    currentUserId &&
+    purchase.user_id === currentUserId &&
+    purchase.status === "activated"
+  );
   const status: PaymentStatus = isSuccess ? "success" : "failed";
 
   const tutor =
@@ -69,12 +82,21 @@ function PaymentResultContent() {
           <Link href="/">
             <Logo />
           </Link>
-          <Link
-            href="/dashboard/student"
-            className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
-          >
-            Go to Workspace &rarr;
-          </Link>
+          {status === "success" ? (
+            <Link
+              href="/dashboard/student"
+              className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
+            >
+              Go to Workspace &rarr;
+            </Link>
+          ) : (
+            <Link
+              href="/tutors"
+              className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
+            >
+              Explore Tutors &rarr;
+            </Link>
+          )}
         </div>
       </header>
 
@@ -162,10 +184,10 @@ function PaymentResultContent() {
                   </Link>
 
                   <Link
-                    href="/dashboard/student"
+                    href="/tutors"
                     className="text-xs font-semibold text-[#6F6A62] hover:text-[#25231F] transition"
                   >
-                    Go to Workspace
+                    Explore Other Educators
                   </Link>
                 </div>
               </>

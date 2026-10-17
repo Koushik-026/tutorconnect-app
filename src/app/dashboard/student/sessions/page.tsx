@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
@@ -52,6 +52,7 @@ function NavIcon({ type, size = 18 }: { type: string; size?: number }) {
 export default function MySessionsPage() {
   const [sessions, setSessions] = useState<ClassSessionRow[]>([]);
   const [activeTab, setActiveTab] = useState<"upcoming" | "completed" | "cancelled">("upcoming");
+  const [isHistoricalOnly, setIsHistoricalOnly] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -78,6 +79,20 @@ export default function MySessionsPage() {
         if (!authData?.user || !active) {
           if (active) setIsLoading(false);
           return;
+        }
+
+        // Check active enrollment status
+        const { data: enrollments } = await supabase
+          .from("student_tutor_enrollments")
+          .select("*")
+          .eq("user_id", authData.user.id)
+          .order("created_at", { ascending: false });
+
+        const hasActive = enrollments?.some(
+          (e) => e.status === "active" && e.remaining_classes > 0
+        );
+        if (active && !hasActive && enrollments && enrollments.length > 0) {
+          setIsHistoricalOnly(true);
         }
 
         const { data: sess } = await supabase
@@ -373,8 +388,8 @@ export default function MySessionsPage() {
                         </div>
                       )}
 
-                      {/* Completion Demo Ledger Trigger for scheduled sessions */}
-                      {session.status === "scheduled" && (
+                      {/* Completion Demo Ledger Trigger for scheduled sessions (disabled in historical mode) */}
+                      {session.status === "scheduled" && !isHistoricalOnly && (
                         <button
                           type="button"
                           disabled={isPending}

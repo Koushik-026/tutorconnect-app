@@ -1,7 +1,6 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
 import { createClient } from "@/lib/supabase/client";
@@ -53,8 +52,7 @@ function NavIcon({ type, size = 18 }: { type: string; size?: number }) {
 }
 
 function StudentDashboardContent() {
-  const searchParams = useSearchParams();
-  const urlState = searchParams.get("state");
+  // Authoritative entitlement: verified server-side in StudentDashboardLayout. No URL state simulation.
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [profile, setProfile] = useState<StudentProfile | null>(null);
@@ -141,15 +139,14 @@ function StudentDashboardContent() {
   }, []);
 
   // Determine effective dashboard state:
-  // Prioritize live database enrollment -> live database demo -> URL simulation param
+  // Authoritative entitlement: only live database enrollment activates learning mode
   const hasLiveEnrollment = Boolean(activeEnrollment);
   const hasLiveDemo = Boolean(upcomingDemo);
-  const isSimulatedActive = urlState === "active";
 
-  const isModeActive = hasLiveEnrollment || isSimulatedActive;
+  const isModeActive = hasLiveEnrollment;
 
-  const totalClasses = activeEnrollment?.total_classes || (isSimulatedActive ? 15 : 0);
-  const remainingClasses = activeEnrollment ? activeEnrollment.remaining_classes : isSimulatedActive ? 12 : 0;
+  const totalClasses = activeEnrollment?.total_classes || 0;
+  const remainingClasses = activeEnrollment ? activeEnrollment.remaining_classes : 0;
   const completedClasses = Math.max(0, totalClasses - remainingClasses);
   const progressPercent = totalClasses > 0 ? Math.round((completedClasses / totalClasses) * 100) : 0;
 

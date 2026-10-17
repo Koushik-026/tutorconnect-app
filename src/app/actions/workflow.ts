@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getVerifiedAuth, getAccountRoles } from "@/lib/supabase/auth";
+import { requireActiveEnrollment } from "@/lib/services/entitlement";
 import {
   createLearnerProfile,
   createDemoBooking,
@@ -228,6 +229,15 @@ export async function completeClassSessionAction(sessionId: string, notes?: stri
   const auth = await getVerifiedAuth();
   if (!auth.isAuthenticated || !auth.userId) {
     return { success: false, error: "Authentication required" };
+  }
+
+  // Deep Entitlement Check: Verify user owns session and has active remaining balance
+  const activeEnrollment = await requireActiveEnrollment(auth.userId);
+  if (!activeEnrollment) {
+    return {
+      success: false,
+      error: "Active enrollment with remaining classes required to complete session.",
+    };
   }
 
   const result = await markClassSessionCompleted(sessionId, notes);

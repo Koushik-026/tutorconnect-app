@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -69,10 +69,10 @@ function DemoFeedbackInner() {
         <div className="container-shell flex items-center justify-between">
           <Logo />
           <Link
-            href="/dashboard/student"
+            href={`/packages/select?tutor=${encodeURIComponent(tutorSlug)}`}
             className="text-xs font-bold text-[#6F6A62] hover:text-[#25231F] transition"
           >
-            Skip to Workspace &rarr;
+            View Tuition Packages &rarr;
           </Link>
         </div>
       </header>
